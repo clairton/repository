@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -22,6 +24,7 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.PluralAttribute.CollectionType;
 import javax.persistence.metamodel.SingularAttribute;
+import javax.transaction.Transactional;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -31,6 +34,7 @@ import javax.validation.constraints.Size;
  * 
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  */
+@ApplicationScoped
 public class Repository implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -58,11 +62,18 @@ public class Repository implements Serializable {
 
 	private Predicate[] predicates;
 
+	@Deprecated
+	protected Repository() {
+		this(null);
+	}
+
+	@Inject
 	public Repository(@NotNull final EntityManager em) {
 		super();
 		this.em = em;
 	}
 
+	@Transactional
 	public <T extends Model> T save(@NotNull T entity) {
 		if (!em.contains(entity) && entity.getId() != null) {
 			entity = em.merge(entity);
@@ -73,11 +84,13 @@ public class Repository implements Serializable {
 		return entity;
 	}
 
+	@Transactional
 	public <T extends Model> void remove(@NotNull final T entity) {
 		em.remove(entity);
 		em.flush();
 	}
 
+	@Transactional
 	public <T extends Model> void remove(@NotNull final Class<T> type,
 			@NotNull Object id) {
 		final T entidade = byId(type, id);

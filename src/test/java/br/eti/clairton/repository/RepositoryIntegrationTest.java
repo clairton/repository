@@ -1,37 +1,46 @@
 package br.eti.clairton.repository;
 
-import static javax.persistence.Persistence.createEntityManagerFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(CdiJUnit4Runner.class)
 public class RepositoryIntegrationTest {
-	private Repository repository;
+	private @Inject Repository repository;
+	private @Inject EntityManager entityManager;
 
 	@Before
-	public void init() {
-		EntityManagerFactory emf = createEntityManagerFactory("default");
-		final EntityManager em = emf.createEntityManager();
+	public void init() throws Exception {
+		entityManager.getTransaction().begin();
+		final Connection connection = entityManager.unwrap(Connection.class);
+		final String sql = "DELETE FROM operacoes;DELETE FROM recursos;DELETE FROM aplicacoes;";
+		connection.createStatement().execute(sql);
+		entityManager.getTransaction().commit();
+
 		final Aplicacao aplicacao = new Aplicacao("Teste");
 		final Recurso recurso = new Recurso(aplicacao, "Teste");
 		final Operacao operacao = new Operacao(recurso, "Teste");
-		repository = new Repository(em);
-		em.getTransaction().begin();
-		em.persist(aplicacao);
-		em.persist(recurso);
-		em.persist(operacao);
-		em.flush();
-		em.getTransaction().commit();
-		em.clear();
-		em.getTransaction().begin();
+		repository.save(operacao);
+	}
+
+	@Produces
+	@ApplicationScoped
+	public EntityManager createEntityManager() {
+		return Persistence.createEntityManagerFactory("default")
+				.createEntityManager();
 	}
 
 	@Test
@@ -69,8 +78,8 @@ public class RepositoryIntegrationTest {
 				Operators.LESS_THAN_OR_EQUAL, Operacao_.recurso, Recurso_.id);
 		final Predicate filtro4 = new Predicate("e", Operators.LIKE,
 				Operacao_.recurso, Recurso_.nome);
-		final Predicate filtro5 = new Predicate("OutroTeste", Operators.NOT_EQUAL,
-				Operacao_.nome);
+		final Predicate filtro5 = new Predicate("OutroTeste",
+				Operators.NOT_EQUAL, Operacao_.nome);
 		final Collection<Predicate> filtros = Arrays.asList(filtro, filtro2,
 				filtro3, filtro4, filtro5);
 		assertEquals(Long.valueOf(1),
@@ -86,7 +95,7 @@ public class RepositoryIntegrationTest {
 						.where("Teste", Operacao_.recurso, Recurso_.aplicacao,
 								Aplicacao_.nome)
 						.where(Operators.NOT_NULL, Operacao_.id)
-						.where("Testezinho", Operators.NOT_EQUAL, Operacao_.nome)
-						.count());
+						.where("Testezinho", Operators.NOT_EQUAL,
+								Operacao_.nome).count());
 	}
 }
