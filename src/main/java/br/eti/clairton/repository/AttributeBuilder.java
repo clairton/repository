@@ -3,7 +3,6 @@ package br.eti.clairton.repository;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.metamodel.Attribute;
@@ -73,26 +72,18 @@ public class AttributeBuilder {
 			@NotNull final Class<T> base,
 			@NotNull @Size(min = 1) final String path) {
 		final Metamodel metamodel = entityManager.getMetamodel();
-		final Set<EntityType<?>> entities = metamodel.getEntities();
-		for (final EntityType<?> entityType : entities) {
-			if (base.equals(entityType.getJavaType())) {
-				final String[] fields = path.split("\\.");
-				final Attribute<?, ?> attribute = entityType
-						.getAttribute(fields[0]);
-				attributes.add(attribute);
-				if (fields.length > 1
-						&& (attribute.isAssociation() || attribute
-								.isCollection())) {
-					@SuppressWarnings("unchecked")
-					final Class<T> nextType = (Class<T>) attribute
-							.getJavaType();
-					return with(nextType, path.replace(fields[0] + ".", ""));
-				}
-				final Attribute<?, ?>[] a = toArray();
-				attributes.clear();
-				return a;
-			}
+		final EntityType<?> entityType = metamodel.entity(base);
+		final String[] fields = path.split("\\.");
+		final Attribute<?, ?> attribute = entityType.getAttribute(fields[0]);
+		attributes.add(attribute);
+		if (fields.length > 1
+				&& (attribute.isAssociation() || attribute.isCollection())) {
+			@SuppressWarnings("unchecked")
+			final Class<T> nextType = (Class<T>) attribute.getJavaType();
+			return with(nextType, path.replace(fields[0] + ".", ""));
 		}
-		throw new IllegalStateException("Não foi possível recuperar o tipo");
+		final Attribute<?, ?>[] a = toArray();
+		attributes.clear();
+		return a;
 	}
 }
