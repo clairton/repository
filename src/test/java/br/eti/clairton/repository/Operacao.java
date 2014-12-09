@@ -7,6 +7,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import br.eti.clairton.identificator.Identificator;
+
 /**
  * Representa uma ação.
  * 
@@ -19,11 +21,11 @@ public class Operacao extends br.eti.clairton.repository.Model {
 
 	@NotNull
 	@Size(min = 1, max = 50)
-	@Identificador
+	@Identificator
 	private final String nome;
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@Identificador
+	@Identificator
 	@NotNull
 	private final Recurso recurso;
 

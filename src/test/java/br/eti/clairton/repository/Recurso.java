@@ -12,6 +12,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import br.eti.clairton.identificator.Identificator;
+
 @Entity
 @Table(name = "recursos")
 // TODO recurso aninhados, um recurso pode ter outros recursos dentro dele
@@ -19,18 +21,17 @@ public class Recurso extends br.eti.clairton.repository.Model {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	@Identificador
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "recurso")
 	private final Collection<Operacao> operacoes = new HashSet<>();
 
 	@ManyToOne(cascade = CascadeType.ALL)
 	@NotNull
-	@Identificador
+	@Identificator
 	private final Aplicacao aplicacao;
 
 	@NotNull
 	@Size(min = 1, max = 50)
-	@Identificador
+	@Identificator
 	private final String nome;
 
 	@Deprecated
@@ -63,5 +64,13 @@ public class Recurso extends br.eti.clairton.repository.Model {
 
 	public Collection<Operacao> getOperacoes() {
 		return Collections.unmodifiableCollection(operacoes);
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public Aplicacao getAplicacao() {
+		return aplicacao;
 	}
 }

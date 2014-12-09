@@ -86,13 +86,14 @@ public class Repository implements Serializable {
 
 	@Transactional
 	public <T extends Model> void remove(@NotNull final T entity) {
-		remove(entity.getClass(), entity.getId());
+		em.remove(entity);
+		em.flush();
 	}
 
 	@Transactional
 	public <T extends Model> void remove(@NotNull final Class<T> type,
 			@NotNull Object id) {
-		final T entity = em.getReference(type, id);
+		final T entity = em.find(type, id);
 		em.remove(entity);
 		em.flush();
 	}

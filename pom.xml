@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.eti.clairton</groupId>
 	<artifactId>repository</artifactId>
-	<version>0.1.1</version>
+	<version>0.2.0</version>
 	<properties>
 		<!-- github server corresponds to entry in ~/.m2/settings.xml -->
 		<github.global.server>github</github.global.server>
@@ -13,6 +13,12 @@
 			<groupId>net.vidageek</groupId>
 			<artifactId>mirror</artifactId>
 			<version>1.6.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>br.eti.clairton</groupId>
+			<artifactId>identificator</artifactId>
+			<version>0.1.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -139,12 +145,29 @@
 
 	<distributionManagement>
 		<!-- Necessita adicionar em ~/.m2/settings.xml <servers> <server> <id>github</id> 
-			<username>usr</username> <password>pass</password> </server> 
-			</servers> -->
+			<username>usr</username> <password>pass</password> </server> </servers> -->
 		<repository>
 			<id>internal.repo</id>
 			<name>Temporary Staging Repository</name>
 			<url>file://${project.build.directory}/mvn-repo</url>
 		</repository>
 	</distributionManagement>
+	<repositories>
+		<repository>
+			<id>inflector-mvn-repo</id>
+			<url>https://raw.github.com/clairton/inflector/mvn-repo/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>identificator-mvn-repo</id>
+			<url>https://raw.github.com/clairton/identificator/mvn-repo/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
 </project>
