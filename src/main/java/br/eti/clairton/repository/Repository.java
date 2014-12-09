@@ -93,7 +93,7 @@ public class Repository implements Serializable {
 	@Transactional
 	public <T extends Model> void remove(@NotNull final Class<T> type,
 			@NotNull Object id) {
-		final T entidade = byId(type, id);
+		final T entidade = em.getReference(type, id);
 		remove(entidade);
 	}
 
