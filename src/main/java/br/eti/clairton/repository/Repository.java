@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -17,7 +18,6 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
@@ -60,7 +60,7 @@ public class Repository implements Serializable {
 
 	private CriteriaBuilder criteriaBuilder;
 
-	private Predicate[] predicates;
+	private javax.persistence.criteria.Predicate[] predicates;
 
 	@Deprecated
 	protected Repository() {
@@ -122,7 +122,7 @@ public class Repository implements Serializable {
 		criteriaBuilder = em.getCriteriaBuilder();
 		criteriaQuery = criteriaBuilder.createQuery(type);
 		from = criteriaQuery.from(type);
-		predicates = new Predicate[] {};
+		predicates = new javax.persistence.criteria.Predicate[] {};
 		return this;
 	}
 
@@ -137,11 +137,20 @@ public class Repository implements Serializable {
 	}
 
 	public <T extends Model> Collection<T> collection() {
-		return collection(-1, -1);
+		return list(-1, -1);
 	}
 
 	public <T extends Model> Collection<T> collection(
 			@NotNull @Min(1) final Integer page,
+			@NotNull @Min(1) final Integer perPage) {
+		return list(page, perPage);
+	}
+
+	public <T extends Model> List<T> list() {
+		return list(-1, -1);
+	}
+
+	public <T extends Model> List<T> list(@NotNull @Min(1) final Integer page,
 			@NotNull @Min(1) final Integer perPage) {
 		@SuppressWarnings("unchecked")
 		final Selection<T> selection = (Selection<T>) from;
@@ -167,34 +176,32 @@ public class Repository implements Serializable {
 	}
 
 	public Repository where(
-			@NotNull @Size(min = 1) final br.eti.clairton.repository.Predicate... predicate) {
+			@NotNull @Size(min = 1) final Predicate... predicate) {
 		return where(Arrays.asList(predicate));
 	}
 
 	public <T> Repository where(@NotNull final T value,
 			@Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
-		return where(Arrays.asList(new br.eti.clairton.repository.Predicate(
-				value, attributes)));
+		return where(Arrays.asList(new Predicate(value, attributes)));
 	}
 
 	public <T> Repository where(@NotNull final T value,
 			@NotNull final Operator operator,
 			@NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
-		return where(Arrays.asList(new br.eti.clairton.repository.Predicate(
-				value, operator, attributes)));
+		return where(Arrays.asList(new Predicate(value, operator, attributes)));
 	}
 
 	public <T> Repository where(@NotNull final Operator operator,
 			@NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
-		return where(Arrays.asList(new br.eti.clairton.repository.Predicate(
-				operator, attributes)));
+		return where(Arrays.asList(new Predicate(operator, attributes)));
 	}
 
 	public Repository where(
-			@NotNull @Size(min = 1) final Collection<br.eti.clairton.repository.Predicate> predicates) {
+			@NotNull @Size(min = 1) final Collection<Predicate> predicates) {
 		Integer index = 0;
-		this.predicates = new Predicate[predicates.size()];
-		for (final br.eti.clairton.repository.Predicate predicate : predicates) {
+		this.predicates = new javax.persistence.criteria.Predicate[predicates
+				.size()];
+		for (final Predicate predicate : predicates) {
 			if (predicate.getAttributes().length == 1) {
 				final Path<?> path = get(from, predicate.getAttribute());
 				final Operator operacao = predicate.getOperator();

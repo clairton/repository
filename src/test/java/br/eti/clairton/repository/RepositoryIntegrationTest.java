@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -53,6 +54,13 @@ public class RepositoryIntegrationTest {
 	public void testCollection() {
 		final Collection<Aplicacao> aplicacoes = repository.from(
 				Aplicacao.class).collection();
+		assertEquals(1, aplicacoes.size());
+	}
+
+	@Test
+	public void testList() {
+		final List<Aplicacao> aplicacoes = repository.from(Aplicacao.class)
+				.list();
 		assertEquals(1, aplicacoes.size());
 	}
 
