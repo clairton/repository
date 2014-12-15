@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -53,6 +54,7 @@ public class Repository implements Serializable {
 	};
 
 	private final EntityManager em;
+	private final Cache cache;
 
 	private Root<? extends Model> from;
 
@@ -64,13 +66,14 @@ public class Repository implements Serializable {
 
 	@Deprecated
 	protected Repository() {
-		this(null);
+		this(null, null);
 	}
 
 	@Inject
-	public Repository(@NotNull final EntityManager em) {
+	public Repository(@NotNull final EntityManager em, final Cache cache) {
 		super();
 		this.em = em;
+		this.cache = cache;
 	}
 
 	@Transactional
@@ -81,20 +84,25 @@ public class Repository implements Serializable {
 			em.persist(entity);
 		}
 		em.flush();
+		evictCache(entity);
 		return entity;
 	}
 
 	@Transactional
 	public <T extends Model> void remove(@NotNull final T entity) {
+		final Class<?> type = entity.getClass();
+		final Long id = entity.getId();
 		em.remove(entity);
+		evictCache(type, id);
 		em.flush();
 	}
 
 	@Transactional
 	public <T extends Model> void remove(@NotNull final Class<T> type,
-			@NotNull Object id) {
+			@NotNull Long id) {
 		final T entity = em.find(type, id);
 		em.remove(entity);
+		evictCache(type, id);
 		em.flush();
 	}
 
@@ -134,6 +142,18 @@ public class Repository implements Serializable {
 		final TypedQuery<T> query = em.createQuery(cq.select(selection).where(
 				predicates));
 		return query.getSingleResult();
+	}
+
+	public <T extends Model> T first() {
+		@SuppressWarnings("unchecked")
+		final T entity = (T) list().get(0);
+		return entity;
+	}
+
+	public <T extends Model> T last() {
+		@SuppressWarnings("unchecked")
+		final T entity = (T) list().get(list().size() - 1);
+		return entity;
 	}
 
 	public <T extends Model> Collection<T> collection() {
@@ -263,5 +283,15 @@ public class Repository implements Serializable {
 			join = j;
 		}
 		return join;
+	}
+
+	private <T extends Model> void evictCache(T entity) {
+		final Class<?> type = entity.getClass();
+		final Long id = entity.getId();
+		evictCache(type, id);
+	}
+
+	private <T extends Model> void evictCache(final Class<?> type, final Long id) {
+		cache.evict(type, id);
 	}
 }

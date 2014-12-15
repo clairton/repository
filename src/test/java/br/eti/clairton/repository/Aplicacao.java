@@ -102,4 +102,8 @@ public class Aplicacao extends br.eti.clairton.repository.Model {
 	public String getNome() {
 		return nome;
 	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
 }

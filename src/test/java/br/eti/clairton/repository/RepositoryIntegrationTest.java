@@ -2,6 +2,8 @@ package br.eti.clairton.repository;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.sql.Connection;
 import java.util.Arrays;
@@ -9,9 +11,13 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.persistence.Cache;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.junit.Before;
@@ -20,6 +26,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(CdiJUnit4Runner.class)
 public class RepositoryIntegrationTest {
+	private static final Cache CACHE = mock(Cache.class);
 	private @Inject Repository repository;
 	private @Inject EntityManager entityManager;
 
@@ -39,9 +46,41 @@ public class RepositoryIntegrationTest {
 
 	@Produces
 	@ApplicationScoped
-	public EntityManager createEntityManager() {
-		return Persistence.createEntityManagerFactory("default")
-				.createEntityManager();
+	public EntityManagerFactory createEntityManagerFactory() {
+		return Persistence.createEntityManagerFactory("default");
+	}
+
+	@Produces
+	@ApplicationScoped
+	public EntityManager createEntityManager(@Default EntityManagerFactory emf) {
+		return emf.createEntityManager();
+	}
+
+	@Produces
+	@Singleton
+	public Cache createCache(@Default EntityManagerFactory emf) {
+		// TODO batoo jpa does not implemente cache L2
+		return CACHE;
+	}
+
+	@Test
+	public void testLast() {
+		final Aplicacao aplicacao = repository.from(Aplicacao.class).last();
+		assertNotNull(aplicacao);
+	}
+
+	@Test
+	public void testFirst() {
+		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
+		assertNotNull(aplicacao);
+	}
+
+	//@Test
+	public void testSave() {
+		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
+		aplicacao.setNome("Outro nome");
+		repository.save(aplicacao);
+		verify(CACHE).evict(Operacao.class, aplicacao.getId());
 	}
 
 	@Test
