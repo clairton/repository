@@ -9,9 +9,13 @@ import javax.persistence.metamodel.Attribute;
 
 public class PredicateBuilder {
 	private Object value;
-	private JoinType join = JoinType.INNER;
-	private Operator operator = Operators.EQUAL;
-	private List<Attribute<?, ?>> attributes = new ArrayList<>();
+	private JoinType join;
+	private Operator operator;
+	private List<Attribute<?, ?>> attributes;
+
+	public PredicateBuilder() {
+		defaultValues();
+	}
 
 	public PredicateBuilder value(final Object value) {
 		this.value = value;
@@ -38,7 +42,16 @@ public class PredicateBuilder {
 	}
 
 	public Predicate build() {
-		return new Predicate(value, join, operator,
+		final Predicate predicate = new Predicate(value, join, operator,
 				attributes.toArray(new Attribute<?, ?>[attributes.size()]));
+		defaultValues();
+		return predicate;
+	}
+
+	private void defaultValues() {
+		value = null;
+		join = JoinType.INNER;
+		operator = Operators.EQUAL;
+		attributes = new ArrayList<>();
 	}
 }
