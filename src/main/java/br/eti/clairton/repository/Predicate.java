@@ -16,17 +16,16 @@ public class Predicate implements Serializable {
     
     private Object value;
     
-    private final Attribute<?, ?>[] attributes;
+    private Attribute<?, ?>[] attributes;
     
     private JoinType joinType = JoinType.INNER;
     
-    private final Operator operator;
+    private Operator operator = new Equal();
     
     public <T> Predicate(final @NotNull T value, final @NotNull Attribute<?, ?>... attributes) {
         super();
         this.value = value;
         this.attributes = attributes;
-        this.operator = new Equal();
     }
     
     public <T> Predicate(final @NotNull T value, final @NotNull Operator operator,
@@ -39,7 +38,6 @@ public class Predicate implements Serializable {
     
     public Predicate(final @NotNull Attribute<?, ?>... attribute) {
         super();
-        this.operator = new Equal();
         this.attributes = attribute;
     }
     

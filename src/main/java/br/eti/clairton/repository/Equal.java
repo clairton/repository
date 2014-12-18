@@ -5,7 +5,9 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 
 public class Equal implements Operator {
-    @Override
+	private static final long serialVersionUID = 1L;
+
+	@Override
     public Predicate build(CriteriaBuilder cb, Expression<?> x, Object y) {
         return cb.equal(x, y);
     }

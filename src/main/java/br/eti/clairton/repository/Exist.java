@@ -6,6 +6,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Subquery;
 
 public class Exist implements Operator {
+	private static final long serialVersionUID = 1L;
 	@Override
 	public Predicate build(CriteriaBuilder cb, Expression<?> x, Object y) {
 		return cb.exists((Subquery<?>) y);

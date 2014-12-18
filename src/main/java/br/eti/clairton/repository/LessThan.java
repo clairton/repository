@@ -5,6 +5,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 
 public class LessThan implements Operator {
+	private static final long serialVersionUID = 1L;
     @Override
     public Predicate build(CriteriaBuilder cb, Expression<?> x, Object y) {
         @SuppressWarnings("rawtypes")

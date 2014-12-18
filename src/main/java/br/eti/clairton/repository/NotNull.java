@@ -10,6 +10,7 @@ import javax.persistence.criteria.Predicate;
  * @author Clairton Rodrigo Heinzen<clairton.gmail@gmail.com>
  */
 public class NotNull implements Operator {
+	private static final long serialVersionUID = 1L;
     /**
      * {@inheritDoc}
      */
