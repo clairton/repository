@@ -16,6 +16,7 @@ public enum Operators implements Operator {
     GREATER_THAN_OR_EQUAL(new GreaterThanOrEqual()),
     LESS_THAN_OR_EQUAL(new LessThanOrEqual()),
     EQUAL(new Equal()),
+    EQUAL_IGNORE_CASE(new EqualIgnoreCase()),
     NOT_NULL(new NotNull()),
     IN(new In()),
     NOT_IN(new NotIn()),
