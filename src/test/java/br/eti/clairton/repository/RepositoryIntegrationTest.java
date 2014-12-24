@@ -1,24 +1,17 @@
 package br.eti.clairton.repository;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Default;
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,41 +19,24 @@ import org.junit.runner.RunWith;
 
 @RunWith(CdiJUnit4Runner.class)
 public class RepositoryIntegrationTest {
-	private static final Cache CACHE = mock(Cache.class);
 	private @Inject Repository repository;
 	private @Inject EntityManager entityManager;
+	private @Inject Cache cache;
+	private @Inject Connection connection;
 
 	@Before
 	public void init() throws Exception {
 		entityManager.getTransaction().begin();
-		final Connection connection = entityManager.unwrap(Connection.class);
 		final String sql = "DELETE FROM operacoes;DELETE FROM recursos;DELETE FROM aplicacoes;";
 		connection.createStatement().execute(sql);
 		entityManager.getTransaction().commit();
 
+		entityManager.getTransaction().begin();
 		final Aplicacao aplicacao = new Aplicacao("Teste");
 		final Recurso recurso = new Recurso(aplicacao, "Teste");
 		final Operacao operacao = new Operacao(recurso, "Teste");
-		repository.save(operacao);
-	}
-
-	@Produces
-	@ApplicationScoped
-	public EntityManagerFactory createEntityManagerFactory() {
-		return Persistence.createEntityManagerFactory("default");
-	}
-
-	@Produces
-	@ApplicationScoped
-	public EntityManager createEntityManager(@Default EntityManagerFactory emf) {
-		return emf.createEntityManager();
-	}
-
-	@Produces
-	@Singleton
-	public Cache createCache(@Default EntityManagerFactory emf) {
-		// TODO batoo jpa does not implemente cache L2
-		return CACHE;
+		entityManager.persist(operacao);
+		entityManager.getTransaction().commit();
 	}
 
 	@Test
@@ -75,12 +51,22 @@ public class RepositoryIntegrationTest {
 		assertNotNull(aplicacao);
 	}
 
-	//@Test
+	@Test
+	public void testRemove() {
+		final Operacao operacao = repository.from(Operacao.class).first();
+		repository.remove(operacao);
+		assertFalse(cache.contains(Aplicacao.class, operacao.getId()));
+	}
+
+	@Test
 	public void testSave() {
 		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
 		aplicacao.setNome("Outro nome");
 		repository.save(aplicacao);
-		verify(CACHE).evict(Operacao.class, aplicacao.getId());
+		final Aplicacao aplicacaoSaved = repository.byId(aplicacao.getClass(),
+				aplicacao.getId());
+		// assertTrue(cache.contains(aplicacao.getClass(), aplicacao.getId()));
+		assertEquals(aplicacao.getNome(), aplicacaoSaved.getNome());
 	}
 
 	@Test

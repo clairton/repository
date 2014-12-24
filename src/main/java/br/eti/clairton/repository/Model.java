@@ -2,6 +2,7 @@ package br.eti.clairton.repository;
 
 import java.io.Serializable;
 
+import javax.persistence.Cacheable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
@@ -14,8 +15,8 @@ import br.eti.clairton.identificator.Identificable;
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  */
 @MappedSuperclass
-public abstract class Model extends Identificable implements Serializable,
-		Cloneable {
+@Cacheable
+public abstract class Model extends Identificable implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
