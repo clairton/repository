@@ -4,7 +4,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 
-public class LessThan implements Operator {
+public class LessThan implements Comparator {
 	private static final long serialVersionUID = 1L;
     @Override
     public Predicate build(CriteriaBuilder cb, Expression<?> x, Object y) {

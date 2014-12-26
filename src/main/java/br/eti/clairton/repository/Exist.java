@@ -5,7 +5,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Subquery;
 
-public class Exist implements Operator {
+public class Exist implements Comparator {
 	private static final long serialVersionUID = 1L;
 	@Override
 	public Predicate build(CriteriaBuilder cb, Expression<?> x, Object y) {

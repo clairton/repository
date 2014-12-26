@@ -1,5 +1,6 @@
 package br.eti.clairton.repository;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -36,6 +37,8 @@ public class RepositoryIntegrationTest {
 		final Recurso recurso = new Recurso(aplicacao, "Teste");
 		final Operacao operacao = new Operacao(recurso, "Teste");
 		entityManager.persist(operacao);
+		final Operacao operacao2 = new Operacao(recurso, "OutraOperacao");
+		entityManager.persist(operacao2);
 		entityManager.getTransaction().commit();
 	}
 
@@ -106,17 +109,47 @@ public class RepositoryIntegrationTest {
 		final Predicate filtro = new Predicate("Teste", Operacao_.recurso,
 				Recurso_.aplicacao, Aplicacao_.nome);
 		final Predicate filtro2 = new Predicate(0l,
-				Operators.GREATER_THAN_OR_EQUAL, Operacao_.id);
+				Comparators.GREATER_THAN_OR_EQUAL, Operacao_.id);
 		final Predicate filtro3 = new Predicate(1000000l,
-				Operators.LESS_THAN_OR_EQUAL, Operacao_.recurso, Recurso_.id);
-		final Predicate filtro4 = new Predicate("e", Operators.LIKE,
+				Comparators.LESS_THAN_OR_EQUAL, Operacao_.recurso, Recurso_.id);
+		final Predicate filtro4 = new Predicate("e", Comparators.LIKE,
 				Operacao_.recurso, Recurso_.nome);
-		final Predicate filtro5 = new Predicate("OutroTeste",
-				Operators.NOT_EQUAL, Operacao_.nome);
+		final Predicate filtro5 = new Predicate("OutraOperacao",
+				Comparators.NOT_EQUAL, Operacao_.nome);
 		final Collection<Predicate> filtros = Arrays.asList(filtro, filtro2,
 				filtro3, filtro4, filtro5);
 		assertEquals(Long.valueOf(1),
 				repository.from(Operacao.class).where(filtros).count());
+	}
+
+	@Test
+	public void testOrInPredicate() {
+		final Predicate filtro = new Predicate("Teste", Operacao_.nome);
+		final Predicate filtro2 = new Predicate(Operators.OR, "OutraOperacao",
+				Operacao_.nome);
+		final Collection<Predicate> filtros = Arrays.asList(filtro, filtro2);
+		assertEquals(Long.valueOf(2),
+				repository.from(Operacao.class).where(filtros).count());
+	}
+
+	@Test
+	public void testOr() {
+		final Predicate filtro = new Predicate("Teste", Operacao_.nome);
+		final Predicate filtro2 = new Predicate("OutraOperacao", Operacao_.nome);
+		assertEquals(
+				Long.valueOf(2),
+				repository.from(Operacao.class).where(asList(filtro))
+						.or(filtro2).count());
+	}
+
+	@Test
+	public void testAnd() {
+		final Predicate filtro = new Predicate("Teste", Operacao_.nome);
+		final Predicate filtro2 = new Predicate("OutraOperacao",
+				Comparators.NOT_EQUAL, Operacao_.nome);
+		assertEquals(Long.valueOf(1),
+				repository.from(Operacao.class).where(filtro).and(filtro2)
+						.count());
 	}
 
 	@Test
@@ -127,8 +160,8 @@ public class RepositoryIntegrationTest {
 						.from(Operacao.class)
 						.where("Teste", Operacao_.recurso, Recurso_.aplicacao,
 								Aplicacao_.nome)
-						.where(Operators.NOT_NULL, Operacao_.id)
-						.where("Testezinho", Operators.NOT_EQUAL,
+						.where(Comparators.NOT_NULL, Operacao_.id)
+						.where("OutraOperacao", Comparators.NOT_EQUAL,
 								Operacao_.nome).count());
 	}
 }

@@ -12,9 +12,9 @@ public class PredicateBuilderTest {
 	public void test() {
 		final PredicateBuilder builder = new PredicateBuilder();
 		final Predicate predicate = builder.value("abc")
-				.operator(Operators.NOT_EQUAL).join(JoinType.LEFT)
+				.comparator(Comparators.NOT_EQUAL).join(JoinType.LEFT)
 				.attribute(Aplicacao_.id).build();
-		assertEquals(Operators.NOT_EQUAL, predicate.getOperator());
+		assertEquals(Comparators.NOT_EQUAL, predicate.getComparator());
 		assertEquals(JoinType.LEFT, predicate.getJoinType());
 		assertEquals("abc", predicate.getValue());
 		assertEquals(1, predicate.getAttributes().length);

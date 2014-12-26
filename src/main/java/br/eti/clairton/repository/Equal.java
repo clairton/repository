@@ -4,7 +4,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 
-public class Equal implements Operator {
+public class Equal implements Comparator {
 	private static final long serialVersionUID = 1L;
 
 	@Override

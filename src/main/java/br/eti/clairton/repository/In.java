@@ -11,7 +11,7 @@ import javax.persistence.criteria.Predicate;
  * 
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  */
-public class In implements Operator {
+public class In implements Comparator {
 	private static final long serialVersionUID = 1L;
     /**
      * {@inheritDoc}

@@ -9,7 +9,7 @@ import javax.persistence.criteria.Predicate;
  * 
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  */
-public class NotLike implements Operator {
+public class NotLike implements Comparator {
 	private static final long serialVersionUID = 1L;
     /**
      * {@inheritDoc}
