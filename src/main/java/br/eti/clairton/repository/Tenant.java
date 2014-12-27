@@ -1,21 +1,18 @@
 package br.eti.clairton.repository;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.From;
+import javax.validation.constraints.NotNull;
+import javax.persistence.criteria.Predicate;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+public abstract class Tenant<T> {
+	protected final TenantBuilder builder;
 
-import javax.inject.Qualifier;
+	public Tenant(final TenantBuilder builder) {
+		super();
+		this.builder = builder;
+	}
 
-@Target({ TYPE, METHOD, PARAMETER, FIELD })
-@Retention(RUNTIME)
-@Documented
-@Qualifier
-public @interface Tenant {
-
+	abstract Predicate build(@NotNull From<?, T> from,
+			@NotNull CriteriaBuilder criteriaBuilder);
 }

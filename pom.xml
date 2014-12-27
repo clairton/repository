@@ -52,33 +52,15 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.batoo.jpa</groupId>
-			<artifactId>batoo-jpa</artifactId>
-			<version>2.0.1.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>2.3.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.jolbox</groupId>
-			<artifactId>bonecp</artifactId>
-			<version>0.7.1.RELEASE</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.antlr</groupId>
-			<artifactId>antlr-runtime</artifactId>
-			<version>3.4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -97,6 +79,12 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<version>1.10.8</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.9</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -176,4 +164,72 @@
 			</snapshots>
 		</repository>
 	</repositories>
+	<profiles>
+		<profile>
+			<id>batoo</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>com.jolbox</groupId>
+					<artifactId>bonecp</artifactId>
+					<version>0.7.1.RELEASE</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.antlr</groupId>
+					<artifactId>antlr-runtime</artifactId>
+					<version>3.4</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.batoo.jpa</groupId>
+					<artifactId>batoo-jpa</artifactId>
+					<version>2.0.1.2</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>hibernate</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate-core</artifactId>
+					<version>4.0.1.Final</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.hibernate.common</groupId>
+					<artifactId>hibernate-commons-annotations</artifactId>
+					<version>4.0.1.Final</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate-entitymanager</artifactId>
+					<version>4.0.1.Final</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>eclipselink</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.eclipse.persistence</groupId>
+					<artifactId>eclipselink</artifactId>
+					<version>2.4.2</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.eclipse.persistence</groupId>
+					<artifactId>org.eclipse.persistence.jpa</artifactId>
+					<version>2.4.2</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>
