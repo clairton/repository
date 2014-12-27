@@ -3,6 +3,7 @@ package br.eti.clairton.repository;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -18,10 +19,12 @@ public class AplicacaoTenant extends Tenant<Aplicacao> {
 	}
 
 	@Override
-	public Predicate build(final @NotNull From<?, Aplicacao> from,
-			final @NotNull CriteriaBuilder criteriaBuilder) {
+	public void add(@NotNull final CriteriaBuilder criteriaBuilder,
+			@NotNull final CriteriaQuery<?> criteriaQuery,
+			final @NotNull From<?, Aplicacao> from) {
 		final Path<String> path = from.get(Aplicacao_.nome);
-		return criteriaBuilder.notEqual(path,
+		final Predicate notEqual = criteriaBuilder.notEqual(path,
 				"OutroTesteQueNãoDeveAparecerNaConsulta");
+		criteriaQuery.where(notEqual);
 	}
 }

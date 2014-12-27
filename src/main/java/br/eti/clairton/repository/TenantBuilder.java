@@ -7,8 +7,8 @@ import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
-import javax.persistence.criteria.Predicate;
 import javax.validation.constraints.NotNull;
 
 @Dependent
@@ -22,8 +22,10 @@ public class TenantBuilder {
 		this.tenants = tenants;
 	}
 
-	public <T extends Model> Predicate add(final @NotNull From<?, T> from,
-			final @NotNull CriteriaBuilder criteriaBuilder) {
+	public <T extends Model> void run(
+			@NotNull final CriteriaBuilder criteriaBuilder,
+			@NotNull final CriteriaQuery<?> criteriaQuery,
+			final @NotNull From<?, T> from) {
 		final Class<? extends Model> klazz = (Class<? extends Model>) from
 				.getJavaType();
 		final TenantTyped type = new TenantTyped() {
@@ -40,10 +42,10 @@ public class TenantBuilder {
 		};
 		final Instance<Tenant<?>> instance = tenants.select(type);
 		if (instance.isUnsatisfied()) {
-			return criteriaBuilder.equal(criteriaBuilder.literal(1), 1);
+			return;
 		}
 		@SuppressWarnings("unchecked")
 		final Tenant<T> tenant = (Tenant<T>) instance.get();
-		return tenant.build(from, criteriaBuilder);
+		tenant.add(criteriaBuilder, criteriaQuery, from);
 	}
 }

@@ -1,9 +1,9 @@
 package br.eti.clairton.repository;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 import javax.validation.constraints.NotNull;
-import javax.persistence.criteria.Predicate;
 
 public abstract class Tenant<T> {
 	protected final TenantBuilder builder;
@@ -13,6 +13,7 @@ public abstract class Tenant<T> {
 		this.builder = builder;
 	}
 
-	abstract Predicate build(@NotNull From<?, T> from,
-			@NotNull CriteriaBuilder criteriaBuilder);
+	abstract void add(@NotNull final CriteriaBuilder criteriaBuilder,
+			@NotNull final CriteriaQuery<?> criteriaQuery,
+			final @NotNull From<?, T> from);
 }

@@ -10,7 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.junit.Before;
@@ -48,8 +47,7 @@ public class TenantBuilderTest {
 		final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		final CriteriaQuery<Recurso> query = builder.createQuery(Recurso.class);
 		final Root<Recurso> from = query.from(Recurso.class);
-		final Predicate predicate = tenant.add(from, builder);
-		query.select(from).where(predicate);
+		tenant.run(builder, query, from);
 		final TypedQuery<Recurso> typedQuery = entityManager.createQuery(query);
 		final List<Recurso> result = typedQuery.getResultList();
 		assertEquals(1, result.size());
@@ -61,8 +59,7 @@ public class TenantBuilderTest {
 		final CriteriaQuery<Operacao> query = builder
 				.createQuery(Operacao.class);
 		final Root<Operacao> from = query.from(Operacao.class);
-		final Predicate predicate = tenant.add(from, builder);
-		query.select(from).where(predicate);
+		tenant.run(builder, query, from);
 		final TypedQuery<Operacao> typedQuery = entityManager
 				.createQuery(query);
 		final List<Operacao> result = typedQuery.getResultList();
