@@ -32,6 +32,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import br.eti.clairton.tenant.TenantBuilder;
+
 /**
  * Repository para operações com o banco de dados.
  * 
@@ -57,6 +59,7 @@ public class Repository implements Serializable {
 
 	private final EntityManager em;
 	private final Cache cache;
+	private final TenantBuilder tenant;
 
 	private Root<? extends Model> from;
 
@@ -68,15 +71,16 @@ public class Repository implements Serializable {
 
 	@Deprecated
 	protected Repository() {
-		this(null, null);
+		this(null, null, null);
 	}
 
 	@Inject
 	public Repository(@NotNull final EntityManager em,
-			@NotNull final Cache cache) {
+			@NotNull final Cache cache, final TenantBuilder tenant) {
 		super();
 		this.em = em;
 		this.cache = cache;
+		this.tenant = tenant;
 	}
 
 	@Transactional
@@ -133,7 +137,7 @@ public class Repository implements Serializable {
 		criteriaBuilder = em.getCriteriaBuilder();
 		criteriaQuery = criteriaBuilder.createQuery(type);
 		from = criteriaQuery.from(type);
-		predicate = criteriaBuilder.equal(criteriaBuilder.literal(1), 1);
+		predicate = tenant.run(criteriaBuilder, from);
 		return this;
 	}
 
@@ -165,7 +169,10 @@ public class Repository implements Serializable {
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
 		@SuppressWarnings("unchecked")
 		final Selection<T> s = (Selection<T>) selection;
-		cq.select(s).where(predicate);
+		cq.select(s);
+		if (predicate != null) {
+			cq.where(predicate);
+		}
 		final TypedQuery<T> query = em.createQuery(cq);
 		return query;
 	}
@@ -210,7 +217,7 @@ public class Repository implements Serializable {
 	}
 
 	public Repository and(final @NotNull Predicate predicate) {
-		this.predicate = criteriaBuilder.and(this.predicate, to(predicate));
+		concat(to(predicate));
 		return this;
 	}
 
@@ -232,7 +239,7 @@ public class Repository implements Serializable {
 
 	public Repository where(
 			@NotNull @Size(min = 1) final Collection<Predicate> predicates) {
-		this.predicate = to(predicates);
+		to(predicates);
 		return this;
 	}
 
@@ -247,7 +254,7 @@ public class Repository implements Serializable {
 	// =======================================================================//
 	// ========================================metodos privados===============//
 	// =======================================================================//
-	private javax.persistence.criteria.Predicate to(
+	private void to(
 			@NotNull @Size(min = 1) final Collection<Predicate> predicates) {
 		int i = 1;
 		int j = predicates.size() - 1;
@@ -258,8 +265,7 @@ public class Repository implements Serializable {
 			final Operator operator = ps.get(i).getOperator();
 			p = operator.build(criteriaBuilder, p, other);
 		}
-		return p;
-
+		concat(p);
 	}
 
 	private javax.persistence.criteria.Predicate to(final Predicate predicate) {
@@ -316,7 +322,19 @@ public class Repository implements Serializable {
 					joinType);
 			join = j;
 		}
+		concat(tenant.run(criteriaBuilder, join));
 		return join;
+	}
+
+	private void concat(final javax.persistence.criteria.Predicate predicate) {
+		if (predicate == null) {
+			return;
+		}
+		if (this.predicate == null) {
+			this.predicate = predicate;
+		} else {
+			this.predicate = criteriaBuilder.and(this.predicate, predicate);
+		}
 	}
 
 	private <T extends Model> void evictCache(T entity) {
