@@ -81,7 +81,6 @@ public class RepositoryIntegrationTest {
 		repository.save(aplicacao);
 		final Aplicacao aplicacaoSaved = repository.byId(aplicacao.getClass(),
 				aplicacao.getId());
-		// assertTrue(cache.contains(aplicacao.getClass(), aplicacao.getId()));
 		assertEquals(aplicacao.getNome(), aplicacaoSaved.getNome());
 	}
 
@@ -129,8 +128,8 @@ public class RepositoryIntegrationTest {
 				Operacao_.recurso, Recurso_.nome);
 		final Predicate filtro5 = new Predicate("OutraOperacao",
 				Comparators.NOT_EQUAL, Operacao_.nome);
-		final Collection<Predicate> filtros = Arrays.asList(filtro, filtro2,
-				filtro3, filtro4, filtro5);
+		final List<Predicate> filtros = Arrays.asList(filtro, filtro2, filtro3,
+				filtro4, filtro5);
 		assertEquals(Long.valueOf(1),
 				repository.from(Operacao.class).where(filtros).count());
 	}

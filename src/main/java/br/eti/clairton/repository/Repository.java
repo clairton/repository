@@ -3,6 +3,7 @@ package br.eti.clairton.repository;
 import static java.util.Arrays.asList;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +72,8 @@ public class Repository implements Serializable {
 	}
 
 	@Inject
-	public Repository(@NotNull final EntityManager em, final Cache cache) {
+	public Repository(@NotNull final EntityManager em,
+			@NotNull final Cache cache) {
 		super();
 		this.em = em;
 		this.cache = cache;
@@ -136,13 +138,36 @@ public class Repository implements Serializable {
 	}
 
 	public <T extends Model> T single() {
-		@SuppressWarnings("unchecked")
-		final Selection<T> selection = (Selection<T>) from;
+		final TypedQuery<T> query = query(from, criteriaQuery, predicate);
+		return query.getSingleResult();
+	}
+
+	public <T extends Model> List<T> list(@NotNull @Min(1) final Integer page,
+			@NotNull @Min(1) final Integer perPage) {
+		final TypedQuery<T> query = query(from, criteriaQuery, predicate);
+		if (page > 0 && perPage > 0) {
+			query.setMaxResults(perPage);
+			query.setFirstResult((page - 1) * perPage);
+		}
+		return query.getResultList();
+	}
+
+	public Long count() {
+		final Selection<Long> s = criteriaBuilder.count(from);
+		final TypedQuery<Long> query = query(s, criteriaQuery, predicate);
+		return (Long) query.getSingleResult();
+	}
+
+	private <T> TypedQuery<T> query(final Selection<?> selection,
+			final CriteriaQuery<?> criteriaQuery,
+			final javax.persistence.criteria.Predicate predicate) {
 		@SuppressWarnings("unchecked")
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
-		final TypedQuery<T> query = em.createQuery(cq.select(selection).where(
-				predicate));
-		return query.getSingleResult();
+		@SuppressWarnings("unchecked")
+		final Selection<T> s = (Selection<T>) selection;
+		cq.select(s).where(predicate);
+		final TypedQuery<T> query = em.createQuery(cq);
+		return query;
 	}
 
 	public <T extends Model> T first() {
@@ -173,31 +198,6 @@ public class Repository implements Serializable {
 
 	public <T extends Model> List<T> list() {
 		return list(-1, -1);
-	}
-
-	public <T extends Model> List<T> list(@NotNull @Min(1) final Integer page,
-			@NotNull @Min(1) final Integer perPage) {
-		@SuppressWarnings("unchecked")
-		final Selection<T> selection = (Selection<T>) from;
-		@SuppressWarnings("unchecked")
-		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
-		final TypedQuery<T> query = em.createQuery(cq.select(selection).where(
-				predicate));
-		if (page > 0 && perPage > 0) {
-			query.setMaxResults(perPage);
-			query.setFirstResult((page - 1) * perPage);
-		}
-		return query.getResultList();
-	}
-
-	public Long count() {
-		@SuppressWarnings("rawtypes")
-		final Selection select = criteriaBuilder.count(from);
-		@SuppressWarnings("unchecked")
-		final CriteriaQuery<?> c = criteriaQuery.select(select)
-				.where(predicate);
-		final TypedQuery<?> query = em.createQuery(c);
-		return (Long) query.getSingleResult();
 	}
 
 	public Repository where(@NotNull final Predicate predicate) {
@@ -248,44 +248,41 @@ public class Repository implements Serializable {
 	// ========================================metodos privados===============//
 	// =======================================================================//
 	private javax.persistence.criteria.Predicate to(
-			@NotNull @Size(min = 1) final Predicate... predicates) {
-		return to(asList(predicates));
-	}
-
-	private javax.persistence.criteria.Predicate to(
 			@NotNull @Size(min = 1) final Collection<Predicate> predicates) {
-		Integer index = 0;
-		javax.persistence.criteria.Predicate p = criteriaBuilder.equal(
-				criteriaBuilder.literal(1), 1);
-		for (final Predicate predicate : predicates) {
-			if (predicate.getAttributes().length == 1) {
-				final Path<?> path = get(from, predicate.getAttribute());
-				final Comparator comparator = predicate.getComparator();
-				final javax.persistence.criteria.Predicate other = comparator
-						.build(criteriaBuilder, path, predicate.getValue());
-				final Operator operator = predicate.getOperator();
-				p = operator.build(criteriaBuilder, p, other);
-			} else {
-				int i = 1;
-				int j = predicate.getAttributes().length - 1;
-				Attribute<?, ?> attribute = predicate.getAttributes()[0];
-				Join<?, ?> join = join(from, predicate.getJoinType(), attribute);
-				for (; i < j; i++) {
-					attribute = predicate.getAttributes()[i];
-					join = join(join, predicate.getJoinType(), attribute);
-				}
-				attribute = predicate.getAttributes()[i];
-				final Path<?> path = get(join, attribute);
-				final Comparator comparator = predicate.getComparator();
-				javax.persistence.criteria.Predicate other = comparator.build(
-						criteriaBuilder, path, predicate.getValue());
-				final Operator operator = predicate.getOperator();
-				p = operator.build(criteriaBuilder, p, other);
-			}
-			index++;
+		int i = 1;
+		int j = predicates.size() - 1;
+		final List<Predicate> ps = new ArrayList<>(predicates);
+		javax.persistence.criteria.Predicate p = to(ps.get(0));
+		for (; i <= j; i++) {
+			final javax.persistence.criteria.Predicate other = to(ps.get(i));
+			final Operator operator = ps.get(i).getOperator();
+			p = operator.build(criteriaBuilder, p, other);
 		}
 		return p;
 
+	}
+
+	private javax.persistence.criteria.Predicate to(final Predicate predicate) {
+		final Comparator comparator = predicate.getComparator();
+		final From<?, ?> from;
+		final Attribute<?, ?> attribute;
+		if (predicate.getAttributes().length == 1) {
+			from = this.from;
+			attribute = predicate.getAttribute();
+		} else {
+			Integer i = 1;
+			final Integer j = predicate.getAttributes().length - 1;
+			Attribute<?, ?> a = predicate.getAttributes()[0];
+			Join<?, ?> join = join(this.from, predicate.getJoinType(), a);
+			for (; i < j; i++) {
+				a = predicate.getAttributes()[i];
+				join = join(join, predicate.getJoinType(), a);
+			}
+			attribute = predicate.getAttributes()[i];
+			from = join;
+		}
+		final Path<?> path = get(from, attribute);
+		return comparator.build(criteriaBuilder, path, predicate.getValue());
 	}
 
 	private <T, Y> Path<Y> get(@NotNull final From<?, ?> from,
