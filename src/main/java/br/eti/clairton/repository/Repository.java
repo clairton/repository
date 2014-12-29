@@ -236,6 +236,14 @@ public class Repository implements Serializable {
 		return this;
 	}
 
+	public Boolean exist() {
+		try {
+			return count() > 0;
+		} catch (final NoResultException e) {
+			return Boolean.FALSE;
+		}
+	}
+
 	// =======================================================================//
 	// ========================================metodos privados===============//
 	// =======================================================================//

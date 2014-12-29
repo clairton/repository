@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
 import java.util.Arrays;
@@ -52,6 +53,18 @@ public class RepositoryIntegrationTest {
 	public void testFirst() {
 		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
 		assertNotNull(aplicacao);
+	}
+
+	@Test
+	public void testExist() {
+		assertTrue(repository.from(Aplicacao.class).exist());
+	}
+
+	@Test
+	public void testNotExist() {
+		assertFalse(repository.from(Aplicacao.class)
+				.where(new Predicate("nomequenãoexiste", Aplicacao_.nome))
+				.exist());
 	}
 
 	@Test
