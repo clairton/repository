@@ -67,7 +67,7 @@ public class Repository implements Serializable {
 
 	private CriteriaBuilder criteriaBuilder;
 
-	private javax.persistence.criteria.Predicate predicate;
+	private List<javax.persistence.criteria.Predicate> predicates;
 
 	@Deprecated
 	protected Repository() {
@@ -137,18 +137,19 @@ public class Repository implements Serializable {
 		criteriaBuilder = em.getCriteriaBuilder();
 		criteriaQuery = criteriaBuilder.createQuery(type);
 		from = criteriaQuery.from(type);
-		predicate = tenant.run(criteriaBuilder, from);
+		predicates = new ArrayList<>();
+		predicates.addAll(asList(tenant.run(criteriaBuilder, from)));
 		return this;
 	}
 
 	public <T extends Model> T single() {
-		final TypedQuery<T> query = query(from, criteriaQuery, predicate);
+		final TypedQuery<T> query = query(from, criteriaQuery, predicates);
 		return query.getSingleResult();
 	}
 
 	public <T extends Model> List<T> list(@NotNull @Min(1) final Integer page,
 			@NotNull @Min(1) final Integer perPage) {
-		final TypedQuery<T> query = query(from, criteriaQuery, predicate);
+		final TypedQuery<T> query = query(from, criteriaQuery, predicates);
 		if (page > 0 && perPage > 0) {
 			query.setMaxResults(perPage);
 			query.setFirstResult((page - 1) * perPage);
@@ -158,21 +159,21 @@ public class Repository implements Serializable {
 
 	public Long count() {
 		final Selection<Long> s = criteriaBuilder.count(from);
-		final TypedQuery<Long> query = query(s, criteriaQuery, predicate);
+		final TypedQuery<Long> query = query(s, criteriaQuery, predicates);
 		return (Long) query.getSingleResult();
 	}
 
 	private <T> TypedQuery<T> query(final Selection<?> selection,
 			final CriteriaQuery<?> criteriaQuery,
-			final javax.persistence.criteria.Predicate predicate) {
+			final List<javax.persistence.criteria.Predicate> predicates) {
 		@SuppressWarnings("unchecked")
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
 		@SuppressWarnings("unchecked")
 		final Selection<T> s = (Selection<T>) selection;
-		cq.select(s);
-		if (predicate != null) {
-			cq.where(predicate);
-		}
+		cq.select(s)
+				.where(predicates
+						.toArray(new javax.persistence.criteria.Predicate[predicates
+								.size()]));
 		final TypedQuery<T> query = em.createQuery(cq);
 		return query;
 	}
@@ -212,7 +213,12 @@ public class Repository implements Serializable {
 	}
 
 	public Repository or(@NotNull Predicate predicate) {
-		this.predicate = criteriaBuilder.or(this.predicate, to(predicate));
+		javax.persistence.criteria.Predicate p = criteriaBuilder
+				.and(this.predicates
+						.toArray(new javax.persistence.criteria.Predicate[this.predicates
+								.size()]));
+		this.predicates = new ArrayList<>();
+		this.predicates.add(criteriaBuilder.or(p, to(predicate)));
 		return this;
 	}
 
@@ -272,7 +278,10 @@ public class Repository implements Serializable {
 		final Comparator comparator = predicate.getComparator();
 		final From<?, ?> from;
 		final Attribute<?, ?> attribute;
-		if (predicate.getAttributes().length == 1) {
+		if (predicate.getAttributes().length == 0) {
+			final String message = "Must be have a attribute in predicate";
+			throw new IllegalStateException(message);
+		} else if (predicate.getAttributes().length == 1) {
 			from = this.from;
 			attribute = predicate.getAttribute();
 		} else {
@@ -326,15 +335,11 @@ public class Repository implements Serializable {
 		return join;
 	}
 
-	private void concat(final javax.persistence.criteria.Predicate predicate) {
-		if (predicate == null) {
-			return;
-		}
-		if (this.predicate == null) {
-			this.predicate = predicate;
-		} else {
-			this.predicate = criteriaBuilder.and(this.predicate, predicate);
-		}
+	private void concat(
+			final javax.persistence.criteria.Predicate... predicates) {
+		final javax.persistence.criteria.Predicate and = criteriaBuilder
+				.and(predicates);
+		this.predicates.add(and);
 	}
 
 	private <T extends Model> void evictCache(T entity) {

@@ -40,7 +40,13 @@ public class RepositoryTenantIntegrationTest {
 	}
 
 	@Test
-	public void testWithTenant() {
+	public void testWithTenantInFirst() {
+		final List<Recurso> result = repository.from(Aplicacao.class).list();
+		assertEquals(1, result.size());
+	}
+
+	@Test
+	public void testWithTenantInSecond() {
 		final List<Recurso> result = repository.from(Recurso.class).list();
 		assertEquals(1, result.size());
 	}

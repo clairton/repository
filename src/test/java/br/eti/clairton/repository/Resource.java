@@ -5,6 +5,7 @@ import java.sql.Connection;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Singleton;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
@@ -12,6 +13,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.transaction.Transactional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mockito.Mockito;
 
 public class Resource {
@@ -37,6 +40,13 @@ public class Resource {
 		} else {
 			return emf.getCache();
 		}
+	}
+
+	@Produces
+	public Logger produceLogger(final InjectionPoint injectionPoint) {
+		final Class<?> type = injectionPoint.getMember().getDeclaringClass();
+		final String klass = type.getName();
+		return LogManager.getLogger(klass);
 	}
 
 	@Produces
