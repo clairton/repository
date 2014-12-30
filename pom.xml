@@ -10,9 +10,15 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>net.vidageek</groupId>
-			<artifactId>mirror</artifactId>
-			<version>1.6.1</version>
+			<groupId>br.eti.clairton</groupId>
+			<artifactId>identificator</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>br.eti.clairton</groupId>
+			<artifactId>tenant</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -26,18 +32,6 @@
 			<artifactId>log4j-1.2-api</artifactId>
 			<version>2.1</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>br.eti.clairton</groupId>
-			<artifactId>identificator</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>br.eti.clairton</groupId>
-			<artifactId>tenant</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
@@ -124,7 +118,7 @@
 			<extension>
 				<groupId>ar.com.synergian</groupId>
 				<artifactId>wagon-git</artifactId>
-				<version>0.2.4</version>
+				<version>0.2.2</version>
 			</extension>
 		</extensions>
 	</build>
@@ -146,6 +140,28 @@
 			<url>git:snapshots://git@github.com:clairton/mvn-repo.git</url>
 		</snapshotRepository>
 	</distributionManagement>
+	<repositories>
+		<repository>
+			<id>mvn-repo-releases</id>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<url>https://raw.github.com/clairton/mvn-repo.git/releases</url>
+		</repository>
+		<repository>
+			<id>mvn-repo-snapshots</id>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<url>https://raw.github.com/clairton/mvn-repo.git/snapshots</url>
+		</repository>
+	</repositories>
 	<profiles>
 		<profile>
 			<id>batoo</id>
