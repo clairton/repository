@@ -1,4 +1,7 @@
 # Repositorio Para Facilitar o uso do JPA
+
+DSL para facilitar consulta com o Criteria Builder do JPA.
+
 A instancia de repository pode ser recuperada por CDI.
 
 Para Recuperar o último registro:
@@ -21,13 +24,27 @@ Para contar os registros:
 ```java
 repository.from(Aplicacao.class).count();
 ```
-Aplicando Filtros:
+Aplicando Predicados:
 ```java
-final Predicate filtro = new Predicate("Teste", Operacao_.nome);
-final Predicate filtro2 = new Predicate("OutraOperacao", Comparators.NOT_EQUAL, Operacao_.nome);
-repository.from(Operacao.class).where(filtro).and(filtro2).count();
+final Predicate p1 = new Predicate("Teste", Operacao_.nome);
+final Predicate p2 = new Predicate("OutraOperacao", Comparators.NOT_EQUAL, Operacao_.nome);
+repository.from(Operacao.class).where(p1).and(p2).count();
 ```
+Dentro dos Predicados podemos definir o tipo de junção, comparação e operação:
 
+```java
+new Predicate(1l, JoinType.INNER, Comparators.EQUAL, Operators.OR, Operacao_.recurso, Recurso_.id)
+```
+A operação também pode ser definida com um método na DSL:
+```java
+final Predicate p1 = new Predicate("Teste", Operacao_.nome);
+final Predicate p2 = new Predicate("OutraOperacao", Operacao_.nome);
+final Predicate p3 = new Predicate("AindaOutraOperacao", Operacao_.nome);
+repository.from(Operacao.class).where(p1).and(p2).or(p3).count();
+```
+Os atributos são recuperados pelo metamodel do JPA, e devem navegar da
+entidade definida no método from, até o atributo em que se deseja que o 
+filtro seja aplicado.
 
 Integrado ao projeto https://github.com/clairton/tenant.
 
