@@ -34,7 +34,8 @@ repository.from(Operacao.class).where(p1).and(p2).count();
 Dentro dos Predicados podemos definir o tipo de junção, comparação e operação:
 
 ```java
-new Predicate(1l, JoinType.INNER, Comparators.EQUAL, Operators.OR, Operacao_.recurso, Recurso_.id)
+new Predicate(1l, JoinType.INNER, Comparators.EQUAL, Operators.OR,
+Operacao_.recurso, Recurso_.id)
 ```
 A operação também pode ser definida com um método na DSL:
 ```java
