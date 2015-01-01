@@ -27,7 +27,8 @@ repository.from(Aplicacao.class).count();
 Aplicando Predicados:
 ```java
 final Predicate p1 = new Predicate("Teste", Operacao_.nome);
-final Predicate p2 = new Predicate("OutraOperacao", Comparators.NOT_EQUAL, Operacao_.nome);
+final Predicate p2 = new Predicate("OutraOperacao", Comparators.NOT_EQUAL,
+Operacao_.nome);
 repository.from(Operacao.class).where(p1).and(p2).count();
 ```
 Dentro dos Predicados podemos definir o tipo de junção, comparação e operação:
@@ -44,7 +45,12 @@ repository.from(Operacao.class).where(p1).and(p2).or(p3).count();
 ```
 Os atributos são recuperados pelo metamodel do JPA, e devem navegar da
 entidade definida no método from, até o atributo em que se deseja que o 
-filtro seja aplicado.
+filtro seja aplicado. Por exemplo, tendo os modelos Operação -> Recurso -> Aplicação, e o vamos retorna as aplicações que tem uma operação relacionada com o nome que contém a string "teste", teriamos:
+```java
+Predicate p = new Predicate("teste", Comparators.LIKE, Aplicacao_.recursos,
+    Recurso_.operacao, Operacao_.nome);
+repository.from(Aplicacao.class).where(p).list();
+```
 
 Integrado ao projeto https://github.com/clairton/tenant.
 
