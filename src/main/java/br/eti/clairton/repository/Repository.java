@@ -243,9 +243,10 @@ public class Repository implements Serializable {
 		return where(asList(new Predicate(comparator, attributes)));
 	}
 
-	public Repository where(
-			@NotNull @Size(min = 1) final Collection<Predicate> predicates) {
-		to(predicates);
+	public Repository where(@NotNull final Collection<Predicate> predicates) {
+		if (!predicates.isEmpty()) {
+			to(predicates);
+		}
 		return this;
 	}
 
