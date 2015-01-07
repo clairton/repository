@@ -147,10 +147,10 @@ public class Repository implements Serializable {
 		return query.getSingleResult();
 	}
 
-	public <T extends Model> List<T> list(@NotNull @Min(1) final Integer page,
-			@NotNull @Min(1) final Integer perPage) {
+	public <T extends Model> List<T> list(@NotNull @Min(0) final Integer page,
+			@NotNull @Min(0) final Integer perPage) {
 		final TypedQuery<T> query = query(from, criteriaQuery, predicates);
-		if (page > 0 && perPage > 0) {
+		if (page != 0 && perPage != 0) {
 			query.setMaxResults(perPage);
 			query.setFirstResult((page - 1) * perPage);
 		}
@@ -195,17 +195,17 @@ public class Repository implements Serializable {
 	}
 
 	public <T extends Model> Collection<T> collection() {
-		return list(-1, -1);
+		return list(0, 0);
 	}
 
 	public <T extends Model> Collection<T> collection(
-			@NotNull @Min(1) final Integer page,
-			@NotNull @Min(1) final Integer perPage) {
+			@NotNull @Min(0) final Integer page,
+			@NotNull @Min(0) final Integer perPage) {
 		return list(page, perPage);
 	}
 
 	public <T extends Model> List<T> list() {
-		return list(-1, -1);
+		return list(0, 0);
 	}
 
 	public Repository where(@NotNull final Predicate predicate) {
