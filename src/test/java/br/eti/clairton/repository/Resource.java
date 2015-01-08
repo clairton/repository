@@ -17,6 +17,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mockito.Mockito;
 
+import br.eti.clairton.tenant.TenantValue;
+
 public class Resource {
 
 	@Produces
@@ -67,5 +69,11 @@ public class Resource {
 		} catch (final Exception e) {
 			return em.unwrap(Connection.class);
 		}
+	}
+
+	@Produces
+	@TenantValue
+	public String getTenantValue() {
+		return "OutroTesteQueNãoDeveAparecerNaConsulta";
 	}
 }

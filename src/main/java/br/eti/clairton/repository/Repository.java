@@ -5,9 +5,7 @@ import static java.util.Arrays.asList;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,22 +15,17 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.PluralAttribute.CollectionType;
-import javax.persistence.metamodel.SingularAttribute;
 import javax.transaction.Transactional;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import br.eti.clairton.tenant.TenantBuilder;
+import br.eti.clairton.tenant.TenantNotFound;
+import br.eti.clairton.tenant.TenantValue;
 
 /**
  * Repository para operações com o banco de dados.
@@ -42,21 +35,6 @@ import br.eti.clairton.tenant.TenantBuilder;
 @ApplicationScoped
 public class Repository implements Serializable {
 	private static final long serialVersionUID = 1L;
-
-	private final static Map<CollectionType, br.eti.clairton.repository.Join> JOINS = new HashMap<CollectionType, br.eti.clairton.repository.Join>() {
-		private static final long serialVersionUID = 1L;
-		{
-			put(PluralAttribute.CollectionType.LIST,
-					br.eti.clairton.repository.Join.LIST);
-			put(PluralAttribute.CollectionType.COLLECTION,
-					br.eti.clairton.repository.Join.COLLECTION);
-			put(PluralAttribute.CollectionType.SET,
-					br.eti.clairton.repository.Join.SET);
-			put(PluralAttribute.CollectionType.MAP,
-					br.eti.clairton.repository.Join.MAP);
-		}
-	};
-
 	private final EntityManager em;
 	private final Cache cache;
 	private final TenantBuilder tenant;
@@ -69,18 +47,28 @@ public class Repository implements Serializable {
 
 	private List<javax.persistence.criteria.Predicate> predicates;
 
+	private final Object tenantValue;
+
+	private final Joinner joinner;
+
+	private Boolean withTenant = Boolean.TRUE;
+
 	@Deprecated
 	protected Repository() {
-		this(null, null, null);
+		this(null, null, null, null, null);
 	}
 
 	@Inject
 	public Repository(@NotNull final EntityManager em,
-			@NotNull final Cache cache, final TenantBuilder tenant) {
+			@NotNull final Cache cache, @NotNull final TenantBuilder tenant,
+			@NotNull final Joinner joinner,
+			final @NotNull @TenantValue Object tenantValue) {
 		super();
 		this.em = em;
 		this.cache = cache;
 		this.tenant = tenant;
+		this.tenantValue = tenantValue;
+		this.joinner = joinner;
 	}
 
 	@Transactional
@@ -138,7 +126,22 @@ public class Repository implements Serializable {
 		criteriaQuery = criteriaBuilder.createQuery(type);
 		from = criteriaQuery.from(type);
 		predicates = new ArrayList<>();
-		predicates.addAll(asList(tenant.run(criteriaBuilder, from)));
+		try {
+			if (withTenant) {
+				predicates.add(tenant.run(criteriaBuilder, from, tenantValue));
+			}
+		} catch (final TenantNotFound e) {
+		}
+		return this;
+	}
+
+	public <T extends Model> Repository distinct(@NotNull final Class<T> type) {
+		from(type);
+		return distinct();
+	}
+
+	public Repository distinct() {
+		criteriaQuery.distinct(Boolean.TRUE);
 		return this;
 	}
 
@@ -158,24 +161,18 @@ public class Repository implements Serializable {
 	}
 
 	public Long count() {
-		final Selection<Long> s = criteriaBuilder.count(from);
-		final TypedQuery<Long> query = query(s, criteriaQuery, predicates);
-		return (Long) query.getSingleResult();
+		return count(Boolean.TRUE);
 	}
 
-	private <T> TypedQuery<T> query(final Selection<?> selection,
-			final CriteriaQuery<?> criteriaQuery,
-			final List<javax.persistence.criteria.Predicate> predicates) {
-		@SuppressWarnings("unchecked")
-		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
-		@SuppressWarnings("unchecked")
-		final Selection<T> s = (Selection<T>) selection;
-		cq.select(s)
-				.where(predicates
-						.toArray(new javax.persistence.criteria.Predicate[predicates
-								.size()]));
-		final TypedQuery<T> query = em.createQuery(cq);
-		return query;
+	public Long count(Boolean distinct) {
+		final Selection<Long> s;
+		if (distinct) {
+			s = criteriaBuilder.countDistinct(from);
+		} else {
+			s = criteriaBuilder.count(from);
+		}
+		final TypedQuery<Long> query = query(s, criteriaQuery, predicates);
+		return (Long) query.getSingleResult();
 	}
 
 	public <T extends Model> T first() {
@@ -258,9 +255,30 @@ public class Repository implements Serializable {
 		}
 	}
 
+	public Repository tenant(final Boolean withTenant) {
+		this.withTenant = withTenant;
+		return this;
+	}
+
 	// =======================================================================//
 	// ========================================metodos privados===============//
 	// =======================================================================//
+
+	private <T> TypedQuery<T> query(final Selection<?> selection,
+			final CriteriaQuery<?> criteriaQuery,
+			final List<javax.persistence.criteria.Predicate> predicates) {
+		@SuppressWarnings("unchecked")
+		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
+		@SuppressWarnings("unchecked")
+		final Selection<T> s = (Selection<T>) selection;
+		cq.select(s)
+				.where(predicates
+						.toArray(new javax.persistence.criteria.Predicate[predicates
+								.size()]));
+		final TypedQuery<T> query = em.createQuery(cq);
+		return query;
+	}
+
 	private void to(
 			@NotNull @Size(min = 1) final Collection<Predicate> predicates) {
 		int i = 1;
@@ -275,65 +293,9 @@ public class Repository implements Serializable {
 		concat(p);
 	}
 
-	private javax.persistence.criteria.Predicate to(final Predicate predicate) {
-		final Comparator comparator = predicate.getComparator();
-		final From<?, ?> from;
-		final Attribute<?, ?> attribute;
-		if (predicate.getAttributes().length == 0) {
-			final String message = "Must be have a attribute in predicate";
-			throw new IllegalStateException(message);
-		} else if (predicate.getAttributes().length == 1) {
-			from = this.from;
-			attribute = predicate.getAttribute();
-		} else {
-			Integer i = 1;
-			final Integer j = predicate.getAttributes().length - 1;
-			Attribute<?, ?> a = predicate.getAttributes()[0];
-			Join<?, ?> join = join(this.from, predicate.getJoinType(), a);
-			for (; i < j; i++) {
-				a = predicate.getAttributes()[i];
-				join = join(join, predicate.getJoinType(), a);
-			}
-			attribute = predicate.getAttributes()[i];
-			from = join;
-		}
-		final Path<?> path = get(from, attribute);
-		return comparator.build(criteriaBuilder, path, predicate.getValue());
-	}
-
-	private <T, Y> Path<Y> get(@NotNull final From<?, ?> from,
-			@NotNull final Attribute<?, ?> attribute) {
-		final Path<Y> path;
-		if (attribute.isCollection()) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			final Path<Y> p = (Path<Y>) from.get((PluralAttribute) attribute);
-			path = p;
-		} else {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			final Path<Y> p = from.get((SingularAttribute) attribute);
-			path = p;
-		}
-		return path;
-	}
-
-	private <T, Y> Join<T, Y> join(@NotNull final From<T, Y> from,
-			@NotNull final JoinType joinType,
-			@NotNull final Attribute<?, ?> attribute) {
-		final Join<T, Y> join;
-		if (attribute.isCollection()) {
-			final PluralAttribute<?, ?, ?> pluralAttribute = (PluralAttribute<?, ?, ?>) attribute;
-			join = JOINS.get(pluralAttribute.getCollectionType()).join(from,
-					joinType, pluralAttribute);
-		} else {
-			@SuppressWarnings("unchecked")
-			final SingularAttribute<? super Y, Y> singularAttribute = (SingularAttribute<? super Y, Y>) attribute;
-			@SuppressWarnings("unchecked")
-			final Join<T, Y> j = (Join<T, Y>) from.join(singularAttribute,
-					joinType);
-			join = j;
-		}
-		concat(tenant.run(criteriaBuilder, join));
-		return join;
+	private javax.persistence.criteria.Predicate to(
+			@NotNull final Predicate predicate) {
+		return joinner.join(criteriaBuilder, from, predicate, tenantValue, withTenant);
 	}
 
 	private void concat(
