@@ -18,6 +18,7 @@ public class RepositoryTenantIntegrationTest {
 	private @Inject EntityManager entityManager;
 	private @Inject Repository repository;
 	private @Inject Connection connection;
+	private String tenantValue = "OutroTesteQueNãoDeveAparecerNaConsulta";
 
 	@Before
 	public void init() throws Exception {
@@ -31,8 +32,7 @@ public class RepositoryTenantIntegrationTest {
 		final Recurso recurso = new Recurso(aplicacao, "Teste");
 		final Operacao operacao = new Operacao(recurso, "Teste");
 		entityManager.persist(operacao);
-		final Aplicacao aplicacao2 = new Aplicacao(
-				"OutroTesteQueNãoDeveAparecerNaConsulta");
+		final Aplicacao aplicacao2 = new Aplicacao(tenantValue);
 		final Recurso recurso2 = new Recurso(aplicacao2, "OutroTeste");
 		final Operacao operacao2 = new Operacao(recurso2, "OutroTeste");
 		entityManager.persist(operacao2);
@@ -41,19 +41,22 @@ public class RepositoryTenantIntegrationTest {
 
 	@Test
 	public void testWithTenantInFirst() {
-		final List<Recurso> result = repository.from(Aplicacao.class).list();
+		final List<Recurso> result = repository.tenantValue(tenantValue)
+				.from(Aplicacao.class).list();
 		assertEquals(1, result.size());
 	}
 
 	@Test
 	public void testWithTenantInSecond() {
-		final List<Recurso> result = repository.from(Recurso.class).list();
+		final List<Recurso> result = repository.tenantValue(tenantValue)
+				.from(Recurso.class).list();
 		assertEquals(1, result.size());
 	}
 
 	@Test
 	public void testWithTenantInJoin() {
 		final List<Operacao> result = repository
+				.tenantValue(tenantValue)
 				.from(Operacao.class)
 				.where(0l, GREATER_THAN_OR_EQUAL, Operacao_.recurso,
 						Recurso_.id).list();
@@ -62,7 +65,8 @@ public class RepositoryTenantIntegrationTest {
 
 	@Test
 	public void testWithoutTenant() {
-		final List<Operacao> result = repository.from(Operacao.class).list();
+		final List<Operacao> result = repository.tenantValue(tenantValue)
+				.from(Operacao.class).list();
 		assertEquals(2, result.size());
 	}
 }

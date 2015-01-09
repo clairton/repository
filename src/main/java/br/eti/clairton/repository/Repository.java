@@ -25,7 +25,6 @@ import javax.validation.constraints.Size;
 
 import br.eti.clairton.tenant.TenantBuilder;
 import br.eti.clairton.tenant.TenantNotFound;
-import br.eti.clairton.tenant.TenantValue;
 
 /**
  * Repository para operações com o banco de dados.
@@ -47,27 +46,25 @@ public class Repository implements Serializable {
 
 	private List<javax.persistence.criteria.Predicate> predicates;
 
-	private final Object tenantValue;
+	private Object tenantValue;
 
 	private final Joinner joinner;
 
-	private Boolean withTenant = Boolean.TRUE;
+	private Boolean withTenant = Boolean.FALSE;
 
 	@Deprecated
 	protected Repository() {
-		this(null, null, null, null, null);
+		this(null, null, null, null);
 	}
 
 	@Inject
 	public Repository(@NotNull final EntityManager em,
 			@NotNull final Cache cache, @NotNull final TenantBuilder tenant,
-			@NotNull final Joinner joinner,
-			final @NotNull @TenantValue Object tenantValue) {
+			@NotNull final Joinner joinner) {
 		super();
 		this.em = em;
 		this.cache = cache;
 		this.tenant = tenant;
-		this.tenantValue = tenantValue;
 		this.joinner = joinner;
 	}
 
@@ -260,6 +257,12 @@ public class Repository implements Serializable {
 		return this;
 	}
 
+	public Repository tenantValue(final Object tenantValue) {
+		this.withTenant = Boolean.TRUE;
+		this.tenantValue = tenantValue;
+		return this;
+	}
+
 	// =======================================================================//
 	// ========================================metodos privados===============//
 	// =======================================================================//
@@ -295,7 +298,8 @@ public class Repository implements Serializable {
 
 	private javax.persistence.criteria.Predicate to(
 			@NotNull final Predicate predicate) {
-		return joinner.join(criteriaBuilder, from, predicate, tenantValue, withTenant);
+		return joinner.join(criteriaBuilder, from, predicate, tenantValue,
+				withTenant);
 	}
 
 	private void concat(

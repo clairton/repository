@@ -47,14 +47,14 @@ public class Joinner {
 	public javax.persistence.criteria.Predicate join(
 			@NotNull final CriteriaBuilder criteriaBuilder,
 			@NotNull From<?, ?> from, @NotNull final Predicate predicate,
-			final @NotNull Object tenantValue) {
+			final Object tenantValue) {
 		return join(criteriaBuilder, from, predicate, tenantValue, Boolean.TRUE);
 	}
 
 	public javax.persistence.criteria.Predicate join(
 			@NotNull final CriteriaBuilder criteriaBuilder,
 			@NotNull From<?, ?> from, @NotNull final Predicate predicate,
-			final @NotNull Object tenantValue, final @NotNull Boolean withTenant) {
+			final Object tenantValue, final @NotNull Boolean withTenant) {
 		final Comparator comparator = predicate.getComparator();
 		final Attribute<?, ?> attribute;
 		if (predicate.getAttributes().length == 0) {
