@@ -24,6 +24,10 @@ Para contar os registros:
 ```java
 repository.from(Aplicacao.class).count();
 ```
+Por padrão os registros são contados usando o distinct, caso não deseje isso use:
+```java
+repository.from(Aplicacao.class).count(Boolean.FALSE);
+```
 Aplicando Predicados:
 ```java
 final Predicate p1 = new Predicate("Teste", Operacao_.nome);
@@ -54,6 +58,9 @@ repository.from(Aplicacao.class).where(p).list();
 ```
 
 Integrado ao projeto https://github.com/clairton/tenant.
+```java
+repository.from(Aplicacao.class).tenantValue("ValorFiltrado");
+```
 
 Para usar será necessário adicionar os repositórios maven:
 
