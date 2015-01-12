@@ -18,6 +18,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EntityType;
 import javax.transaction.Transactional;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -109,12 +110,13 @@ public class Repository implements Serializable {
 	 * @throws NoResultException
 	 *             caso não seja encontrada a entidade
 	 */
-	public <T, Y> T byId(@NotNull final Class<T> klass, @NotNull final Y id)
-			throws NoResultException {
-		final T result = em.find(klass, id);
-		if (result == null) {
-			throw new NoResultException();
-		}
+	public <T extends Model, Y> T byId(@NotNull final Class<T> klass,
+			@NotNull final Y id) throws NoResultException {
+		from(klass);
+		final EntityType<T> type = em.getMetamodel().entity(klass);
+		final Class<?> idType = type.getIdType().getJavaType();
+		final Attribute<? super T, ?> attribute = type.getId(idType);
+		final T result = where(id, attribute).single();
 		return result;
 	}
 
