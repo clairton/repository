@@ -1,7 +1,7 @@
 package br.eti.clairton.repository;
 
-import static org.junit.Assert.assertEquals;
 import static br.eti.clairton.repository.Comparators.GREATER_THAN_OR_EQUAL;
+import static org.junit.Assert.assertEquals;
 
 import java.sql.Connection;
 import java.util.List;
@@ -12,6 +12,8 @@ import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import br.eti.clairton.cdi.test.CdiJUnit4Runner;
 
 @RunWith(CdiJUnit4Runner.class)
 public class RepositoryTenantIntegrationTest {
