@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
@@ -32,7 +32,7 @@ import br.eti.clairton.tenant.TenantNotFound;
  * 
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  */
-@ApplicationScoped
+@RequestScoped
 public class Repository implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private final EntityManager em;
