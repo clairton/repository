@@ -61,7 +61,7 @@ public enum Comparators implements Comparator {
     
     private void put() {
         if (repository == null) {
-            repository = new HashMap<>();
+            repository = new HashMap<String, Comparator>();
         }
         repository.put(comparator.toString(), comparator);
     }

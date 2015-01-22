@@ -22,7 +22,7 @@ public class Recurso extends br.eti.clairton.repository.Model {
 
 	@NotNull
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "recurso")
-	private final Collection<Operacao> operacoes = new HashSet<>();
+	private final Collection<Operacao> operacoes = new HashSet<Operacao>();
 
 	@ManyToOne(cascade = CascadeType.ALL)
 	@NotNull

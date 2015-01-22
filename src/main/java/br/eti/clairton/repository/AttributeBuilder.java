@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  */
 public class AttributeBuilder {
-	private final List<Attribute<?, ?>> attributes = new ArrayList<>();
+	private final List<Attribute<?, ?>> attributes = new ArrayList<Attribute<?, ?>>();
 
 	private final EntityManager entityManager;
 
@@ -76,8 +76,7 @@ public class AttributeBuilder {
 		final String[] fields = path.split("\\.");
 		final Attribute<?, ?> attribute = entityType.getAttribute(fields[0]);
 		attributes.add(attribute);
-		if (fields.length > 1
-				&& (attribute.isAssociation() || attribute.isCollection())) {
+		if (fields.length > 1) {
 			@SuppressWarnings("unchecked")
 			final Class<T> nextType = (Class<T>) attribute.getJavaType();
 			return with(nextType, path.replace(fields[0] + ".", ""));

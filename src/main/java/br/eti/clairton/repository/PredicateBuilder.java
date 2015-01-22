@@ -54,7 +54,7 @@ public class PredicateBuilder {
 		value = null;
 		join = JoinType.INNER;
 		comparator = Comparators.EQUAL;
-		attributes = new ArrayList<>();
+		attributes = new ArrayList<Attribute<?, ?>>();
 		operator = Operators.AND;
 	}
 }

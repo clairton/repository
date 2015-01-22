@@ -25,7 +25,7 @@ public class CdiJUnit4Runner extends BlockJUnit4ClassRunner {
 	private static final ThreadLocal<MapBeanStore> beanStore = new ThreadLocal<MapBeanStore>() {
 		public MapBeanStore get() {
 			final NamingScheme namingScheme = new SimpleNamingScheme("");
-			final Map<String, Object> delegate = new HashMap<>();
+			final Map<String, Object> delegate = new HashMap<String, Object>();
 			return new MapBeanStore(namingScheme, delegate);
 		};
 	};

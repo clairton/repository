@@ -45,7 +45,7 @@ public class TransactionalInterceptor {
                 entityManager.getTransaction().commit();
             }
             return object;
-        } catch (final Throwable e) {
+        } catch (final Exception e) {
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }

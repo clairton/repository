@@ -124,7 +124,7 @@ public class Repository implements Serializable {
 		criteriaBuilder = em.getCriteriaBuilder();
 		criteriaQuery = criteriaBuilder.createQuery(type);
 		from = criteriaQuery.from(type);
-		predicates = new ArrayList<>();
+		predicates = new ArrayList<javax.persistence.criteria.Predicate>();
 		try {
 			if (withTenant) {
 				predicates.add(tenant.run(criteriaBuilder, from, tenantValue));
@@ -213,7 +213,7 @@ public class Repository implements Serializable {
 				.and(this.predicates
 						.toArray(new javax.persistence.criteria.Predicate[this.predicates
 								.size()]));
-		this.predicates = new ArrayList<>();
+		this.predicates = new ArrayList<javax.persistence.criteria.Predicate>();
 		this.predicates.add(criteriaBuilder.or(p, to(predicate)));
 		return this;
 	}
@@ -288,7 +288,7 @@ public class Repository implements Serializable {
 			@NotNull @Size(min = 1) final Collection<Predicate> predicates) {
 		int i = 1;
 		int j = predicates.size() - 1;
-		final List<Predicate> ps = new ArrayList<>(predicates);
+		final List<Predicate> ps = new ArrayList<Predicate>(predicates);
 		javax.persistence.criteria.Predicate p = to(ps.get(0));
 		for (; i <= j; i++) {
 			final javax.persistence.criteria.Predicate other = to(ps.get(i));
