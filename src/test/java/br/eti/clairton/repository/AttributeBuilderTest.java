@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-//@RunWith(CdiJUnit4Runner.class)
 public class AttributeBuilderTest {
 
 	private AttributeBuilder attributeBuilder;
@@ -48,6 +47,16 @@ public class AttributeBuilderTest {
 		final Attribute<?, ?>[] attributes = attributeBuilder.with(
 				Operacao.class, "recurso.nome");
 		assertEquals(2, attributes.length);
+	}
+
+	@Test
+	public void testWithColchete() {
+		final Attribute<?, ?>[] attributes = attributeBuilder.with(
+				Operacao.class, "recurso[aplicacao][nome]");
+		assertEquals(3, attributes.length);
+		// assertTrue(Operacao_.recurso.equals(attributes[1]));
+		// assertTrue(Recurso_.aplicacao.equals(attributes[1]));
+		// assertTrue(Aplicacao_.nome.equals(attributes[2]));
 	}
 
 	@Test

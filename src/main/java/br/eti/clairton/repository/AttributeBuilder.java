@@ -73,6 +73,10 @@ public class AttributeBuilder {
 			@NotNull @Size(min = 1) final String path) {
 		final Metamodel metamodel = entityManager.getMetamodel();
 		final EntityType<?> entityType = metamodel.entity(base);
+		if (path.matches(".*\\].*")) {
+			// subtitui para o padrão com pontos se for com chaves
+			return with(base, path.replaceAll("]", "").replaceAll("\\[", "\\."));
+		}
 		final String[] fields = path.split("\\.");
 		final Attribute<?, ?> attribute = entityType.getAttribute(fields[0]);
 		attributes.add(attribute);
