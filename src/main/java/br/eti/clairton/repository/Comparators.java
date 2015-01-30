@@ -18,6 +18,7 @@ public enum Comparators implements Comparator {
     EQUAL(new Equal()),
     EQUAL_IGNORE_CASE(new EqualIgnoreCase()),
     NOT_NULL(new NotNull()),
+    NULL(new Null()),
     IN(new In()),
     NOT_IN(new NotIn()),
     EXIST(new Exist()),

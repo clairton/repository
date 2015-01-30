@@ -23,6 +23,6 @@ public class In implements Comparator {
     
     @Override
     public String toString() {
-        return "IN";
+        return "[]";
     }
 }

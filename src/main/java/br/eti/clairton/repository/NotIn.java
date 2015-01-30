@@ -23,6 +23,6 @@ public class NotIn implements Comparator {
     
     @Override
     public String toString() {
-        return "NOT IN";
+        return "![]";
     }
 }

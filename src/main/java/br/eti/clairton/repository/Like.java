@@ -15,6 +15,6 @@ public class Like implements Comparator {
     
     @Override
     public String toString() {
-    	return "*=";
+    	return "*";
     }
 }

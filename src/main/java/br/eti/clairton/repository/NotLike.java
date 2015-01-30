@@ -11,21 +11,23 @@ import javax.persistence.criteria.Predicate;
  */
 public class NotLike implements Comparator {
 	private static final long serialVersionUID = 1L;
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Predicate build(final CriteriaBuilder cb, final Expression<?> x, final Object y) {
-        @SuppressWarnings("unchecked")
-        final Expression<String> s = ( Expression<String> ) x;
-        return cb.notLike(cb.lower(s), "%" + y.toString() + "%");
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return "!=";
-    }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Predicate build(final CriteriaBuilder cb, final Expression<?> x,
+			final Object y) {
+		@SuppressWarnings("unchecked")
+		final Expression<String> s = (Expression<String>) x;
+		return cb.notLike(cb.lower(s), "%" + y.toString() + "%");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return "!*";
+	}
 }
