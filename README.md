@@ -50,7 +50,8 @@ repository.from(Operacao.class).where(p1).and(p2).or(p3).count();
 ```
 Os atributos são recuperados pelo metamodel do JPA, e devem navegar da
 entidade definida no método from, até o atributo em que se deseja que o 
-filtro seja aplicado. Por exemplo, tendo os modelos Operação -> Recurso -> Aplicação, e o vamos retorna as aplicações que tem uma operação relacionada com o nome que contém a string "teste", teriamos:
+filtro seja aplicado. Por exemplo, tendo os modelos Operação -> Recurso -> Aplicação, 
+e o vamos retorna as aplicações que tem uma operação relacionada com o nome que contém a string "teste", teriamos:
 ```java
 Predicate p = new Predicate("teste", Comparators.LIKE, Aplicacao_.recursos,
     Recurso_.operacao, Operacao_.nome);
@@ -60,6 +61,24 @@ repository.from(Aplicacao.class).where(p).list();
 Integrado ao projeto https://github.com/clairton/tenant.
 ```java
 repository.from(Aplicacao.class).tenantValue("ValorFiltrado");
+```
+
+Também há a possibilidade de injetar um repository com o qualifier @Tenant, para isso será necessário implementar
+o contrato TenantValue, não sendo necessário definir o valor toda vez.
+```java
+@RequestScoped
+public class TenantValueObject implements TenantValue<String> {
+
+	@Override
+	public String get() {
+		return "Valor que não deve aparecer na consulta";
+	}
+
+}
+...
+@Inject @Tenant Repository repository;
+...
+repository.from(Aplicacao.class).collection();
 ```
 
 Para usar será necessário adicionar os repositórios maven:

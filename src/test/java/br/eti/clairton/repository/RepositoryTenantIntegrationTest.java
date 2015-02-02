@@ -18,9 +18,9 @@ import br.eti.clairton.cdi.test.CdiJUnit4Runner;
 @RunWith(CdiJUnit4Runner.class)
 public class RepositoryTenantIntegrationTest {
 	private @Inject EntityManager entityManager;
-	private @Inject Repository repository;
+	private @Inject @Tenant Repository repository;
 	private @Inject Connection connection;
-	private String tenantValue = "OutroTesteQueNãoDeveAparecerNaConsulta";
+	private static final String tenantValue = "OutroTesteQueNãoDeveAparecerNaConsulta";
 
 	@Before
 	public void init() throws Exception {
