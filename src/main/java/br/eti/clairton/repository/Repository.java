@@ -35,7 +35,7 @@ import br.eti.clairton.tenant.TenantNotFound;
 @RequestScoped
 public class Repository implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private final EntityManager em;
+	private EntityManager em;
 	private final Cache cache;
 	private final TenantBuilder tenant;
 
@@ -319,5 +319,9 @@ public class Repository implements Serializable {
 
 	private <T extends Model> void evictCache(final Class<?> type, final Long id) {
 		cache.evict(type, id);
+	}
+
+	public void change(final @NotNull EntityManager em) {
+		this.em = em;
 	}
 }
