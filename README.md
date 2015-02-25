@@ -16,9 +16,17 @@ Para Recuperar uma Coleção:
 ```java
 repository.from(Aplicacao.class).collection();
 ```
-Para Recuperar uma Coleção pagina:
+Para Recuperar uma Coleção paginada:
 ```java
 repository.from(Aplicacao.class).collection(1, 1);
+```
+Para Remover uma entidade:
+```java
+repository.remove(objetoHaSerRemovido);
+```
+Para Remover uma Coleção:
+```java
+repository.from(Aplicacao.class).where("Teste", Aplicacao_.nome).remove();
 ```
 Para contar os registros:
 ```java

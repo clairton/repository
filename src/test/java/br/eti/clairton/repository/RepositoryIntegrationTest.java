@@ -15,13 +15,12 @@ import javax.inject.Inject;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 
+import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import br.eti.clairton.cdi.test.CdiJUnit4Runner;
-
-@RunWith(CdiJUnit4Runner.class)
+@RunWith(CdiTestRunner.class)
 public class RepositoryIntegrationTest {
 	private @Inject Repository repository;
 	private @Inject EntityManager entityManager;
@@ -70,10 +69,19 @@ public class RepositoryIntegrationTest {
 	}
 
 	@Test
-	public void testRemove() {
+	public void testRemoveOne() {
 		final Operacao operacao = repository.from(Operacao.class).first();
 		repository.remove(operacao);
 		assertFalse(cache.contains(Aplicacao.class, operacao.getId()));
+	}
+
+	@Test
+	public void testRemove() {
+		entityManager.getTransaction().begin();
+		assertTrue(repository.from(Operacao.class).exist());
+		repository.from(Operacao.class).remove();
+		assertFalse(repository.from(Operacao.class).exist());
+		entityManager.getTransaction().commit();
 	}
 
 	@Test

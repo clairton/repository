@@ -265,6 +265,17 @@ public class Repository implements Serializable {
 		return this;
 	}
 
+	public void change(final @NotNull EntityManager em) {
+		this.em = em;
+	}
+
+	public void remove() {
+		final Collection<Model> collection = collection();
+		for (final Model model : collection) {
+			remove(model);
+		}
+	}
+
 	// =======================================================================//
 	// ========================================metodos privados===============//
 	// =======================================================================//
@@ -319,9 +330,5 @@ public class Repository implements Serializable {
 
 	private <T extends Model> void evictCache(final Class<?> type, final Long id) {
 		cache.evict(type, id);
-	}
-
-	public void change(final @NotNull EntityManager em) {
-		this.em = em;
 	}
 }

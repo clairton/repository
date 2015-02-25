@@ -2,7 +2,6 @@ package br.eti.clairton.repository;
 
 import java.sql.Connection;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
@@ -11,29 +10,36 @@ import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.transaction.Transactional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mockito.Mockito;
 
+@Singleton
 public class Resource {
 
-	@Produces
-	@ApplicationScoped
+	private final EntityManagerFactory emf;
+
+	private final EntityManager em;
+
+	private final Connection connection;
+
+	public Resource() {
+		emf = createEntityManagerFactory();
+		em = createEntityManager(emf);
+		connection = createConnection(em);
+	}
+
 	public EntityManagerFactory createEntityManagerFactory() {
 		return Persistence.createEntityManagerFactory("default");
 	}
 
-	@Produces
-	@ApplicationScoped
 	public EntityManager createEntityManager(
 			final @Default EntityManagerFactory emf) {
 		return emf.createEntityManager();
 	}
 
 	@Produces
-	@Singleton
 	public Cache createCache(final @Default EntityManagerFactory emf) {
 		if (emf.getCache() == null) {
 			return Mockito.mock(Cache.class);
@@ -49,10 +55,9 @@ public class Resource {
 		return LogManager.getLogger(klass);
 	}
 
-	@Produces
-	@ApplicationScoped
-	@Transactional
-	public Connection getConnection(final @Default EntityManager em) {
+	public Connection createConnection(final @Default EntityManager em) {
+		Connection connection;
+		em.getTransaction().begin();
 		// TODO pegar connexão indendepdente de implementação JPA
 		try {
 			/*
@@ -62,10 +67,27 @@ public class Resource {
 			final Class<?> klass = Class
 					.forName("org.hibernate.internal.SessionImpl");
 			final Object session = em.unwrap(klass);
-			return (Connection) klass.getDeclaredMethod("connection").invoke(
-					session);
+			connection = (Connection) klass.getDeclaredMethod("connection")
+					.invoke(session);
 		} catch (final Exception e) {
-			return em.unwrap(Connection.class);
+			connection = em.unwrap(Connection.class);
 		}
+		em.getTransaction().commit();
+		return connection;
+	}
+
+	@Produces
+	public Connection getConnection() {
+		return connection;
+	}
+
+	@Produces
+	public EntityManager getEm() {
+		return em;
+	}
+
+	@Produces
+	public EntityManagerFactory getEmf() {
+		return emf;
 	}
 }

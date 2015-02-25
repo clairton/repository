@@ -9,13 +9,12 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import br.eti.clairton.cdi.test.CdiJUnit4Runner;
-
-@RunWith(CdiJUnit4Runner.class)
+@RunWith(CdiTestRunner.class)
 public class RepositoryTenantIntegrationTest {
 	private @Inject EntityManager entityManager;
 	private @Inject @Tenant Repository repository;
