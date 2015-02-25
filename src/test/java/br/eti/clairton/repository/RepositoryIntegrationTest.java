@@ -85,13 +85,25 @@ public class RepositoryIntegrationTest {
 	}
 
 	@Test
-	public void testSave() {
+	public void testSaveOne() {
 		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
 		aplicacao.setNome("Outro nome");
 		repository.save(aplicacao);
 		final Aplicacao aplicacaoSaved = repository.byId(aplicacao.getClass(),
 				aplicacao.getId());
 		assertEquals(aplicacao.getNome(), aplicacaoSaved.getNome());
+	}
+
+	@Test
+	public void testSave() {
+		entityManager.getTransaction().begin();
+		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
+		aplicacao.setNome("Outro nome");
+		repository.save(Arrays.asList(aplicacao));
+		final Aplicacao aplicacaoSaved = repository.byId(aplicacao.getClass(),
+				aplicacao.getId());
+		assertEquals(aplicacao.getNome(), aplicacaoSaved.getNome());
+		entityManager.getTransaction().commit();
 	}
 
 	@Test

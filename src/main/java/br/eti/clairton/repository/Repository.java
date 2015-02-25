@@ -269,10 +269,16 @@ public class Repository implements Serializable {
 		this.em = em;
 	}
 
-	public void remove() {
-		final Collection<Model> collection = collection();
-		for (final Model model : collection) {
-			remove(model);
+	public <T extends Model> void remove() {
+		final Collection<T> entities = collection();
+		for (final T entity : entities) {
+			remove(entity);
+		}
+	}
+
+	public <T extends Model> void save(final @NotNull Collection<T> entities) {
+		for (final T entity : entities) {
+			save(entity);
 		}
 	}
 
