@@ -223,6 +223,17 @@ public class Repository implements Serializable {
 		return this;
 	}
 
+	public <T> Repository and(@NotNull final T value,
+			@Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
+		return and(value, Comparators.EQUAL, attributes);
+	}
+
+	public <T> Repository and(@NotNull final T value,
+			@NotNull final Comparator comparator,
+			@Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
+		return and(new Predicate(value, comparator, attributes));
+	}
+
 	public <T> Repository where(@NotNull final T value,
 			@Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
 		return where(asList(new Predicate(value, attributes)));

@@ -178,11 +178,12 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testAnd() {
-		final Predicate filtro = new Predicate("Teste", Operacao_.nome);
+		final Predicate filtro = new Predicate(0l,
+				Comparators.NOT_EQUAL, Operacao_.id);
 		final Predicate filtro2 = new Predicate("OutraOperacao",
 				Comparators.NOT_EQUAL, Operacao_.nome);
 		assertEquals(Long.valueOf(1),
-				repository.from(Operacao.class).where(filtro).and(filtro2)
+				repository.from(Operacao.class).where(filtro).and("Teste", Operacao_.nome).and(filtro2)
 						.count());
 	}
 
