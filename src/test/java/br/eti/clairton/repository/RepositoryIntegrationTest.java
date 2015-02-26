@@ -77,11 +77,9 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testRemove() {
-		entityManager.getTransaction().begin();
 		assertTrue(repository.from(Operacao.class).exist());
 		repository.from(Operacao.class).remove();
 		assertFalse(repository.from(Operacao.class).exist());
-		entityManager.getTransaction().commit();
 	}
 
 	@Test
@@ -96,14 +94,12 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testSave() {
-		entityManager.getTransaction().begin();
 		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
 		aplicacao.setNome("Outro nome");
 		repository.save(Arrays.asList(aplicacao));
 		final Aplicacao aplicacaoSaved = repository.byId(aplicacao.getClass(),
 				aplicacao.getId());
 		assertEquals(aplicacao.getNome(), aplicacaoSaved.getNome());
-		entityManager.getTransaction().commit();
 	}
 
 	@Test
@@ -178,13 +174,14 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testAnd() {
-		final Predicate filtro = new Predicate(0l,
-				Comparators.NOT_EQUAL, Operacao_.id);
+		final Predicate filtro = new Predicate(0l, Comparators.NOT_EQUAL,
+				Operacao_.id);
 		final Predicate filtro2 = new Predicate("OutraOperacao",
 				Comparators.NOT_EQUAL, Operacao_.nome);
-		assertEquals(Long.valueOf(1),
-				repository.from(Operacao.class).where(filtro).and("Teste", Operacao_.nome).and(filtro2)
-						.count());
+		assertEquals(
+				Long.valueOf(1),
+				repository.from(Operacao.class).where(filtro)
+						.and("Teste", Operacao_.nome).and(filtro2).count());
 	}
 
 	@Test

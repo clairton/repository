@@ -71,23 +71,32 @@ public class Repository implements Serializable {
 
 	@Transactional
 	public <T extends Model> T save(@NotNull T entity) {
+		return saveWithoutTransaction(entity);
+	}
+	
+
+	private <T extends Model> T saveWithoutTransaction(@NotNull T entity) {
 		if (!em.contains(entity) && entity.getId() != null) {
 			entity = em.merge(entity);
 		} else {
 			em.persist(entity);
 		}
-		em.flush();
 		evictCache(entity);
 		return entity;
 	}
 
 	@Transactional
 	public <T extends Model> void remove(@NotNull final T entity) {
+		removeWithoutTransaction(entity);
+//		em.flush();
+	}
+	
+
+	private <T extends Model> void removeWithoutTransaction(@NotNull final T entity) {
 		final Class<?> type = entity.getClass();
 		final Long id = entity.getId();
 		em.remove(entity);
 		evictCache(type, id);
-		em.flush();
 	}
 
 	@Transactional
@@ -96,7 +105,7 @@ public class Repository implements Serializable {
 		final T entity = em.find(type, id);
 		em.remove(entity);
 		evictCache(type, id);
-		em.flush();
+//		em.flush();
 	}
 
 	/**
@@ -280,16 +289,18 @@ public class Repository implements Serializable {
 		this.em = em;
 	}
 
+	@Transactional
 	public <T extends Model> void remove() {
 		final Collection<T> entities = collection();
 		for (final T entity : entities) {
-			remove(entity);
+			removeWithoutTransaction(entity);
 		}
 	}
 
+	@Transactional
 	public <T extends Model> void save(final @NotNull Collection<T> entities) {
 		for (final T entity : entities) {
-			save(entity);
+			saveWithoutTransaction(entity);
 		}
 	}
 

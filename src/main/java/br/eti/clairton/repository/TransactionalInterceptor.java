@@ -1,5 +1,7 @@
 package br.eti.clairton.repository;
 
+import java.util.ConcurrentModificationException;
+
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
@@ -51,12 +53,19 @@ public class TransactionalInterceptor {
             	logger.debug("Cancelando transação no banco de dados");
                 entityManager.getTransaction().rollback();
             } else {
-            	logger.debug("Confirmando transação no banco de dados");
-                entityManager.getTransaction().commit();
+            	try{
+            		entityManager.flush();
+            		logger.debug("Confirmando transação no banco de dados");
+            		//não precisa commitar pois não haverá transação ativa
+            		entityManager.getTransaction().commit();
+            	}catch (final ConcurrentModificationException e) {
+                	logger.error("Houve um erro de concorrência ao sincronizar os dados com o banco de dados, detalhes: {}", e.getMessage());
+                	logger.debug("Detalhes: ", e);
+				}
             }
             return object;
         } catch (final Exception e) {
-        	logger.warn("Houve um erro au controlar a transação no banco de dados, detalhes: {}", e.getMessage());
+        	logger.warn("Houve um erro ao controlar a transação no banco de dados, detalhes: {}", e.getMessage());
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
