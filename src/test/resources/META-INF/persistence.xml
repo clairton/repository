@@ -3,17 +3,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
 	version="2.0">
-	<persistence-unit name="default">
+	<persistence-unit name="default" transaction-type="JTA">
+		<jta-data-source>java:/jdbc/datasources/MyDS</jta-data-source>
 		<class>br.eti.clairton.repository.Aplicacao</class>
 		<class>br.eti.clairton.repository.Recurso</class>
 		<class>br.eti.clairton.repository.Operacao</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
-			<property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver" />
-			<property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:file:target/repository;hsqldb.lock_file=false;create=true" />
-			<property name="javax.persistence.jdbc.user" value="sa" />
-			<property name="javax.persistence.jdbc.password" value="" />
-
 			<!-- Batto JPA properties -->
 			<property name="org.batoo.jpa.ddl" value="CREATE" />
 

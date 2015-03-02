@@ -193,6 +193,18 @@
 				</dependency>
 				<dependency>
 					<groupId>org.apache.deltaspike.modules</groupId>
+					<artifactId>deltaspike-jpa-module-api</artifactId>
+					<version>${deltaspike.version}</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.deltaspike.modules</groupId>
+					<artifactId>deltaspike-jpa-module-impl</artifactId>
+					<version>${deltaspike.version}</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.deltaspike.modules</groupId>
 					<artifactId>deltaspike-test-control-module-impl</artifactId>
 					<version>${deltaspike.version}</version>
 					<scope>test</scope>
@@ -213,6 +225,12 @@
 					<groupId>org.jboss.weld.se</groupId>
 					<artifactId>weld-se-core</artifactId>
 					<version>${weld.version}</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>br.eti.clairton</groupId>
+					<artifactId>ds-test</artifactId>
+					<version>0.1.0-SNAPSHOT</version>
 					<scope>test</scope>
 				</dependency>
 				<dependency>

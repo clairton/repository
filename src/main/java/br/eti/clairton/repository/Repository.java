@@ -70,6 +70,7 @@ public class Repository implements Serializable {
 	}
 
 	@Transactional
+	@Flushable
 	public <T extends Model> T save(@NotNull T entity) {
 		return saveWithoutTransaction(entity);
 	}
@@ -86,9 +87,9 @@ public class Repository implements Serializable {
 	}
 
 	@Transactional
+	@Flushable
 	public <T extends Model> void remove(@NotNull final T entity) {
 		removeWithoutTransaction(entity);
-//		em.flush();
 	}
 	
 
@@ -100,12 +101,12 @@ public class Repository implements Serializable {
 	}
 
 	@Transactional
+	@Flushable
 	public <T extends Model> void remove(@NotNull final Class<T> type,
 			@NotNull Long id) {
 		final T entity = em.find(type, id);
 		em.remove(entity);
 		evictCache(type, id);
-//		em.flush();
 	}
 
 	/**
@@ -290,6 +291,7 @@ public class Repository implements Serializable {
 	}
 
 	@Transactional
+	@Flushable
 	public <T extends Model> void remove() {
 		final Collection<T> entities = collection();
 		for (final T entity : entities) {
@@ -298,6 +300,7 @@ public class Repository implements Serializable {
 	}
 
 	@Transactional
+	@Flushable
 	public <T extends Model> void save(final @NotNull Collection<T> entities) {
 		for (final T entity : entities) {
 			saveWithoutTransaction(entity);

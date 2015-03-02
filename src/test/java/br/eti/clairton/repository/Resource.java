@@ -2,14 +2,17 @@ package br.eti.clairton.repository;
 
 import java.sql.Connection;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Singleton;
+import javax.naming.InitialContext;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.sql.DataSource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,16 +21,17 @@ import org.mockito.Mockito;
 @Singleton
 public class Resource {
 
-	private final EntityManagerFactory emf;
+	private EntityManagerFactory emf;
 
-	private final EntityManager em;
+	private EntityManager em;
 
-	private final Connection connection;
+	private Connection connection;
 
-	public Resource() {
+	@PostConstruct
+	public void init() throws Exception {
 		emf = createEntityManagerFactory();
 		em = createEntityManager(emf);
-		connection = createConnection(em);
+		connection = createConnection();
 	}
 
 	public EntityManagerFactory createEntityManagerFactory() {
@@ -55,25 +59,11 @@ public class Resource {
 		return LogManager.getLogger(klass);
 	}
 
-	public Connection createConnection(final @Default EntityManager em) {
-		Connection connection;
-		em.getTransaction().begin();
-		// TODO pegar connexão indendepdente de implementação JPA
-		try {
-			/*
-			 * O hibernate não implementa o entityManager de forma a recuperar a
-			 * o connection
-			 */
-			final Class<?> klass = Class
-					.forName("org.hibernate.internal.SessionImpl");
-			final Object session = em.unwrap(klass);
-			connection = (Connection) klass.getDeclaredMethod("connection")
-					.invoke(session);
-		} catch (final Exception e) {
-			connection = em.unwrap(Connection.class);
-		}
-		em.getTransaction().commit();
-		return connection;
+	public Connection createConnection() throws Exception {
+		final String name = "java:/jdbc/datasources/MyDS";
+		final InitialContext context = new InitialContext();
+		final DataSource dataSource = (DataSource) context.lookup(name);
+		return dataSource.getConnection();
 	}
 
 	@Produces
