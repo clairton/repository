@@ -88,6 +88,10 @@ public class TenantValueObject implements TenantValue<String> {
 ...
 repository.from(Aplicacao.class).collection();
 ```
+Para chamada do EntityManager#flush automaticamente ao executar os métodos remove, save e update
+necessário adicionar o interceptor br.eti.clairton.repository.FlushableInterceptor no beans.xml.
+
+Para uso de JTA em um ambiente CDI recomendamos o uso da extensão https://deltaspike.apache.org/documentation/jpa.html.
 
 Para usar será necessário adicionar os repositórios maven:
 
