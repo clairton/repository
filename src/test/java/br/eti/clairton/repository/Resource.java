@@ -3,10 +3,11 @@ package br.eti.clairton.repository;
 import java.sql.Connection;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
-import javax.inject.Singleton;
 import javax.naming.InitialContext;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
@@ -18,7 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mockito.Mockito;
 
-@Singleton
+@ApplicationScoped
 public class Resource {
 
 	private EntityManagerFactory emf;
@@ -28,10 +29,14 @@ public class Resource {
 	private Connection connection;
 
 	@PostConstruct
-	public void init() throws Exception {
+	public void init() {
 		emf = createEntityManagerFactory();
 		em = createEntityManager(emf);
-		connection = createConnection();
+		try {
+			connection = createConnection();
+		} catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public EntityManagerFactory createEntityManagerFactory() {
@@ -44,6 +49,7 @@ public class Resource {
 	}
 
 	@Produces
+	@RequestScoped
 	public Cache createCache(final @Default EntityManagerFactory emf) {
 		if (emf.getCache() == null) {
 			return Mockito.mock(Cache.class);
@@ -59,7 +65,7 @@ public class Resource {
 		return LogManager.getLogger(klass);
 	}
 
-	public Connection createConnection() throws Exception {
+	private Connection createConnection() throws Exception {
 		final String name = "java:/jdbc/datasources/MyDS";
 		final InitialContext context = new InitialContext();
 		final DataSource dataSource = (DataSource) context.lookup(name);
@@ -67,16 +73,19 @@ public class Resource {
 	}
 
 	@Produces
+	@RequestScoped
 	public Connection getConnection() {
 		return connection;
 	}
 
 	@Produces
+	@RequestScoped
 	public EntityManager getEm() {
 		return em;
 	}
 
 	@Produces
+	@RequestScoped
 	public EntityManagerFactory getEmf() {
 		return emf;
 	}

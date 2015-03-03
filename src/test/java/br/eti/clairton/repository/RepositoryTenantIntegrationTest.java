@@ -7,7 +7,9 @@ import java.sql.Connection;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
+import javax.transaction.TransactionManager;
 
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.Before;
@@ -23,12 +25,12 @@ public class RepositoryTenantIntegrationTest {
 
 	@Before
 	public void init() throws Exception {
-		entityManager.getTransaction().begin();
+		final InitialContext context = new InitialContext();
+		final TransactionManager tm = (TransactionManager) context.lookup("java:/jboss/TransactionManager");
+		tm.begin();
 		final String sql = "DELETE FROM operacoes;DELETE FROM recursos;DELETE FROM aplicacoes;";
 		connection.createStatement().execute(sql);
-		entityManager.getTransaction().commit();
 
-		entityManager.getTransaction().begin();
 		final Aplicacao aplicacao = new Aplicacao("Teste");
 		final Recurso recurso = new Recurso(aplicacao, "Teste");
 		final Operacao operacao = new Operacao(recurso, "Teste");
@@ -37,7 +39,10 @@ public class RepositoryTenantIntegrationTest {
 		final Recurso recurso2 = new Recurso(aplicacao2, "OutroTeste");
 		final Operacao operacao2 = new Operacao(recurso2, "OutroTeste");
 		entityManager.persist(operacao2);
-		entityManager.getTransaction().commit();
+		entityManager.joinTransaction();
+		entityManager.flush();
+		entityManager.clear();
+		tm.commit();
 	}
 
 	@Test

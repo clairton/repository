@@ -3,9 +3,4 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
 							http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
 	version="1.1" bean-discovery-mode="all">
-	<interceptors>
-		<!-- Not needed with CDI 1.1+ and DeltaSpike v1.1.1+ -->
-		<class>org.apache.deltaspike.jpa.impl.transaction.TransactionalInterceptor</class>
-		<class>br.eti.clairton.repository.FlushableInterceptor</class>
-	</interceptors>
 </beans>

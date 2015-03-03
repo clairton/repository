@@ -1,10 +1,12 @@
 package br.eti.clairton.repository;
 
+import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
+import javax.persistence.TransactionRequiredException;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 
@@ -17,6 +19,7 @@ import org.apache.logging.log4j.Logger;
  */
 @Interceptor
 @Flushable
+@Priority(Interceptor.Priority.LIBRARY_AFTER - 1)
 public class FlushableInterceptor {
 	private final EntityManager entityManager;
 	private final Logger logger;
@@ -39,11 +42,19 @@ public class FlushableInterceptor {
 	 *             caso ocorra algum problema
 	 */
 	@AroundInvoke
-	public Object addTransaction(final InvocationContext invocationContext)
-			throws Exception {
+	public Object runFlush(final InvocationContext invocationContext) throws Exception {
 		final Object object = invocationContext.proceed();
 		logger.info("Executando Flush no Banco de dados");
-		entityManager.flush();
+		try {
+			entityManager.joinTransaction();
+		} catch (final TransactionRequiredException e) {
+		}
+		try {
+			entityManager.flush();
+		} catch (final TransactionRequiredException e) {
+			logger.warn("Não há transação em andamento para rodar o EntityManager#flush");
+			throw e;
+		}
 		return object;
 	}
 }

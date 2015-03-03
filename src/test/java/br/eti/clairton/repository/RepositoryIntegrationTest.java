@@ -12,8 +12,10 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.naming.InitialContext;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
+import javax.transaction.TransactionManager;
 
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.Before;
@@ -29,19 +31,29 @@ public class RepositoryIntegrationTest {
 
 	@Before
 	public void init() throws Exception {
-		entityManager.getTransaction().begin();
+		final InitialContext context = new InitialContext();
+		final TransactionManager tm = (TransactionManager) context.lookup("java:/jboss/TransactionManager");
+		tm.begin();
 		final String sql = "DELETE FROM operacoes;DELETE FROM recursos;DELETE FROM aplicacoes;";
 		connection.createStatement().execute(sql);
-		entityManager.getTransaction().commit();
 
-		entityManager.getTransaction().begin();
 		final Aplicacao aplicacao = new Aplicacao("Teste");
 		final Recurso recurso = new Recurso(aplicacao, "Teste");
 		final Operacao operacao = new Operacao(recurso, "Teste");
 		entityManager.persist(operacao);
 		final Operacao operacao2 = new Operacao(recurso, "OutraOperacao");
 		entityManager.persist(operacao2);
-		entityManager.getTransaction().commit();
+		entityManager.joinTransaction();
+		entityManager.flush();
+		entityManager.clear();
+		tm.commit();
+	}
+
+	@Test
+	public void testRemove() throws Exception {
+		assertTrue(repository.from(Operacao.class).exist());
+		repository.from(Operacao.class).remove();
+		assertFalse(repository.from(Operacao.class).exist());
 	}
 
 	@Test
@@ -70,48 +82,32 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testRemoveOne() {
-		entityManager.getTransaction().begin();
 		final Operacao operacao = repository.from(Operacao.class).first();
 		repository.remove(operacao);
-		assertFalse(cache.contains(Aplicacao.class, operacao.getId()));
-		entityManager.getTransaction().commit();
-
-	}
-
-	@Test
-	public void testRemove() {
-		entityManager.getTransaction().begin();
-		assertTrue(repository.from(Operacao.class).exist());
-		repository.from(Operacao.class).remove();
-		assertFalse(repository.from(Operacao.class).exist());
-		entityManager.getTransaction().commit();
-
+		assertFalse(cache.contains(Operacao.class, operacao.getId()));
+		assertFalse(repository.from(Operacao.class)
+				.where(operacao.getId(), Operacao_.id).exist());
 	}
 
 	@Test
 	public void testSaveOne() {
-		entityManager.getTransaction().begin();
 		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
 		aplicacao.setNome("Outro nome");
 		repository.save(aplicacao);
 		final Aplicacao aplicacaoSaved = repository.byId(aplicacao.getClass(),
 				aplicacao.getId());
 		assertEquals(aplicacao.getNome(), aplicacaoSaved.getNome());
-		entityManager.getTransaction().commit();
 
 	}
 
 	@Test
 	public void testSave() {
-		entityManager.getTransaction().begin();
 		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
 		aplicacao.setNome("Outro nome");
 		repository.save(Arrays.asList(aplicacao));
 		final Aplicacao aplicacaoSaved = repository.byId(aplicacao.getClass(),
 				aplicacao.getId());
 		assertEquals(aplicacao.getNome(), aplicacaoSaved.getNome());
-		entityManager.getTransaction().commit();
-
 	}
 
 	@Test
