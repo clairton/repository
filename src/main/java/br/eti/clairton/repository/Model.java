@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.Cacheable;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
@@ -16,11 +17,12 @@ import br.eti.clairton.identificator.Identificable;
  */
 @MappedSuperclass
 @Cacheable
-public abstract class Model extends Identificable implements Serializable, Cloneable {
+public abstract class Model extends Identificable implements Serializable,
+		Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	public Long getId() {
