@@ -21,6 +21,6 @@ public class NotNull implements Comparator {
     
     @Override
     public String toString() {
-    	return "IS NOT NULL";
+    	return "!∅";
     }
 }

@@ -14,6 +14,6 @@ public class Exist implements Comparator {
 
 	@Override
 	public String toString() {
-		return "EXISTS";
+		return "∃";
 	}
 }

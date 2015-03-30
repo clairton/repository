@@ -22,6 +22,6 @@ public class Null implements Comparator {
 
 	@Override
 	public String toString() {
-		return "IS NULL";
+		return "∅";
 	}
 }

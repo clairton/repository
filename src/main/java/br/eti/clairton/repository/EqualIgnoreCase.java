@@ -24,6 +24,6 @@ public class EqualIgnoreCase implements Comparator {
 
 	@Override
 	public String toString() {
-		return "=~";
+		return "=*";
 	}
 }
