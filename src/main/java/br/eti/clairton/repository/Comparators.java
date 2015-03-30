@@ -19,8 +19,6 @@ public enum Comparators implements Comparator {
     EQUAL_IGNORE_CASE(new EqualIgnoreCase()),
     NOT_NULL(new NotNull()),
     NULL(new Null()),
-    IN(new In()),
-    NOT_IN(new NotIn()),
     EXIST(new Exist()),
     NOT_EQUAL(new NotEqual()),
     LIKE(new Like()),
@@ -41,7 +39,7 @@ public enum Comparators implements Comparator {
      */
     @Override
     public String toString() {
-        return super.toString();
+        return comparator.toString();
     }
     
     /**

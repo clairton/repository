@@ -1,5 +1,7 @@
 package br.eti.clairton.repository;
 
+import java.util.Collection;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
@@ -18,9 +20,13 @@ public class NotLike implements Comparator {
 	@Override
 	public Predicate build(final CriteriaBuilder cb, final Expression<?> x,
 			final Object y) {
-		@SuppressWarnings("unchecked")
-		final Expression<String> s = (Expression<String>) x;
-		return cb.notLike(cb.lower(s), "%" + y.toString() + "%");
+		if (y instanceof Collection) {
+			return cb.not(x.in(( Collection<?> ) y));
+		} else {
+			@SuppressWarnings("unchecked")
+			final Expression<String> s = (Expression<String>) x;
+			return cb.notLike(cb.lower(s), "%" + y.toString() + "%");
+		}
 	}
 
 	/**
