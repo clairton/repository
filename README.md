@@ -1,4 +1,4 @@
-# Repositorio Para Facilitar o uso do JPA
+# repository[![Build Status](https://travis-ci.org/clairton/repository.svg?branch=master)](https://travis-ci.org/clairton/repository)
 
 DSL para facilitar consulta com o Criteria Builder do JPA.
 
