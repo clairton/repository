@@ -1,4 +1,4 @@
-# repository[![Build Status](https://travis-ci.org/clairton/repository.svg?branch=master)](https://travis-ci.org/clairton/repository)
+# repository[![Build Status](https://drone.io/github.com/clairton/repository/status.png)](https://drone.io/github.com/clairton/repository/latest)
 
 DSL para facilitar consulta com o Criteria Builder do JPA.
 
