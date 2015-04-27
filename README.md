@@ -1,4 +1,4 @@
-# Repositorio Para Facilitar o uso do JPA
+# repository[![Build Status](https://drone.io/github.com/clairton/repository/status.png)](https://drone.io/github.com/clairton/repository/latest)
 
 DSL para facilitar consulta com o Criteria Builder do JPA.
 
