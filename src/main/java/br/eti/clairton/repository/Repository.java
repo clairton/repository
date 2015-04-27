@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
@@ -36,7 +36,7 @@ import br.eti.clairton.tenant.TenantNotFound;
  * 
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  */
-@RequestScoped
+@Dependent
 public class Repository implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private final Logger logger = LogManager.getLogger(getClass());
@@ -292,6 +292,7 @@ public class Repository implements Serializable {
 	}
 
 	public void change(final @NotNull EntityManager em) {
+		em.getEntityManagerFactory().getProperties().get("name");
 		this.em = em;
 	}
 
@@ -313,8 +314,9 @@ public class Repository implements Serializable {
 		saveWithoutTransaction(entities);
 		flush();
 	}
-	
-	public <T extends Model> void saveWithoutTransaction(final @NotNull Collection<T> entities) {
+
+	public <T extends Model> void saveWithoutTransaction(
+			final @NotNull Collection<T> entities) {
 		for (final T entity : entities) {
 			saveWithoutTransaction(entity);
 		}
@@ -387,6 +389,11 @@ public class Repository implements Serializable {
 	}
 
 	private <T extends Model> void evictCache(final Class<?> type, final Long id) {
-		cache.evict(type, id);
+		try{
+			cache.evict(type, id);
+		}catch(Exception e){
+			logger.warn("Erro ao invalidar cache", e.getMessage());
+			logger.debug("Erro ao invalidar cache", e);
+		}
 	}
 }
