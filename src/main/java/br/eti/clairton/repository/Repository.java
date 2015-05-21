@@ -59,7 +59,7 @@ public class Repository implements Serializable {
 	private Boolean withTenant = Boolean.FALSE;
 
 	@Deprecated
-	protected Repository() {
+	public Repository() {
 		this(null, null, null, null);
 	}
 
