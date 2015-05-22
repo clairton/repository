@@ -39,9 +39,13 @@ import br.eti.clairton.tenant.TenantNotFound;
 @Dependent
 public class Repository implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private final Logger logger = LogManager.getLogger(getClass());
+	
+	private final Logger logger = LogManager.getLogger(Repository.class);
+	
 	private EntityManager em;
+	
 	private final Cache cache;
+	
 	private final TenantBuilder tenant;
 
 	private Root<? extends Model> from;
