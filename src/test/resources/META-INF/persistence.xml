@@ -8,6 +8,7 @@
 		<class>br.eti.clairton.repository.Aplicacao</class>
 		<class>br.eti.clairton.repository.Recurso</class>
 		<class>br.eti.clairton.repository.Operacao</class>
+		<class>br.eti.clairton.repository.Model</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<!-- Batto JPA properties -->

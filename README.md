@@ -18,7 +18,9 @@ repository.from(Aplicacao.class).collection();
 ```
 Para Recuperar uma Coleção paginada:
 ```java
-repository.from(Aplicacao.class).collection(1, 1);
+PaginatedMetaList<Aplicacao> metaList = repository.from(Aplicacao.class).collection(1, 1);
+metaList.getMeta().getTotal();//total de itens em todosd as paginas
+metaList.getMeta().getPage();//pagina atual
 ```
 Para Remover uma entidade:
 ```java

@@ -22,12 +22,12 @@ public class Operacao extends br.eti.clairton.repository.Model {
 	@NotNull
 	@Size(min = 1, max = 50)
 	@Identificator
-	private final String nome;
+	private String nome;
 
 	@ManyToOne(cascade = CascadeType.ALL)
 	@Identificator
 	@NotNull
-	private final Recurso recurso;
+	private Recurso recurso;
 
 	/**
 	 * Construtor padrão.

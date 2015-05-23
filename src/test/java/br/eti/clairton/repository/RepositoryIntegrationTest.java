@@ -32,7 +32,8 @@ public class RepositoryIntegrationTest {
 	@Before
 	public void init() throws Exception {
 		final InitialContext context = new InitialContext();
-		final TransactionManager tm = (TransactionManager) context.lookup("java:/jboss/TransactionManager");
+		final TransactionManager tm = (TransactionManager) context
+				.lookup("java:/jboss/TransactionManager");
 		tm.begin();
 		final String sql = "DELETE FROM operacoes;DELETE FROM recursos;DELETE FROM aplicacoes;";
 		connection.createStatement().execute(sql);
@@ -132,9 +133,20 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testPaginatedCollection() {
-		final Collection<Operacao> operacoes = repository.from(Operacao.class)
-				.collection(1, 1);
+		final PaginatedCollection<Operacao, Meta> operacoes = repository.from(
+				Operacao.class).collection(1, 1);
 		assertEquals(1, operacoes.size());
+		assertEquals(new Long(2), operacoes.unwrap(Meta.class).getTotal());
+		assertEquals(new Long(1), operacoes.unwrap(Meta.class).getPage());
+	}
+
+	@Test
+	public void testPaginatedList() {
+		final PaginatedCollection<Operacao, Meta> operacoes = repository.from(
+				Operacao.class).list(2, 1);
+		assertEquals(1, operacoes.size());
+		assertEquals(new Long(2), operacoes.unwrap(Meta.class).getTotal());
+		assertEquals(new Long(2), operacoes.unwrap(Meta.class).getPage());
 	}
 
 	@Test
