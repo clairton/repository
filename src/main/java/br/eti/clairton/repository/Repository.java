@@ -28,6 +28,10 @@ import javax.validation.constraints.Size;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import br.eti.clairton.paginated.collection.Meta;
+import br.eti.clairton.paginated.collection.PaginatedCollection;
+import br.eti.clairton.paginated.collection.PaginatedList;
+import br.eti.clairton.paginated.collection.PaginatedMetaList;
 import br.eti.clairton.tenant.TenantBuilder;
 import br.eti.clairton.tenant.TenantNotFound;
 

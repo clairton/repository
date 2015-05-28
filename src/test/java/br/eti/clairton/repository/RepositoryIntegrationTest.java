@@ -22,6 +22,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import br.eti.clairton.paginated.collection.Meta;
+import br.eti.clairton.paginated.collection.PaginatedCollection;
+
 @RunWith(CdiTestRunner.class)
 public class RepositoryIntegrationTest {
 	private @Inject Repository repository;
