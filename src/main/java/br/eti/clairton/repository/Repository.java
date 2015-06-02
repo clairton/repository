@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import javax.persistence.TransactionRequiredException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
@@ -43,13 +45,13 @@ import br.eti.clairton.tenant.TenantNotFound;
 @Dependent
 public class Repository implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private final Logger logger = LogManager.getLogger(Repository.class);
-	
+
 	private EntityManager em;
-	
+
 	private final Cache cache;
-	
+
 	private final TenantBuilder tenant;
 
 	private Root<? extends Model> from;
@@ -59,6 +61,8 @@ public class Repository implements Serializable {
 	private CriteriaBuilder criteriaBuilder;
 
 	private List<javax.persistence.criteria.Predicate> predicates;
+
+	private final List<javax.persistence.criteria.Order> orders = new ArrayList<>();
 
 	private Object tenantValue;
 
@@ -172,7 +176,8 @@ public class Repository implements Serializable {
 		return query.getSingleResult();
 	}
 
-	public <T extends Model> PaginatedList<T, Meta> list(@NotNull @Min(0) final Integer page,
+	public <T extends Model> PaginatedList<T, Meta> list(
+			@NotNull @Min(0) final Integer page,
 			@NotNull @Min(0) final Integer perPage) {
 		final TypedQuery<T> query = query(from, criteriaQuery, predicates);
 		if (page != 0 && perPage != 0) {
@@ -258,6 +263,42 @@ public class Repository implements Serializable {
 			@NotNull final Comparator comparator,
 			@Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
 		return and(new Predicate(value, comparator, attributes));
+	}
+
+	public Repository orderBy(final @NotNull Order.Type type,
+			final @Size(min = 1) @NotNull Attribute<?, ?>... attributes) {
+		orderBy(type, Arrays.asList(attributes));
+		return this;
+	}
+
+	public Repository orderBy(final @NotNull Order.Type type,
+			final @Size(min = 1) @NotNull List<Attribute<?, ?>> attributes) {
+		Path<?> path = from.get(attributes.get(0).getName());
+		Integer i = 1;
+		final Integer j = attributes.size() - 1;
+		for (; i <= j; i++) {
+			path = path.get(attributes.get(i).getName());
+		}
+		final javax.persistence.criteria.Order order;
+		if (Order.Type.ASC.equals(type)) {
+			order = criteriaBuilder.asc(path);
+		} else {
+			order = criteriaBuilder.desc(path);
+		}
+		orders.add(order);
+		return this;
+	}
+
+	public Repository orderBy(final @NotNull Order... orders) {
+		orderBy(Arrays.asList(orders));
+		return this;
+	}
+
+	public Repository orderBy(final @NotNull List<Order> orders) {
+		for (final Order order : orders) {
+			orderBy(order.getType(), order.getAttributes());
+		}
+		return this;
 	}
 
 	public <T> Repository where(@NotNull final T value,
@@ -358,11 +399,13 @@ public class Repository implements Serializable {
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
 		@SuppressWarnings("unchecked")
 		final Selection<T> s = (Selection<T>) selection;
-		cq.select(s)
-				.where(predicates
-						.toArray(new javax.persistence.criteria.Predicate[predicates
-								.size()]));
-		final TypedQuery<T> query = em.createQuery(cq);
+		cq.select(s);
+		criteriaQuery.orderBy(orders.toArray(new javax.persistence.criteria.Order[]{}));
+		cq.where(predicates
+				.toArray(new javax.persistence.criteria.Predicate[predicates
+						.size()]));
+		final TypedQuery<T> query = em.createQuery(cq);	
+		orders.clear();
 		return query;
 	}
 
@@ -400,9 +443,9 @@ public class Repository implements Serializable {
 	}
 
 	private <T extends Model> void evictCache(final Class<?> type, final Long id) {
-		try{
+		try {
 			cache.evict(type, id);
-		}catch(Exception e){
+		} catch (Exception e) {
 			logger.warn("Erro ao invalidar cache", e.getMessage());
 			logger.debug("Erro ao invalidar cache", e);
 		}

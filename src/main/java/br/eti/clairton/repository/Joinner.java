@@ -39,7 +39,7 @@ public class Joinner {
 	private final TenantBuilder tenant;
 
 	@Inject
-	public Joinner(TenantBuilder tenant) {
+	public Joinner(final TenantBuilder tenant) {
 		super();
 		this.tenant = tenant;
 	}

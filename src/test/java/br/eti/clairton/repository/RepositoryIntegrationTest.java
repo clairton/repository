@@ -133,6 +133,48 @@ public class RepositoryIntegrationTest {
 				.list();
 		assertEquals(1, aplicacoes.size());
 	}
+	
+	@Test
+	public void testOneCallOrderBy() {
+		final List<Operacao> operacoes = repository.from(Operacao.class)
+				.orderBy(Order.Type.ASC, Operacao_.recurso, Recurso_.nome)
+				.list();
+		assertEquals(2, operacoes.size());
+		assertEquals("Teste", operacoes.get(1).getNome());
+	}
+	
+	@Test
+	public void testCallListOrderBy() {
+		final List<Operacao> operacoes = repository.from(Operacao.class)
+				.orderBy(Arrays.asList(new Order(Order.Type.ASC, Operacao_.nome), 
+						new Order(Order.Type.DESC, Operacao_.id)))
+				.list();
+		assertEquals(2, operacoes.size());
+		assertEquals("OutraOperacao", operacoes.get(0).getNome());
+		assertEquals("Teste", operacoes.get(1).getNome());
+	}
+	
+	@Test
+	public void testCallArrayOrderBy() {
+		final List<Operacao> operacoes = repository.from(Operacao.class)
+				.orderBy(new Order(Order.Type.ASC, Operacao_.nome), 
+						new Order(Order.Type.DESC, Operacao_.id))
+				.list();
+		assertEquals(2, operacoes.size());
+		assertEquals("OutraOperacao", operacoes.get(0).getNome());
+		assertEquals("Teste", operacoes.get(1).getNome());
+	}
+	
+	@Test
+	public void testMoreOneOrderBy() {
+		final List<Operacao> operacoes = repository.from(Operacao.class)
+				.orderBy(Order.Type.ASC, Operacao_.nome)
+				.orderBy(Order.Type.DESC, Operacao_.id)
+				.list();
+		assertEquals(2, operacoes.size());
+		assertEquals("OutraOperacao", operacoes.get(0).getNome());
+		assertEquals("Teste", operacoes.get(1).getNome());
+	}
 
 	@Test
 	public void testPaginatedCollection() {

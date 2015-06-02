@@ -17,6 +17,8 @@
 			<!-- EclipseLink properties -->
 			<property name="eclipselink.ddl-generation" value="create-tables" />
 			<property name="eclipselink.logging.level" value="INFO" />
+			<property name="eclipselink.logging.level.sql" value="FINE"/>
+ 			<property name="eclipselink.logging.parameters" value="true"/>
 			<property name="eclipselink.target-server" value="JBoss"/>
 
 			<!-- Hibernate Properties -->
