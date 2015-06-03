@@ -140,7 +140,6 @@ public class RepositoryIntegrationTest {
 				.orderBy(Order.Type.ASC, Operacao_.recurso, Recurso_.nome)
 				.list();
 		assertEquals(2, operacoes.size());
-		assertEquals("Teste", operacoes.get(1).getNome());
 	}
 	
 	@Test
