@@ -38,6 +38,10 @@ Por padrão os registros são contados usando o distinct, caso não deseje isso 
 ```java
 repository.from(Aplicacao.class).count(Boolean.FALSE);
 ```
+Para ordenar o resultado:
+```java
+repository.from(Aplicacao.class).orderBy(Order.Type.DESC, Aplicacao_.nome).list();
+```
 Aplicando Predicados:
 ```java
 final Predicate p1 = new Predicate("Teste", Operacao_.nome);
