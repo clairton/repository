@@ -10,7 +10,7 @@ public class Order {
 		ASC, DESC;
 
 		public static Type byString(final String order) {
-			return valueOf(order.toLowerCase());
+			return valueOf(order.toUpperCase());
 		}
 	}
 
