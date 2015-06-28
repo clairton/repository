@@ -77,7 +77,8 @@ public class Repository implements Serializable {
 
 	@Inject
 	public Repository(@NotNull final EntityManager em,
-			@NotNull final Cache cache, @NotNull final TenantBuilder tenant,
+			@NotNull final Cache cache, 
+			@NotNull final TenantBuilder tenant,
 			@NotNull final Joinner joinner) {
 		super();
 		this.em = em;

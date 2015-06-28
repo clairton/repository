@@ -7,7 +7,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.InjectionPoint;
 import javax.naming.InitialContext;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
@@ -15,8 +14,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.sql.DataSource;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.mockito.Mockito;
 
 @ApplicationScoped
@@ -56,13 +53,6 @@ public class Resource {
 		} else {
 			return emf.getCache();
 		}
-	}
-
-	@Produces
-	public Logger produceLogger(final InjectionPoint injectionPoint) {
-		final Class<?> type = injectionPoint.getMember().getDeclaringClass();
-		final String klass = type.getName();
-		return LogManager.getLogger(klass);
 	}
 
 	private Connection createConnection() throws Exception {
