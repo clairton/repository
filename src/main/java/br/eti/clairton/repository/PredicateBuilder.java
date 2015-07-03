@@ -57,4 +57,9 @@ public class PredicateBuilder {
 		attributes = new ArrayList<Attribute<?, ?>>();
 		operator = Operators.AND;
 	}
+
+	public PredicateBuilder operator(final Operator operator) {
+		this.operator = operator;
+		return this;
+	}
 }
