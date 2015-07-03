@@ -8,7 +8,7 @@ import javax.persistence.criteria.Predicate;
 
 /**
  * Cria o {@link CriteriaBuilder#notLike}.
- * 
+ *
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  */
 public class NotLike implements Comparator {
@@ -18,8 +18,7 @@ public class NotLike implements Comparator {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Predicate build(final CriteriaBuilder cb, final Expression<?> x,
-			final Object y) {
+	public Predicate build(final CriteriaBuilder cb, final Expression<?> x, final Object y) {
 		if (y instanceof Collection) {
 			return cb.not(x.in(( Collection<?> ) y));
 		} else {

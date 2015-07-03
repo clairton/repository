@@ -7,7 +7,8 @@ import javax.persistence.metamodel.Attribute;
 
 public class Order {
 	public enum Type {
-		ASC, DESC;
+		ASC,
+		DESC;
 
 		public static Type byString(final String order) {
 			return valueOf(order.toUpperCase());

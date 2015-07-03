@@ -7,7 +7,5 @@ import javax.validation.constraints.NotNull;
 
 public interface Operator {
 
-	Predicate build(final @NotNull CriteriaBuilder cb,
-			@NotNull final Expression<Boolean> x,
-			@NotNull final Expression<Boolean> y);
+	Predicate build(final @NotNull CriteriaBuilder cb, @NotNull final Expression<Boolean> x, @NotNull final Expression<Boolean> y);
 }

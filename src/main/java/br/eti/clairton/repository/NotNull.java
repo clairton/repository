@@ -6,7 +6,7 @@ import javax.persistence.criteria.Predicate;
 
 /**
  * Cria o {@link Predicate} não nulo.
- * 
+ *
  * @author Clairton Rodrigo Heinzen<clairton.gmail@gmail.com>
  */
 public class NotNull implements Comparator {
@@ -15,10 +15,10 @@ public class NotNull implements Comparator {
      * {@inheritDoc}
      */
     @Override
-    public Predicate build(CriteriaBuilder cb, Expression<?> x, Object y) {
+    public Predicate build(final CriteriaBuilder cb, final Expression<?> x, final Object y) {
         return cb.isNotNull(x);
     }
-    
+
     @Override
     public String toString() {
     	return "!∅";

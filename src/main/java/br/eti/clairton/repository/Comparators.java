@@ -9,7 +9,7 @@ import javax.persistence.criteria.Predicate;
 
 /**
  * Enum of {@link Comparator}.
- * 
+ *
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  */
 public enum Comparators implements Comparator {
@@ -22,18 +22,20 @@ public enum Comparators implements Comparator {
     EXIST(new Exist()),
     NOT_EQUAL(new NotEqual()),
     LIKE(new Like()),
+    STARTS_WITH(new StartsWith()),
+    ENDS_WITH(new EndsWith()),
     NOT_LIKE(new NotLike()),
     LESS_THAN(new LessThan()),
     GREATER_THAN(new GreaterThan());
     private final Comparator comparator;
-    
+
     private static Map<String, Comparator> repository;
-    
+
     private Comparators(final Comparator comparator) {
         this.comparator = comparator;
         put();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -41,7 +43,7 @@ public enum Comparators implements Comparator {
     public String toString() {
         return comparator.toString();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -49,7 +51,7 @@ public enum Comparators implements Comparator {
     public Predicate build(final CriteriaBuilder cb, final Expression<?> x, final Object y) {
         return comparator.build(cb, x, y);
     }
-    
+
     public static Comparator bySymbol(final String symbol) {
         if (repository.containsKey(symbol)) {
             return repository.get(symbol);
@@ -57,7 +59,7 @@ public enum Comparators implements Comparator {
             throw new RuntimeException("Operator " + symbol + " não encontrado");
         }
     }
-    
+
     private void put() {
         if (repository == null) {
             repository = new HashMap<String, Comparator>();

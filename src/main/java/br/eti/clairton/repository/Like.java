@@ -10,7 +10,7 @@ public class Like implements Comparator {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Predicate build(CriteriaBuilder cb, Expression<?> x, Object y) {
+	public Predicate build(final CriteriaBuilder cb, final Expression<?> x, final Object y) {
 		if (y instanceof Collection) {
 			return x.in((Collection<?>) y);
 		} else {

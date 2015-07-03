@@ -8,8 +8,7 @@ public class EqualIgnoreCase implements Comparator {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Predicate build(final CriteriaBuilder cb, final Expression<?> x,
-			final Object y) {
+	public Predicate build(final CriteriaBuilder cb, final Expression<?> x, final Object y) {
 		try {
 			@SuppressWarnings("unchecked")
 			final Expression<String> es = (Expression<String>) x;

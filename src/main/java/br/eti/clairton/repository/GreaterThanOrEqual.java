@@ -7,7 +7,7 @@ import javax.persistence.criteria.Predicate;
 public class GreaterThanOrEqual implements Comparator {
 	private static final long serialVersionUID = 1L;
     @Override
-    public Predicate build(CriteriaBuilder cb, Expression<?> x, Object y) {
+    public Predicate build(final CriteriaBuilder cb, final Expression<?> x, final Object y) {
         @SuppressWarnings("rawtypes")
         final Expression w = x;
         @SuppressWarnings("rawtypes")
@@ -16,7 +16,7 @@ public class GreaterThanOrEqual implements Comparator {
         final Predicate p = cb.greaterThanOrEqualTo(w, k);
         return p;
     }
-    
+
     @Override
     public String toString() {
         return ">=";
