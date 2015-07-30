@@ -105,6 +105,26 @@ public class RepositoryIntegrationTest {
 	}
 
 	@Test
+	public void testPersist() {
+		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
+		aplicacao.setNome("Outro nome");
+		repository.persist(aplicacao);
+		final Aplicacao aplicacaoSaved = repository.byId(aplicacao.getClass(),
+				aplicacao.getId());
+		assertEquals(aplicacao.getNome(), aplicacaoSaved.getNome());
+	}
+
+	@Test
+	public void testMerge() {
+		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
+		aplicacao.setNome("Outro nome");
+		repository.merge(aplicacao);
+		final Aplicacao aplicacaoSaved = repository.byId(aplicacao.getClass(),
+				aplicacao.getId());
+		assertEquals(aplicacao.getNome(), aplicacaoSaved.getNome());
+	}
+
+	@Test
 	public void testSave() {
 		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
 		aplicacao.setNome("Outro nome");

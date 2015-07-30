@@ -88,19 +88,42 @@ public class Repository implements Serializable {
 	}
 
 	@Transactional
-	public <T extends Model> T save(@NotNull T entity) {
+	public <T extends Model> T save(final @NotNull T entity) {
 		final T e = saveWithoutTransaction(entity);
 		flush();
 		return e;
 	}
 
+	@Transactional
+	public <T extends Model> T merge(final @NotNull T entity) {
+		final T e = mergeWithoutTransaction(entity);
+		flush();
+		return e;
+	}
+
+	@Transactional
+	public <T extends Model> void persist(final @NotNull T entity) {
+		persistWithoutTransaction(entity);
+		flush();
+	}
+
+	public <T extends Model> T mergeWithoutTransaction(@NotNull T entity) {
+		entity = em.merge(entity);
+		evictCache(entity);
+		return entity;
+	}
+
+	public <T extends Model> void persistWithoutTransaction(final @NotNull T entity) {
+		em.persist(entity);
+		evictCache(entity);
+	}
+
 	public <T extends Model> T saveWithoutTransaction(@NotNull T entity) {
 		if (!em.contains(entity) && entity.getId() != null) {
-			entity = em.merge(entity);
+			entity = mergeWithoutTransaction(entity);
 		} else {
-			em.persist(entity);
+			persistWithoutTransaction(entity);
 		}
-		evictCache(entity);
 		return entity;
 	}
 

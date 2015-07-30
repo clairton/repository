@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.eti.clairton</groupId>
 	<artifactId>repository</artifactId>
-	<version>0.4.0</version>
+	<version>0.4.1</version>
 	<url>https://github.com/clairton/repository</url>
 	<scm>
       <connection>scm:git:git@github.com:clairton/repository.git</connection>
