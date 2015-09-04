@@ -63,6 +63,12 @@ public class AttributeBuilderTest {
 	}
 
 	@Test
+	public void testWithCollection() {
+		final Attribute<?, ?>[] attributes = attributeBuilder.with(Aplicacao.class, "recursos.nome");
+		assertEquals(2, attributes.length);
+	}
+
+	@Test
 	public void testWith1() {
 		final Attribute<?, ?>[] attributes = attributeBuilder.with(
 				Operacao.class, "recurso");

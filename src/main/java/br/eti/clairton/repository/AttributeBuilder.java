@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.PluralAttribute;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -68,9 +69,7 @@ public class AttributeBuilder {
 		return attributes;
 	}
 
-	public <T extends Model> Attribute<?, ?>[] with(
-			@NotNull final Class<T> base,
-			@NotNull @Size(min = 1) final String path) {
+	public <T extends Model> Attribute<?, ?>[] with(@NotNull final Class<T> base, @NotNull @Size(min = 1) final String path) {
 		final Metamodel metamodel = entityManager.getMetamodel();
 		final EntityType<?> entityType = metamodel.entity(base);
 		if (path.matches(".*\\].*")) {
@@ -81,8 +80,17 @@ public class AttributeBuilder {
 		final Attribute<?, ?> attribute = entityType.getAttribute(fields[0]);
 		attributes.add(attribute);
 		if (fields.length > 1) {
-			@SuppressWarnings("unchecked")
-			final Class<T> nextType = (Class<T>) attribute.getJavaType();
+			final Class<T> nextType;
+			if(PluralAttribute.class.isAssignableFrom(attribute.getClass())){
+				final PluralAttribute<?, ?, ?> pluralAttribute = (PluralAttribute<?, ?, ?>) attribute;
+				@SuppressWarnings("unchecked")
+				final Class<T> t = (Class<T>) pluralAttribute.getElementType().getJavaType();
+				nextType = t;
+			}else{
+				@SuppressWarnings("unchecked")
+				final Class<T> t = (Class<T>) attribute.getJavaType();
+				nextType = t;
+			}
 			return with(nextType, path.replace(fields[0] + ".", ""));
 		}
 		final Attribute<?, ?>[] a = toArray();
