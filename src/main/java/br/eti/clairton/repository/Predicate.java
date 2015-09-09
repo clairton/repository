@@ -107,8 +107,7 @@ public class Predicate implements Serializable {
 
 	@Override
 	public String toString() {
-		return joinType.toString() + " " + path() + " " + comparator.toString()
-				+ " " + value.toString();
+		return joinType.toString() + " " + path() + " " + comparator.toString() + " " + value.toString();
 	}
 
 	private String path() {

@@ -17,6 +17,7 @@ import javax.persistence.TransactionRequiredException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
@@ -55,6 +56,8 @@ public class Repository implements Serializable {
 	private final TenantBuilder tenant;
 
 	private Root<? extends Model> from;
+	
+	private Selection<? extends Model> selection;
 
 	private CriteriaQuery<?> criteriaQuery;
 
@@ -186,6 +189,7 @@ public class Repository implements Serializable {
 		criteriaBuilder = em.getCriteriaBuilder();
 		criteriaQuery = criteriaBuilder.createQuery(type);
 		from = criteriaQuery.from(type);
+		selection = from;
 		predicates = new ArrayList<javax.persistence.criteria.Predicate>();
 		try {
 			if (withTenant) {
@@ -206,12 +210,12 @@ public class Repository implements Serializable {
 		return this;
 	}
 
-	public <T extends Model> T single() {
-		final TypedQuery<T> query = query(from, criteriaQuery, predicates);
+	public <T> T single() {
+		final TypedQuery<T> query = query(selection, criteriaQuery, predicates);
 		return query.getSingleResult();
 	}
 
-	public <T extends Model> PaginatedList<T, Meta> list(
+	public <T> PaginatedList<T, Meta> list(
 			@NotNull @Min(0) final Integer page,
 			@NotNull @Min(0) final Integer perPage) {
 		final TypedQuery<T> query = query(from, criteriaQuery, predicates);
@@ -239,7 +243,7 @@ public class Repository implements Serializable {
 		return (Long) query.getSingleResult();
 	}
 
-	public <T extends Model> T first() {
+	public <T> T first() {
 		final List<T> list = list();
 		if (list.isEmpty()) {
 			throw new NoResultException();
@@ -247,7 +251,7 @@ public class Repository implements Serializable {
 		return list.get(0);
 	}
 
-	public <T extends Model> T last() {
+	public <T> T last() {
 		final List<T> list = list();
 		if (list.isEmpty()) {
 			throw new NoResultException();
@@ -255,7 +259,7 @@ public class Repository implements Serializable {
 		return list.get(list.size() - 1);
 	}
 
-	public <T extends Model> Collection<T> collection() {
+	public <T> Collection<T> collection() {
 		return list();
 	}
 
@@ -265,8 +269,8 @@ public class Repository implements Serializable {
 		return list(page, perPage);
 	}
 
-	public <T extends Model> List<T> list() {
-		final TypedQuery<T> query = query(from, criteriaQuery, predicates);
+	public <T> List<T> list() {
+		final TypedQuery<T> query = query(selection, criteriaQuery, predicates);
 		return query.getResultList();
 	}
 
@@ -345,6 +349,14 @@ public class Repository implements Serializable {
 			@NotNull final Comparator comparator,
 			@NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
 		return where(asList(new Predicate(value, comparator, attributes)));
+	}
+
+	public <T>Repository select(final Attribute<?, ?>... attributes) {
+		final Path<T> path = joinner.path(criteriaBuilder, from, JoinType.INNER, tenantValue, attributes);
+		@SuppressWarnings("unchecked")
+		final Selection<? extends Model> s = (Selection<? extends Model>) criteriaBuilder.construct(path.getJavaType(), path);
+		selection = s;
+		return this;
 	}
 
 	public <T> Repository where(@NotNull final Comparator comparator,
@@ -458,14 +470,11 @@ public class Repository implements Serializable {
 
 	private javax.persistence.criteria.Predicate to(
 			@NotNull final Predicate predicate) {
-		return joinner.join(criteriaBuilder, from, predicate, tenantValue,
-				withTenant);
+		return joinner.join(criteriaBuilder, from, predicate, tenantValue, withTenant);
 	}
 
-	private void concat(
-			final javax.persistence.criteria.Predicate... predicates) {
-		final javax.persistence.criteria.Predicate and = criteriaBuilder
-				.and(predicates);
+	private void concat(final javax.persistence.criteria.Predicate... predicates) {
+		final javax.persistence.criteria.Predicate and = criteriaBuilder.and(predicates);
 		this.predicates.add(and);
 	}
 

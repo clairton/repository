@@ -148,6 +148,15 @@ public class RepositoryIntegrationTest {
 	}
 
 	@Test
+	public void testListOperacoesAtravesDeAplicacao() {
+		final List<String> recursos = repository
+				.from(Aplicacao.class)
+				.select(Aplicacao_.recursos, Recurso_.nome)
+				.list();
+		assertEquals(1, recursos.size());
+	}
+
+	@Test
 	public void testList() {
 		final List<Aplicacao> aplicacoes = repository.from(Aplicacao.class)
 				.list();

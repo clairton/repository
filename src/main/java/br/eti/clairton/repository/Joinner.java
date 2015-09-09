@@ -92,6 +92,34 @@ public class Joinner {
 			return joinPredicate;
 		}
 	}
+	public <T, Y>From<?, ?> from(@NotNull final CriteriaBuilder criteriaBuilder,
+			@NotNull final From<T, Y> from, @NotNull final JoinType joinType,
+			@NotNull final Object tenantValue,
+			@NotNull final Attribute<?, ?>... attributes){
+		if (attributes.length == 0) {
+			final String message = "Must be have a attribute in predicate";
+			throw new IllegalStateException(message);
+		} else {
+			Integer i = 1;
+			final Integer j = attributes.length - 1;
+			Attribute<?, ?> a = attributes[0];
+			Join<?, ?> join = join(criteriaBuilder, from, joinType, a, tenantValue);
+			for (; i < j; i++) {
+				a = attributes[i];
+				join = join(criteriaBuilder, join, joinType, a, tenantValue);
+			}
+			return join;
+		}
+	}
+
+	public <T> Path<T> path(@NotNull final CriteriaBuilder criteriaBuilder,
+			@NotNull final From<?, ?> from, @NotNull final JoinType joinType,
+			final Object tenantValue,
+			@NotNull final Attribute<?, ?>... attributes) {
+		final From<?, ?> f = from(criteriaBuilder, from, joinType, tenantValue, attributes);
+		final Path<T> path = get(f, attributes[attributes.length - 1]);
+		return path;
+	}
 
 	// =======================================================================//
 	// ========================================metodos privados===============//
