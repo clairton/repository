@@ -146,14 +146,48 @@ public class RepositoryIntegrationTest {
 				Aplicacao.class).collection();
 		assertEquals(1, aplicacoes.size());
 	}
-
+	
+	@Test
+	public void testListAplicacapAtravesDeRecurso() {
+		final List<Aplicacao> aplicacoes = repository
+				.from(Recurso.class)
+				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Recurso_.id)
+				.select(Recurso_.aplicacao) 
+				.list();
+		assertEquals(1, aplicacoes.size());
+		assertEquals("Teste", aplicacoes.get(0).getNome());
+	}
+	
 	@Test
 	public void testListOperacoesAtravesDeAplicacao() {
+		final List<Recurso> recursos = repository
+				.from(Aplicacao.class)
+				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
+				.select(Aplicacao_.recursos) 
+				.list();
+		assertEquals(1, recursos.size());
+		assertEquals("Teste", recursos.get(0).getNome());
+	}
+	
+	@Test
+	public void testListNomeOperacoesAtravesDeOperacaoEAplicacao() {
+		final List<String> recursos = repository
+				.from(Aplicacao.class)
+				.select(Aplicacao_.recursos, Recurso_.operacoes, Operacao_.nome)
+				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
+				.list();
+		assertEquals(2, recursos.size());
+	}
+
+	@Test
+	public void testListNomeRecursosAtravesDeAplicacao() {
 		final List<String> recursos = repository
 				.from(Aplicacao.class)
 				.select(Aplicacao_.recursos, Recurso_.nome)
+				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
 				.list();
 		assertEquals(1, recursos.size());
+		assertEquals("Teste", recursos.get(0));
 	}
 
 	@Test

@@ -11,11 +11,13 @@ import java.util.Map;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.PluralAttribute.CollectionType;
 import javax.persistence.metamodel.SingularAttribute;
@@ -57,48 +59,55 @@ public class Joinner {
 			final Object tenantValue, final @NotNull Boolean withTenant) {
 		final Comparator comparator = predicate.getComparator();
 		final Attribute<?, ?> attribute;
-		if (predicate.getAttributes().length == 0) {
+		final Attribute<?, ?>[] attributes = predicate.getAttributes();
+		final JoinType joinType = predicate.getJoinType();
+		if (attributes.length == 0) {
 			final String message = "Must be have a attribute in predicate";
 			throw new IllegalStateException(message);
 		} else if (predicate.getAttributes().length == 1) {
-			attribute = predicate.getAttribute();
+			attribute = attributes[0];
 		} else {
 			Integer i = 1;
-			final Integer j = predicate.getAttributes().length - 1;
-			Attribute<?, ?> a = predicate.getAttributes()[0];
-			Join<?, ?> join = join(criteriaBuilder, from,
-					predicate.getJoinType(), a, tenantValue);
+			final Integer j = attributes.length - 1;
+			Attribute<?, ?> a = attributes[0];
+			Join<?, ?> join = join(criteriaBuilder, from, joinType, a, tenantValue);
 			for (; i < j; i++) {
-				a = predicate.getAttributes()[i];
-				join = join(criteriaBuilder, join, predicate.getJoinType(), a,
+				a = attributes[i];
+				join = join(criteriaBuilder, join, joinType, a,
 						tenantValue);
 			}
-			attribute = predicate.getAttributes()[i];
+			attribute = attributes[i];
 			from = join;
 		}
-		final Path<?> path = get(from, attribute);
-		javax.persistence.criteria.Predicate joinPredicate = comparator.build(
-				criteriaBuilder, path, predicate.getValue());
+		final Expression<?> path = get(from, attribute);
+		final javax.persistence.criteria.Predicate joinPredicate = comparator.build(criteriaBuilder, path, predicate.getValue());
 		try {
 			if (!withTenant) {
 				throw new TenantNotFound();
 			}
-			javax.persistence.criteria.Predicate tenantPredicate = tenant(
-					criteriaBuilder, from, tenantValue);
-			javax.persistence.criteria.Predicate completePredicate = criteriaBuilder
-					.and(joinPredicate, tenantPredicate);
+			final javax.persistence.criteria.Predicate tenantPredicate = tenant(criteriaBuilder, from, tenantValue);
+			final javax.persistence.criteria.Predicate completePredicate = criteriaBuilder.and(joinPredicate, tenantPredicate);
 			return completePredicate;
 		} catch (final TenantNotFound e) {
 			return joinPredicate;
 		}
 	}
-	public <T, Y>From<?, ?> from(@NotNull final CriteriaBuilder criteriaBuilder,
-			@NotNull final From<T, Y> from, @NotNull final JoinType joinType,
-			@NotNull final Object tenantValue,
-			@NotNull final Attribute<?, ?>... attributes){
+	
+	public <T>Path<T> join(
+			Metamodel metaModel,
+			@NotNull final CriteriaBuilder criteriaBuilder, 
+			@NotNull From<?, ?> from,
+			final JoinType joinType,
+			final Object tenantValue, 
+			final @NotNull Boolean withTenant,
+			final Class<?> type,
+			final Attribute<?, ?>... attributes) {
+		final Attribute<?, ?> attribute;
 		if (attributes.length == 0) {
 			final String message = "Must be have a attribute in predicate";
 			throw new IllegalStateException(message);
+		} else if (attributes.length == 1) {
+			attribute = attributes[0];
 		} else {
 			Integer i = 1;
 			final Integer j = attributes.length - 1;
@@ -108,23 +117,36 @@ public class Joinner {
 				a = attributes[i];
 				join = join(criteriaBuilder, join, joinType, a, tenantValue);
 			}
-			return join;
+			attribute = attributes[i];
+			from = join;
 		}
-	}
-
-	public <T> Path<T> path(@NotNull final CriteriaBuilder criteriaBuilder,
-			@NotNull final From<?, ?> from, @NotNull final JoinType joinType,
-			final Object tenantValue,
-			@NotNull final Attribute<?, ?>... attributes) {
-		final From<?, ?> f = from(criteriaBuilder, from, joinType, tenantValue, attributes);
-		final Path<T> path = get(f, attributes[attributes.length - 1]);
+		Path<T> path;
+		try{
+			metaModel.entity(type);
+			final Path <T> p;
+			if (attribute.isCollection()) {
+				final PluralAttribute<?, ?, ?> pluralAttribute = (PluralAttribute<?, ?, ?>) attribute;
+				final br.eti.clairton.repository.Join join = JOINS.get(pluralAttribute.getCollectionType());
+				@SuppressWarnings("unchecked")
+				final Join<?, T> join2 = (Join<?, T>) join.join(from, joinType, pluralAttribute);
+				p = (Path<T>) join2;
+			} else {
+				@SuppressWarnings("rawtypes")
+				final SingularAttribute singularAttribute = (SingularAttribute) attribute;
+				@SuppressWarnings("unchecked")
+				Join<?, T> join = from.join(singularAttribute, joinType);
+				p = join;
+			}
+			path = p;
+		}catch(final IllegalArgumentException e){
+			path = get(from, attribute);			
+		}
 		return path;
 	}
 
 	// =======================================================================//
 	// ========================================metodos privados===============//
 	// =======================================================================//
-
 	private <T, Y> Join<T, Y> join(
 			@NotNull final CriteriaBuilder criteriaBuilder,
 			@NotNull final From<T, Y> from, @NotNull final JoinType joinType,
@@ -133,14 +155,12 @@ public class Joinner {
 		final Join<T, Y> join;
 		if (attribute.isCollection()) {
 			final PluralAttribute<?, ?, ?> pluralAttribute = (PluralAttribute<?, ?, ?>) attribute;
-			join = JOINS.get(pluralAttribute.getCollectionType()).join(from,
-					joinType, pluralAttribute);
+			join = JOINS.get(pluralAttribute.getCollectionType()).join(from, joinType, pluralAttribute);
 		} else {
 			@SuppressWarnings("unchecked")
 			final SingularAttribute<? super Y, Y> singularAttribute = (SingularAttribute<? super Y, Y>) attribute;
 			@SuppressWarnings("unchecked")
-			final Join<T, Y> j = (Join<T, Y>) from.join(singularAttribute,
-					joinType);
+			final Join<T, Y> j = (Join<T, Y>) from.join(singularAttribute, joinType);
 			join = j;
 		}
 		return join;
@@ -153,8 +173,7 @@ public class Joinner {
 		return tenant.run(criteriaBuilder, from, tenantValue);
 	}
 
-	private <T, Y> Path<Y> get(@NotNull final From<?, ?> from,
-			@NotNull final Attribute<?, ?> attribute) {
+	private <T, Y> Path<Y> get(@NotNull final From<?, ?> from, @NotNull final Attribute<?, ?> attribute) {
 		final Path<Y> path;
 		if (attribute.isCollection()) {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -167,5 +186,4 @@ public class Joinner {
 		}
 		return path;
 	}
-
 }

@@ -23,6 +23,8 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
 import javax.transaction.Transactional;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -57,7 +59,7 @@ public class Repository implements Serializable {
 
 	private Root<? extends Model> from;
 	
-	private Selection<? extends Model> selection;
+	private Selection<?> selection;
 
 	private CriteriaQuery<?> criteriaQuery;
 
@@ -351,11 +353,31 @@ public class Repository implements Serializable {
 		return where(asList(new Predicate(value, comparator, attributes)));
 	}
 
-	public <T>Repository select(final Attribute<?, ?>... attributes) {
-		final Path<T> path = joinner.path(criteriaBuilder, from, JoinType.INNER, tenantValue, attributes);
-		@SuppressWarnings("unchecked")
-		final Selection<? extends Model> s = (Selection<? extends Model>) criteriaBuilder.construct(path.getJavaType(), path);
-		selection = s;
+//	public <T>Repository select(final Class<T> type, final Attribute<?, ?>... attributes) {
+//		final Expression<T> path = joinner.path(criteriaBuilder, from, JoinType.INNER, tenantValue, attributes);
+//		@SuppressWarnings("unchecked")
+//		final Selection<? extends Model> s = (Selection<? extends Model>) criteriaBuilder.construct(type, path);
+//		selection = s;
+//		return this;
+//	}
+
+	public <T>Repository select(@NotNull final Attribute<?, ?>... attributes) {
+		if(attributes.length > 0){			
+			final Attribute<?, ?> attribute = attributes[attributes.length - 1];
+			final Class<?> type;
+			if (PluralAttribute.class.isInstance(attribute)) {
+				final PluralAttribute<?, ?, ?> pAttribute = (PluralAttribute<?, ?, ?>) attribute;
+				type = pAttribute.getElementType().getJavaType();
+			} else {
+				final SingularAttribute<?, ?> sAttribute = (SingularAttribute<?, ?>) attribute;
+				type = sAttribute.getJavaType();
+			}		
+			@SuppressWarnings("rawtypes")
+			final Path path = joinner.join(em.getMetamodel(), criteriaBuilder, from, JoinType.INNER, tenantValue, withTenant, type, attributes);	
+			@SuppressWarnings("unchecked")
+			final Selection<?> selection = path.as(type);
+			this.selection = selection;
+		}
 		return this;
 	}
 
