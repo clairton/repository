@@ -123,6 +123,10 @@ public class Repository implements Serializable {
 		evictCache(entity);
 	}
 
+	public <T extends Model> void refresh(final @NotNull T entity) {
+		em.refresh(entity);
+	}
+
 	public <T extends Model> T saveWithoutTransaction(@NotNull T entity) {
 		if (!em.contains(entity) && entity.getId() != null) {
 			entity = mergeWithoutTransaction(entity);
