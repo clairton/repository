@@ -16,6 +16,6 @@ public class EndsWith implements Comparator {
 
 	@Override
 	public String toString() {
-		return "*";
+		return "*$";
 	}
 }

@@ -16,6 +16,6 @@ public class StartsWith implements Comparator {
 
 	@Override
 	public String toString() {
-		return "*";
+		return "^*";
 	}
 }
