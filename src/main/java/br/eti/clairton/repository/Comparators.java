@@ -23,7 +23,9 @@ public enum Comparators implements Comparator {
     NOT_EQUAL(new NotEqual()),
     LIKE(new Like()),
     STARTS_WITH(new StartsWith()),
+    NOT_STARTS_WITH(new NotStartsWith()),
     ENDS_WITH(new EndsWith()),
+    NOT_ENDS_WITH(new NotEndsWith()),
     NOT_LIKE(new NotLike()),
     LESS_THAN(new LessThan()),
     GREATER_THAN(new GreaterThan());
