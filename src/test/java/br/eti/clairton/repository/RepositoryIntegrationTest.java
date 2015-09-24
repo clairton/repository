@@ -73,6 +73,15 @@ public class RepositoryIntegrationTest {
 	}
 
 	@Test
+	public void testFetch() {
+		final Aplicacao aplicacao = repository
+				.from(Aplicacao.class)
+				.fetch(Aplicacao_.recursos)
+				.first();
+		assertNotNull(aplicacao);
+	}
+
+	@Test
 	public void testExist() {
 		assertTrue(repository.from(Aplicacao.class).exist());
 	}

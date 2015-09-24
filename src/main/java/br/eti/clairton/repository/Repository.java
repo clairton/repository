@@ -17,6 +17,7 @@ import javax.persistence.TransactionRequiredException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.FetchParent;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
@@ -365,6 +366,14 @@ public class Repository implements Serializable {
 //		return this;
 //	}
 
+	public <T>Repository fetch(@NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
+		FetchParent<?, ?> fetch = from;
+		for (final Attribute<?, ?> attribute : attributes) {
+			fetch = fetch.fetch(attribute.getName());
+		}		
+		return this;
+	}
+
 	public <T>Repository select(@NotNull final Attribute<?, ?>... attributes) {
 		if(attributes.length > 0){			
 			final Attribute<?, ?> attribute = attributes[attributes.length - 1];
@@ -480,8 +489,7 @@ public class Repository implements Serializable {
 		return query;
 	}
 
-	private void to(
-			@NotNull @Size(min = 1) final Collection<Predicate> predicates) {
+	private void to(@NotNull @Size(min = 1) final Collection<Predicate> predicates) {
 		int i = 1;
 		int j = predicates.size() - 1;
 		final List<Predicate> ps = new ArrayList<Predicate>(predicates);
@@ -494,8 +502,7 @@ public class Repository implements Serializable {
 		concat(p);
 	}
 
-	private javax.persistence.criteria.Predicate to(
-			@NotNull final Predicate predicate) {
+	private javax.persistence.criteria.Predicate to(@NotNull final Predicate predicate) {
 		return joinner.join(criteriaBuilder, from, predicate, tenantValue, withTenant);
 	}
 
