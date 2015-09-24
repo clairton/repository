@@ -274,7 +274,7 @@ public class Repository implements Serializable {
 			s = criteriaBuilder.count(from);
 		}
 		final TypedQuery<Long> query = query(s, criteriaQuery, predicates);
-		return (Long) query.getSingleResult();
+		return (Long) query.getResultList().get(0);
 	}
 
 	public <T> T first() {
