@@ -17,7 +17,10 @@ import javax.persistence.TransactionRequiredException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.FetchParent;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
@@ -239,8 +242,19 @@ public class Repository implements Serializable {
 		return count(Boolean.TRUE);
 	}
 
-	public Long count(Boolean distinct) {
+	@SuppressWarnings("unchecked")
+	public Long count(final Boolean distinct) {
 		final Selection<Long> s;
+		//on hibernate, in the count fetch must be to join
+		final From<?, ?>  from = this.from;
+		if (from.getFetches() != null && from.getFetches().size() != 0) {
+            for (final Fetch<?, ?> fetch : from.getFetches()) {
+            	@SuppressWarnings("rawtypes")
+				final Join join = (javax.persistence.criteria.Join) fetch;
+            	from.getJoins().add(join);
+            }
+            from.getFetches().clear();
+        }
 		if (distinct) {
 			s = criteriaBuilder.countDistinct(from);
 		} else {
@@ -366,11 +380,16 @@ public class Repository implements Serializable {
 //		return this;
 //	}
 
-	public <T>Repository fetch(@NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
+	public <T>Repository fetch(final JoinType type, @NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
 		FetchParent<?, ?> fetch = from;
 		for (final Attribute<?, ?> attribute : attributes) {
-			fetch = fetch.fetch(attribute.getName());
+			fetch = fetch.fetch(attribute.getName(), type);
 		}		
+		return this;
+	}
+
+	public <T>Repository fetch(@NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
+		fetch(JoinType.INNER, attributes);		
 		return this;
 	}
 
@@ -485,6 +504,7 @@ public class Repository implements Serializable {
 				.toArray(new javax.persistence.criteria.Predicate[predicates
 						.size()]));
 		final TypedQuery<T> query = em.createQuery(cq);	
+		
 		orders.clear();
 		return query;
 	}

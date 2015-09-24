@@ -74,6 +74,10 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testFetch() {
+		repository
+		.from(Aplicacao.class)
+		.fetch(Aplicacao_.recursos)
+		.count();
 		final Aplicacao aplicacao = repository
 				.from(Aplicacao.class)
 				.fetch(Aplicacao_.recursos)
