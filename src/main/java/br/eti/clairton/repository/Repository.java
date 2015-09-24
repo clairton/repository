@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -243,18 +244,30 @@ public class Repository implements Serializable {
 	}
 
 	@SuppressWarnings("unchecked")
+	private void fetchToJoin(final From<?, ?> from, Set<Fetch<?, ?>> fetches) {
+		if (fetches != null && !fetches.isEmpty()) {
+			for (final Fetch<?, ?> fetch : fetches) {
+				@SuppressWarnings("rawtypes")
+				Join join = (Join) fetch;
+				final Set<Fetch<?, ?>> fs = (Set<Fetch<?, ?>>)((Set<?>) fetch.getFetches()); 
+				if(fs.isEmpty()){
+					try{
+						from.getJoins().add(join);
+					}catch(UnsupportedOperationException e){}
+				}else{
+					fetchToJoin(join, fs);					
+				}				
+			}
+			from.getFetches().clear();	
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
 	public Long count(final Boolean distinct) {
 		final Selection<Long> s;
-		//on hibernate, in the count fetch must be to join
-		final From<?, ?>  from = this.from;
-		if (from.getFetches() != null && from.getFetches().size() != 0) {
-            for (final Fetch<?, ?> fetch : from.getFetches()) {
-            	@SuppressWarnings("rawtypes")
-				final Join join = (javax.persistence.criteria.Join) fetch;
-            	from.getJoins().add(join);
-            }
-            from.getFetches().clear();
-        }
+		final Set<Fetch<?, ?>> fetches = (Set<Fetch<?, ?>>)((Set<?>) from.getFetches()); 
+		final From<?, ?> from = this.from;
+		fetchToJoin(from, fetches);
 		if (distinct) {
 			s = criteriaBuilder.countDistinct(from);
 		} else {

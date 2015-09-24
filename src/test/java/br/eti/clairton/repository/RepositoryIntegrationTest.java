@@ -74,15 +74,11 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testFetch() {
-		repository
-		.from(Aplicacao.class)
-		.fetch(Aplicacao_.recursos)
-		.count();
-		final Aplicacao aplicacao = repository
+		final List<Aplicacao> aplicacoes = repository
 				.from(Aplicacao.class)
-				.fetch(Aplicacao_.recursos)
-				.first();
-		assertNotNull(aplicacao);
+				.fetch(Aplicacao_.recursos, Recurso_.operacoes)
+				.list(1,10);
+		assertFalse(aplicacoes.isEmpty());
 	}
 
 	@Test
