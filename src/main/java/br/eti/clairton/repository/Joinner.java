@@ -144,10 +144,7 @@ public class Joinner {
 		return path;
 	}
 
-	// =======================================================================//
-	// ========================================metodos privados===============//
-	// =======================================================================//
-	private <T, Y> Join<T, Y> join(
+	protected <T, Y> Join<T, Y> join(
 			@NotNull final CriteriaBuilder criteriaBuilder,
 			@NotNull final From<T, Y> from, @NotNull final JoinType joinType,
 			@NotNull final Attribute<?, ?> attribute,
@@ -166,14 +163,14 @@ public class Joinner {
 		return join;
 	}
 
-	private javax.persistence.criteria.Predicate tenant(
+	protected javax.persistence.criteria.Predicate tenant(
 			@NotNull final CriteriaBuilder criteriaBuilder,
 			@NotNull From<?, ?> from, final @NotNull Object tenantValue)
 			throws TenantNotFound {
 		return tenant.run(criteriaBuilder, from, tenantValue);
 	}
 
-	private <T, Y> Path<Y> get(@NotNull final From<?, ?> from, @NotNull final Attribute<?, ?> attribute) {
+	protected <T, Y> Path<Y> get(@NotNull final From<?, ?> from, @NotNull final Attribute<?, ?> attribute) {
 		final Path<Y> path;
 		if (attribute.isCollection()) {
 			@SuppressWarnings({ "unchecked", "rawtypes" })

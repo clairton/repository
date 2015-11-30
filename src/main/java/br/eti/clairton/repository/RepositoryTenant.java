@@ -2,7 +2,6 @@ package br.eti.clairton.repository;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.validation.constraints.NotNull;
 
@@ -20,15 +19,15 @@ public class RepositoryTenant extends Repository {
 
 	@Deprecated
 	protected RepositoryTenant() {
-		this(null, null, null, null, null);
+		this(null, null, null, null);
 	}
 
 	@Inject
 	public RepositoryTenant(@NotNull final EntityManager em,
-			@NotNull final Cache cache, @NotNull final TenantBuilder tenant,
+			@NotNull final TenantBuilder tenant,
 			@NotNull final Joinner joinner,
 			@NotNull final TenantValue<?> tenantValue) {
-		super(em, cache, tenant, joinner);
+		super(em, tenant, joinner);
 		if (tenantValue != null) {
 			tenantValue(tenantValue.get());
 		}

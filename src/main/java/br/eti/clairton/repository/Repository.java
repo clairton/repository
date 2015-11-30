@@ -11,7 +11,6 @@ import java.util.Set;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TransactionRequiredException;
@@ -58,8 +57,6 @@ public class Repository implements Serializable {
 
 	private EntityManager em;
 
-	private final Cache cache;
-
 	private final TenantBuilder tenant;
 
 	private Root<? extends Model> from;
@@ -82,17 +79,15 @@ public class Repository implements Serializable {
 
 	@Deprecated
 	public Repository() {
-		this(null, null, null, null);
+		this(null, null, null);
 	}
 
 	@Inject
 	public Repository(@NotNull final EntityManager em,
-			@NotNull final Cache cache, 
 			@NotNull final TenantBuilder tenant,
 			@NotNull final Joinner joinner) {
 		super();
 		this.em = em;
-		this.cache = cache;
 		this.tenant = tenant;
 		this.joinner = joinner;
 	}
@@ -119,13 +114,11 @@ public class Repository implements Serializable {
 
 	public <T extends Model> T mergeWithoutTransaction(@NotNull T entity) {
 		entity = em.merge(entity);
-		evictCache(entity);
 		return entity;
 	}
 
 	public <T extends Model> void persistWithoutTransaction(final @NotNull T entity) {
 		em.persist(entity);
-		evictCache(entity);
 	}
 
 	public <T extends Model> void refresh(final @NotNull T entity) {
@@ -160,10 +153,7 @@ public class Repository implements Serializable {
 	}
 
 	public <T extends Model> void removeWithoutTransaction(@NotNull final T entity) {
-		final Class<?> type = entity.getClass();
-		final Long id = entity.getId();
 		em.remove(entity);
-		evictCache(type, id);
 	}
 
 	@Transactional
@@ -171,7 +161,6 @@ public class Repository implements Serializable {
 			@NotNull Long id) {
 		final T entity = em.find(type, id);
 		em.remove(entity);
-		evictCache(type, id);
 		flush();
 	}
 
@@ -385,14 +374,6 @@ public class Repository implements Serializable {
 		return where(asList(new Predicate(value, comparator, attributes)));
 	}
 
-//	public <T>Repository select(final Class<T> type, final Attribute<?, ?>... attributes) {
-//		final Expression<T> path = joinner.path(criteriaBuilder, from, JoinType.INNER, tenantValue, attributes);
-//		@SuppressWarnings("unchecked")
-//		final Selection<? extends Model> s = (Selection<? extends Model>) criteriaBuilder.construct(type, path);
-//		selection = s;
-//		return this;
-//	}
-
 	public <T>Repository fetch(final JoinType type, @NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
 		FetchParent<?, ?> fetch = from;
 		for (final Attribute<?, ?> attribute : attributes) {
@@ -490,7 +471,7 @@ public class Repository implements Serializable {
 	// ========================================metodos privados===============//
 	// =======================================================================//
 
-	private void flush() {
+	protected void flush() {
 		logger.info("Executando Flush no Banco de dados");
 		try {
 			em.joinTransaction();
@@ -504,7 +485,7 @@ public class Repository implements Serializable {
 		}
 	}
 
-	private <T> TypedQuery<T> query(final Selection<?> selection,
+	protected <T> TypedQuery<T> query(final Selection<?> selection,
 			final CriteriaQuery<?> criteriaQuery,
 			final List<javax.persistence.criteria.Predicate> predicates) {
 		@SuppressWarnings("unchecked")
@@ -522,7 +503,7 @@ public class Repository implements Serializable {
 		return query;
 	}
 
-	private void to(@NotNull @Size(min = 1) final Collection<Predicate> predicates) {
+	protected void to(@NotNull @Size(min = 1) final Collection<Predicate> predicates) {
 		int i = 1;
 		int j = predicates.size() - 1;
 		final List<Predicate> ps = new ArrayList<Predicate>(predicates);
@@ -535,27 +516,12 @@ public class Repository implements Serializable {
 		concat(p);
 	}
 
-	private javax.persistence.criteria.Predicate to(@NotNull final Predicate predicate) {
+	protected javax.persistence.criteria.Predicate to(@NotNull final Predicate predicate) {
 		return joinner.join(criteriaBuilder, from, predicate, tenantValue, withTenant);
 	}
 
-	private void concat(final javax.persistence.criteria.Predicate... predicates) {
+	protected void concat(final javax.persistence.criteria.Predicate... predicates) {
 		final javax.persistence.criteria.Predicate and = criteriaBuilder.and(predicates);
 		this.predicates.add(and);
-	}
-
-	private <T extends Model> void evictCache(T entity) {
-		final Class<?> type = entity.getClass();
-		final Long id = entity.getId();
-		evictCache(type, id);
-	}
-
-	private <T extends Model> void evictCache(final Class<?> type, final Long id) {
-		try {
-			cache.evict(type, id);
-		} catch (Exception e) {
-			logger.warn("Erro ao invalidar cache", e.getMessage());
-			logger.debug("Erro ao invalidar cache", e);
-		}
 	}
 }
