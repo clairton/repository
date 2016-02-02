@@ -42,6 +42,10 @@ Para ordenar o resultado:
 ```java
 repository.from(Aplicacao.class).orderBy(Order.Type.DESC, Aplicacao_.nome).list();
 ```
+Para aplicar hint:
+```java
+repository.hint("org.hibernate.readOnly", true);
+```
 Aplicando Predicados:
 ```java
 final Predicate p1 = new Predicate("Teste", Operacao_.nome);

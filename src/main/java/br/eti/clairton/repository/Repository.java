@@ -6,7 +6,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.enterprise.context.Dependent;
@@ -70,6 +73,8 @@ public class Repository implements Serializable {
 	private List<javax.persistence.criteria.Predicate> predicates;
 
 	private final List<javax.persistence.criteria.Order> orders = new ArrayList<>();
+	
+	private final Map<String, Object> hints = new HashMap<>();
 
 	private Object tenantValue;
 
@@ -431,6 +436,11 @@ public class Repository implements Serializable {
 		this.withTenant = withTenant;
 		return this;
 	}
+	
+	public Repository hint(final String key, final Object value) {
+		this.hints.put(key, value);
+		return this;
+	}
 
 	public Repository tenantValue(final Object tenantValue) {
 		this.withTenant = Boolean.TRUE;
@@ -497,8 +507,15 @@ public class Repository implements Serializable {
 		cq.where(predicates
 				.toArray(new javax.persistence.criteria.Predicate[predicates
 						.size()]));
-		final TypedQuery<T> query = em.createQuery(cq);	
+		final TypedQuery<T> query = em.createQuery(cq);
 		
+		for (final Entry<String, Object> entry : hints.entrySet()) {
+			final String key = entry.getKey();
+			final Object value = entry.getValue();
+			query.setHint(key, value);
+		}
+		
+		hints.clear();
 		orders.clear();
 		return query;
 	}
