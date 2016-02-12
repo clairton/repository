@@ -1,6 +1,11 @@
 package br.eti.clairton.repository;
 
+import static br.eti.clairton.repository.Comparators.EQUAL;
+import static br.eti.clairton.repository.Order.Direction.ASC;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
+import static javax.persistence.criteria.JoinType.INNER;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -44,6 +49,7 @@ import br.eti.clairton.paginated.collection.Meta;
 import br.eti.clairton.paginated.collection.PaginatedCollection;
 import br.eti.clairton.paginated.collection.PaginatedList;
 import br.eti.clairton.paginated.collection.PaginatedMetaList;
+import br.eti.clairton.repository.Order.Direction;
 import br.eti.clairton.tenant.TenantBuilder;
 import br.eti.clairton.tenant.TenantNotFound;
 
@@ -80,7 +86,7 @@ public class Repository implements Serializable {
 
 	private final Joinner joinner;
 
-	private Boolean withTenant = Boolean.FALSE;
+	private Boolean withTenant = FALSE;
 
 	@Deprecated
 	public Repository() {
@@ -88,9 +94,7 @@ public class Repository implements Serializable {
 	}
 
 	@Inject
-	public Repository(@NotNull final EntityManager em,
-			@NotNull final TenantBuilder tenant,
-			@NotNull final Joinner joinner) {
+	public Repository(@NotNull final EntityManager em, @NotNull final TenantBuilder tenant, @NotNull final Joinner joinner) {
 		super();
 		this.em = em;
 		this.tenant = tenant;
@@ -162,8 +166,7 @@ public class Repository implements Serializable {
 	}
 
 	@Transactional
-	public <T extends Model> void remove(@NotNull final Class<T> type,
-			@NotNull Long id) {
+	public <T extends Model> void remove(@NotNull final Class<T> type, @NotNull Long id) {
 		final T entity = em.find(type, id);
 		em.remove(entity);
 		flush();
@@ -180,8 +183,7 @@ public class Repository implements Serializable {
 	 * @throws NoResultException
 	 *             caso não seja encontrada a entidade
 	 */
-	public <T extends Model, Y> T byId(@NotNull final Class<T> klass,
-			@NotNull final Y id) throws NoResultException {
+	public <T extends Model, Y> T byId(@NotNull final Class<T> klass, @NotNull final Y id) throws NoResultException {
 		from(klass);
 		final EntityType<T> type = em.getMetamodel().entity(klass);
 		final Class<?> idType = type.getIdType().getJavaType();
@@ -211,7 +213,7 @@ public class Repository implements Serializable {
 	}
 
 	public Repository distinct() {
-		criteriaQuery.distinct(Boolean.TRUE);
+		criteriaQuery.distinct(TRUE);
 		return this;
 	}
 
@@ -220,9 +222,7 @@ public class Repository implements Serializable {
 		return query.getSingleResult();
 	}
 
-	public <T> PaginatedList<T, Meta> list(
-			@NotNull @Min(0) final Integer page,
-			@NotNull @Min(0) final Integer perPage) {
+	public <T> PaginatedList<T, Meta> list(@NotNull @Min(0) final Integer page, @NotNull @Min(0) final Integer perPage) {
 		final TypedQuery<T> query = query(from, criteriaQuery, predicates);
 		if (page != 0 && perPage != 0) {
 			query.setMaxResults(perPage);
@@ -234,31 +234,12 @@ public class Repository implements Serializable {
 	}
 
 	public Long count() {
-		return count(Boolean.TRUE);
-	}
-
-	@SuppressWarnings("unchecked")
-	private void fetchToJoin(final From<?, ?> from, Set<Fetch<?, ?>> fetches) {
-		if (fetches != null && !fetches.isEmpty()) {
-			for (final Fetch<?, ?> fetch : fetches) {
-				@SuppressWarnings("rawtypes")
-				Join join = (Join) fetch;
-				final Set<Fetch<?, ?>> fs = (Set<Fetch<?, ?>>)((Set<?>) fetch.getFetches()); 
-				if(fs.isEmpty()){
-					try{
-						from.getJoins().add(join);
-					}catch(UnsupportedOperationException e){}
-				}else{
-					fetchToJoin(join, fs);					
-				}				
-			}
-			from.getFetches().clear();	
-		}
+		return count(TRUE);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Long count(final Boolean distinct) {
 		final Selection<Long> s;
+		@SuppressWarnings("unchecked")
 		final Set<Fetch<?, ?>> fetches = (Set<Fetch<?, ?>>)((Set<?>) from.getFetches()); 
 		final From<?, ?> from = this.from;
 		fetchToJoin(from, fetches);
@@ -268,7 +249,8 @@ public class Repository implements Serializable {
 			s = criteriaBuilder.count(from);
 		}
 		final TypedQuery<Long> query = query(s, criteriaQuery, predicates);
-		return (Long) query.getResultList().get(0);
+		final Long count = (Long) query.getResultList().get(0);
+		return count;
 	}
 
 	public <T> T first() {
@@ -291,9 +273,7 @@ public class Repository implements Serializable {
 		return list();
 	}
 
-	public <T extends Model> PaginatedCollection<T, Meta> collection(
-			@NotNull @Min(0) final Integer page,
-			@NotNull @Min(0) final Integer perPage) {
+	public <T extends Model> PaginatedCollection<T, Meta> collection(@NotNull @Min(0) final Integer page, @NotNull @Min(0) final Integer perPage) {
 		return list(page, perPage);
 	}
 
@@ -321,25 +301,20 @@ public class Repository implements Serializable {
 		return this;
 	}
 
-	public <T> Repository and(@NotNull final T value,
-			@Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
-		return and(value, Comparators.EQUAL, attributes);
+	public <T> Repository and(@NotNull final T value, @Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
+		return and(value, EQUAL, attributes);
 	}
 
-	public <T> Repository and(@NotNull final T value,
-			@NotNull final Comparator comparator,
-			@Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
+	public <T> Repository and(@NotNull final T value, @NotNull final Comparator comparator, @Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
 		return and(new Predicate(value, comparator, attributes));
 	}
 
-	public Repository orderBy(final @NotNull Order.Type type,
-			final @Size(min = 1) @NotNull Attribute<?, ?>... attributes) {
-		orderBy(type, Arrays.asList(attributes));
+	public Repository orderBy(final @NotNull Direction direction, final @Size(min = 1) @NotNull Attribute<?, ?>... attributes) {
+		orderBy(direction, Arrays.asList(attributes));
 		return this;
 	}
 
-	public Repository orderBy(final @NotNull Order.Type type,
-			final @Size(min = 1) @NotNull List<Attribute<?, ?>> attributes) {
+	public Repository orderBy(final @NotNull Direction direction, final @Size(min = 1) @NotNull List<Attribute<?, ?>> attributes) {
 		Path<?> path = from.get(attributes.get(0).getName());
 		Integer i = 1;
 		final Integer j = attributes.size() - 1;
@@ -347,7 +322,7 @@ public class Repository implements Serializable {
 			path = path.get(attributes.get(i).getName());
 		}
 		final javax.persistence.criteria.Order order;
-		if (Order.Type.ASC.equals(type)) {
+		if (ASC.equals(direction)) {
 			order = criteriaBuilder.asc(path);
 		} else {
 			order = criteriaBuilder.desc(path);
@@ -357,25 +332,22 @@ public class Repository implements Serializable {
 	}
 
 	public Repository orderBy(final @NotNull Order... orders) {
-		orderBy(Arrays.asList(orders));
+		orderBy(asList(orders));
 		return this;
 	}
 
 	public Repository orderBy(final @NotNull List<Order> orders) {
 		for (final Order order : orders) {
-			orderBy(order.getType(), order.getAttributes());
+			orderBy(order.getDirection(), order.getAttributes());
 		}
 		return this;
 	}
 
-	public <T> Repository where(@NotNull final T value,
-			@Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
+	public <T> Repository where(@NotNull final T value, @Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
 		return where(asList(new Predicate(value, attributes)));
 	}
 
-	public <T> Repository where(@NotNull final T value,
-			@NotNull final Comparator comparator,
-			@NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
+	public <T> Repository where(@NotNull final T value, @NotNull final Comparator comparator, @NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
 		return where(asList(new Predicate(value, comparator, attributes)));
 	}
 
@@ -388,7 +360,7 @@ public class Repository implements Serializable {
 	}
 
 	public <T>Repository fetch(@NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
-		fetch(JoinType.INNER, attributes);		
+		fetch(INNER, attributes);
 		return this;
 	}
 
@@ -404,7 +376,7 @@ public class Repository implements Serializable {
 				type = sAttribute.getJavaType();
 			}		
 			@SuppressWarnings("rawtypes")
-			final Path path = joinner.join(em.getMetamodel(), criteriaBuilder, from, JoinType.INNER, tenantValue, withTenant, type, attributes);	
+			final Path path = joinner.join(em.getMetamodel(), criteriaBuilder, from, INNER, tenantValue, withTenant, type, attributes);	
 			@SuppressWarnings("unchecked")
 			final Selection<?> selection = path.as(type);
 			this.selection = selection;
@@ -412,8 +384,7 @@ public class Repository implements Serializable {
 		return this;
 	}
 
-	public <T> Repository where(@NotNull final Comparator comparator,
-			@NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
+	public <T> Repository where(@NotNull final Comparator comparator, @NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
 		return where(asList(new Predicate(comparator, attributes)));
 	}
 
@@ -428,7 +399,7 @@ public class Repository implements Serializable {
 		try {
 			return count() > 0;
 		} catch (final NoResultException e) {
-			return Boolean.FALSE;
+			return FALSE;
 		}
 	}
 
@@ -443,7 +414,7 @@ public class Repository implements Serializable {
 	}
 
 	public Repository tenantValue(final Object tenantValue) {
-		this.withTenant = Boolean.TRUE;
+		this.withTenant = TRUE;
 		this.tenantValue = tenantValue;
 		return this;
 	}
@@ -470,8 +441,7 @@ public class Repository implements Serializable {
 		flush();
 	}
 
-	public <T extends Model> void saveWithoutTransaction(
-			final @NotNull Collection<T> entities) {
+	public <T extends Model> void saveWithoutTransaction(final @NotNull Collection<T> entities) {
 		for (final T entity : entities) {
 			saveWithoutTransaction(entity);
 		}
@@ -495,9 +465,7 @@ public class Repository implements Serializable {
 		}
 	}
 
-	protected <T> TypedQuery<T> query(final Selection<?> selection,
-			final CriteriaQuery<?> criteriaQuery,
-			final List<javax.persistence.criteria.Predicate> predicates) {
+	protected <T> TypedQuery<T> query(final Selection<?> selection, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
 		@SuppressWarnings("unchecked")
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
 		@SuppressWarnings("unchecked")
@@ -540,5 +508,24 @@ public class Repository implements Serializable {
 	protected void concat(final javax.persistence.criteria.Predicate... predicates) {
 		final javax.persistence.criteria.Predicate and = criteriaBuilder.and(predicates);
 		this.predicates.add(and);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void fetchToJoin(final From<?, ?> from, Set<Fetch<?, ?>> fetches) {
+		if (fetches != null && !fetches.isEmpty()) {
+			for (final Fetch<?, ?> fetch : fetches) {
+				@SuppressWarnings("rawtypes")
+				Join join = (Join) fetch;
+				final Set<Fetch<?, ?>> fs = (Set<Fetch<?, ?>>)((Set<?>) fetch.getFetches()); 
+				if(fs.isEmpty()){
+					try{
+						from.getJoins().add(join);
+					}catch(UnsupportedOperationException e){}
+				}else{
+					fetchToJoin(join, fs);					
+				}				
+			}
+			from.getFetches().clear();	
+		}
 	}
 }

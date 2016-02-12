@@ -209,7 +209,7 @@ public class RepositoryIntegrationTest {
 	@Test
 	public void testOneCallOrderBy() {
 		final List<Operacao> operacoes = repository.from(Operacao.class)
-				.orderBy(Order.Type.ASC, Operacao_.recurso, Recurso_.nome)
+				.orderBy(Order.Direction.ASC, Operacao_.recurso, Recurso_.nome)
 				.list();
 		assertEquals(2, operacoes.size());
 	}
@@ -217,8 +217,8 @@ public class RepositoryIntegrationTest {
 	@Test
 	public void testCallListOrderBy() {
 		final List<Operacao> operacoes = repository.from(Operacao.class)
-				.orderBy(Arrays.asList(new Order(Order.Type.ASC, Operacao_.nome), 
-						new Order(Order.Type.DESC, Operacao_.id)))
+				.orderBy(Arrays.asList(new Order(Order.Direction.ASC, Operacao_.nome), 
+						new Order(Order.Direction.DESC, Operacao_.id)))
 				.list();
 		assertEquals(2, operacoes.size());
 		assertEquals("OutraOperacao", operacoes.get(0).getNome());
@@ -228,8 +228,8 @@ public class RepositoryIntegrationTest {
 	@Test
 	public void testCallArrayOrderBy() {
 		final List<Operacao> operacoes = repository.from(Operacao.class)
-				.orderBy(new Order(Order.Type.ASC, Operacao_.nome), 
-						new Order(Order.Type.DESC, Operacao_.id))
+				.orderBy(new Order(Order.Direction.ASC, Operacao_.nome), 
+						new Order(Order.Direction.DESC, Operacao_.id))
 				.list();
 		assertEquals(2, operacoes.size());
 		assertEquals("OutraOperacao", operacoes.get(0).getNome());
@@ -239,8 +239,8 @@ public class RepositoryIntegrationTest {
 	@Test
 	public void testMoreOneOrderBy() {
 		final List<Operacao> operacoes = repository.from(Operacao.class)
-				.orderBy(Order.Type.ASC, Operacao_.nome)
-				.orderBy(Order.Type.DESC, Operacao_.id)
+				.orderBy(Order.Direction.ASC, Operacao_.nome)
+				.orderBy(Order.Direction.DESC, Operacao_.id)
 				.list();
 		assertEquals(2, operacoes.size());
 		assertEquals("OutraOperacao", operacoes.get(0).getNome());

@@ -7,27 +7,27 @@ import javax.persistence.criteria.Predicate;
 public class Concat implements Comparator {
 	private static final long serialVersionUID = 1L;
 
-	private final Type type;
+	private final Position position;
 
 	private final Comparator delegate;
 
 	private final String string;
 
-	public Concat(final Comparator delegate, final Type type, final String string) {
+	public Concat(final Comparator delegate, final Position position, final String string) {
 		this.delegate = delegate;
-		this.type = type;
+		this.position = position;
 		this.string = string;
 	}
 
 	public Concat(final Comparator delegate, final String string) {
-		this(delegate, Type.AFTER, string);
+		this(delegate, Position.AFTER, string);
 	}
 
 	@Override
 	public Predicate build(final CriteriaBuilder cb, final Expression<?> x, final Object y) {
 		@SuppressWarnings("unchecked")
 		final Expression<String> expression = (Expression<String>) x;
-		final Expression<String> concatened = type.build(cb, expression, string);
+		final Expression<String> concatened = position.build(cb, expression, string);
 		return delegate.build(cb, concatened, y);
 	}
 
@@ -36,7 +36,7 @@ public class Concat implements Comparator {
 		return delegate.toString();
 	}
 
-	public enum Type{
+	public enum Position{
 		BEFORE,
 		AFTER(){
 			@Override

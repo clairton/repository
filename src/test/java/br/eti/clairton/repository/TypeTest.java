@@ -1,16 +1,16 @@
 package br.eti.clairton.repository;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import br.eti.clairton.repository.Order.Type;
+import br.eti.clairton.repository.Order.Direction;
 
 public class TypeTest {
 
 	@Test
 	public void test() {
-		assertEquals(Type.ASC, Type.byString("asc"));
+		assertEquals(Direction.ASC, Direction.byString("asc"));
 	}
 
 }

@@ -8,9 +8,7 @@ import javax.validation.constraints.NotNull;
 public class And implements Operator {
 
 	@Override
-	public Predicate build(final @NotNull CriteriaBuilder cb,
-			@NotNull final Expression<Boolean> x,
-			@NotNull final Expression<Boolean> y) {
+	public Predicate build(final @NotNull CriteriaBuilder cb, @NotNull final Expression<Boolean> x, @NotNull final Expression<Boolean> y) {
 		return cb.and(x, y);
 	}
 
