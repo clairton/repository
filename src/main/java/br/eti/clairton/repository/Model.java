@@ -1,28 +1,31 @@
 package br.eti.clairton.repository;
 
+import static br.eti.clairton.identificator.Identificator.Type.TO_STRING;
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.io.Serializable;
 
 import javax.persistence.Cacheable;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 import br.eti.clairton.identificator.Identificable;
+import br.eti.clairton.identificator.Identificator;
 
 /**
  * Contrato abstrato para as entidades.
  * 
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  */
-@MappedSuperclass
 @Cacheable
-public abstract class Model extends Identificable implements Serializable,
-		Cloneable {
+@MappedSuperclass
+public abstract class Model extends Identificable implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Identificator(TO_STRING)
+	@GeneratedValue(strategy = IDENTITY)
 	private Long id;
 
 	public Long getId() {

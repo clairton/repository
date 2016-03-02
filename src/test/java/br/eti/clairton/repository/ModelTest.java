@@ -5,9 +5,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import net.vidageek.mirror.dsl.Mirror;
 
 import org.junit.Test;
+
+import net.vidageek.mirror.dsl.Mirror;
 
 public class ModelTest {
 	final Aplicacao a = new Aplicacao("a");
@@ -35,9 +36,9 @@ public class ModelTest {
 		assertNotEquals(a.toString(), new Aplicacao("a").toString());
 		assertEquals(a.toString(), a.toString());
 		assertNotEquals(a.toString(), b.toString());
-		assertTrue(a.toString().endsWith("[nome=a]"));
-		assertTrue(a.toString().startsWith(
-				"br.eti.clairton.repository.Aplicacao@"));
+		assertTrue(a.toString().contains("[nome=a,"));
+		assertTrue(a.toString().endsWith("id=<null>]"));
+		assertTrue(a.toString().startsWith("br.eti.clairton.repository.Aplicacao@"));
 	}
 
 	@Test

@@ -6,6 +6,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static javax.persistence.criteria.JoinType.INNER;
+import static org.apache.logging.log4j.LogManager.getLogger;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -42,7 +43,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.eti.clairton.paginated.collection.Meta;
@@ -62,7 +62,7 @@ import br.eti.clairton.tenant.TenantNotFound;
 public class Repository implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private final Logger logger = LogManager.getLogger(Repository.class);
+	private final Logger logger = getLogger(Repository.class);
 
 	private EntityManager em;
 

@@ -1,5 +1,9 @@
 package br.eti.clairton.repository;
 
+import static br.eti.clairton.repository.Comparators.EQUAL;
+import static br.eti.clairton.repository.Operators.AND;
+import static javax.persistence.criteria.JoinType.INNER;
+
 import java.io.Serializable;
 
 import javax.persistence.criteria.JoinType;
@@ -18,42 +22,42 @@ public class Predicate implements Serializable {
 
 	private Attribute<?, ?>[] attributes;
 
-	private JoinType joinType = JoinType.INNER;
+	private JoinType joinType = INNER;
 
-	private Comparator comparator = Comparators.EQUAL;
+	private Comparator comparator = EQUAL;
 
-	private Operator operator = Operators.AND;
+	private Operator operator = AND;
 
-	public <T> Predicate(final @NotNull T value,
+	public <T> Predicate(final @NotNull T value, 
 			final @NotNull Attribute<?, ?>... attributes) {
-		this(value, JoinType.INNER, Comparators.EQUAL, Operators.AND,
-				attributes);
+		this(value, INNER, EQUAL, AND, attributes);
 	}
 
-	public <T> Predicate(final @NotNull Operator operator,
-			final @NotNull T value, final @NotNull Attribute<?, ?>... attribute) {
-		this(value, JoinType.INNER, Comparators.EQUAL, operator, attribute);
-	}
-
-	public <T> Predicate(final @NotNull T value,
-			final @NotNull Comparator comparator,
+	public <T> Predicate(final @NotNull Operator operator, 
+			final @NotNull T value, 
 			final @NotNull Attribute<?, ?>... attribute) {
-		this(value, JoinType.INNER, comparator, Operators.AND, attribute);
+		this(value, INNER, EQUAL, operator, attribute);
+	}
+
+	public <T> Predicate(final @NotNull T value, 
+			final @NotNull Comparator comparator, 
+			final @NotNull Attribute<?, ?>... attribute) {
+		this(value, INNER, comparator, AND, attribute);
 	}
 
 	public Predicate(final @NotNull Attribute<?, ?>... attribute) {
-		this(null, JoinType.INNER, Comparators.EQUAL, Operators.AND, attribute);
+		this(null, INNER, EQUAL, AND, attribute);
 	}
 
-	public Predicate(final @NotNull Comparator comparator,
+	public Predicate(final @NotNull Comparator comparator, 
 			final @NotNull Attribute<?, ?>... attribute) {
-		this(null, JoinType.INNER, comparator, Operators.AND, attribute);
+		this(null, INNER, comparator, AND, attribute);
 	}
 
-	public Predicate(final @NotNull JoinType joinType,
+	public Predicate(final @NotNull JoinType joinType, 
 			final @NotNull Comparator comparator,
 			final @NotNull Attribute<?, ?>... attribute) {
-		this(null, joinType, comparator, Operators.AND, attribute);
+		this(null, joinType, comparator, AND, attribute);
 	}
 
 	public <T> Predicate(final @NotNull T value, JoinType joinType,

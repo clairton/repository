@@ -1,7 +1,11 @@
 package br.eti.clairton.repository;
 
+import static br.eti.clairton.repository.Comparators.EQUAL;
+import static br.eti.clairton.repository.Operators.AND;
+import static java.util.Arrays.asList;
+import static javax.persistence.criteria.JoinType.INNER;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.criteria.JoinType;
@@ -39,7 +43,7 @@ public class PredicateBuilder {
 	}
 
 	public PredicateBuilder attribute(final Attribute<?, ?>... attributes) {
-		return attributes(Arrays.asList(attributes));
+		return attributes(asList(attributes));
 	}
 
 	public Predicate build() {
@@ -52,10 +56,10 @@ public class PredicateBuilder {
 
 	private void defaultValues() {
 		value = null;
-		join = JoinType.INNER;
-		comparator = Comparators.EQUAL;
+		join = INNER;
+		comparator = EQUAL;
 		attributes = new ArrayList<Attribute<?, ?>>();
-		operator = Operators.AND;
+		operator = AND;
 	}
 
 	public PredicateBuilder operator(final Operator operator) {

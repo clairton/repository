@@ -1,5 +1,7 @@
 package br.eti.clairton.repository;
 
+import static br.eti.clairton.repository.Concat.Position.AFTER;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
@@ -20,7 +22,7 @@ public class Concat implements Comparator {
 	}
 
 	public Concat(final Comparator delegate, final String string) {
-		this(delegate, Position.AFTER, string);
+		this(delegate, AFTER, string);
 	}
 
 	@Override
