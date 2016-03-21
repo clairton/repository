@@ -75,33 +75,11 @@ Predicate p = new Predicate("teste", Comparators.LIKE, Aplicacao_.recursos,
     Recurso_.operacao, Operacao_.nome);
 repository.from(Aplicacao.class).where(p).list();
 ```
+O método EntityManager#flush é invocado automaticamente ao executar os métodos remove, save e update.
 
-Integrado ao projeto https://github.com/clairton/tenant.
-```java
-repository.from(Aplicacao.class).tenantValue("ValorFiltrado");
-```
 
-Também há a possibilidade de injetar um repository com o qualifier @Tenant, para isso será necessário implementar
-o contrato TenantValue, não sendo necessário definir o valor toda vez.
-```java
-@RequestScoped
-public class TenantValueObject implements TenantValue<String> {
+Para uso de tenant pode ser integrado ao projeto https://github.com/clairton/repository-tenant e https://github.com/clairton/tenant.
 
-	@Override
-	public String get() {
-		return "Valor que não deve aparecer na consulta";
-	}
-
-}
-...
-@Inject @Tenant Repository repository;
-...
-repository.from(Aplicacao.class).collection();
-```
-Para chamada do EntityManager#flush automaticamente ao executar os métodos remove, save e update
-necessário adicionar o interceptor br.eti.clairton.repository.FlushableInterceptor no beans.xml.
-
-Para uso de JTA em um ambiente CDI recomendamos o uso da extensão https://deltaspike.apache.org/documentation/jpa.html.
 
 Para usar será necessário adicionar os repositórios maven:
 
@@ -120,6 +98,6 @@ Para usar será necessário adicionar os repositórios maven:
 <dependency>
     <groupId>br.eti.clairton</groupId>
 	<artifactId>repository</artifactId>
-	<version>0.1.0</version>
+	<version>${latestVersion}</version>
 </dependency>
 ```
