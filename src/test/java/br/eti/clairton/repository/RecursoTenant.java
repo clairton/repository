@@ -1,5 +1,7 @@
 package br.eti.clairton.repository;
 
+import static br.eti.clairton.repository.Recurso_.aplicacao;
+
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -23,10 +25,11 @@ public class RecursoTenant extends Tenantable<Recurso> {
 	}
 
 	@Override
-	public Predicate add(final @NotNull CriteriaBuilder criteriaBuilder,
+	public Predicate add(
+			final @NotNull CriteriaBuilder builder,
 			final @NotNull From<?, Recurso> from,
-			final @NotNull Object tenantValue) {
-		final Join<Recurso, Aplicacao> join = from.join(Recurso_.aplicacao);
-		return builder.run(criteriaBuilder, join, tenantValue);
+			final @NotNull Object value) {
+		final Join<Recurso, Aplicacao> join = from.join(aplicacao);
+		return this.builder.run(builder, join, value);
 	}
 }

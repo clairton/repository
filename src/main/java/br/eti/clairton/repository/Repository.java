@@ -36,8 +36,6 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SingularAttribute;
 import javax.transaction.Transactional;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -50,8 +48,6 @@ import br.eti.clairton.paginated.collection.PaginatedCollection;
 import br.eti.clairton.paginated.collection.PaginatedList;
 import br.eti.clairton.paginated.collection.PaginatedMetaList;
 import br.eti.clairton.repository.Order.Direction;
-import br.eti.clairton.tenant.TenantBuilder;
-import br.eti.clairton.tenant.TenantNotFound;
 
 /**
  * Repository para operações com o banco de dados.
@@ -66,57 +62,49 @@ public class Repository implements Serializable {
 
 	private EntityManager em;
 
-	private final TenantBuilder tenant;
-
-	private Root<? extends Model> from;
+	protected Root<? extends Model> from;
 	
 	private Selection<?> selection;
 
 	private CriteriaQuery<?> criteriaQuery;
 
-	private CriteriaBuilder criteriaBuilder;
+	protected CriteriaBuilder builder;
 
-	private List<javax.persistence.criteria.Predicate> predicates;
+	protected List<javax.persistence.criteria.Predicate> predicates;
 
 	private final List<javax.persistence.criteria.Order> orders = new ArrayList<>();
 	
 	private final Map<String, Object> hints = new HashMap<>();
 
-	private Object tenantValue;
-
-	private final Joinner joinner;
-
-	private Boolean withTenant = FALSE;
+	protected Joinner joinner;
 
 	@Deprecated
 	public Repository() {
-		this(null, null, null);
+		this(null);
 	}
 
 	@Inject
-	public Repository(@NotNull final EntityManager em, @NotNull final TenantBuilder tenant, @NotNull final Joinner joinner) {
+	public Repository(@NotNull final EntityManager em) {
 		super();
 		this.em = em;
-		this.tenant = tenant;
-		this.joinner = joinner;
 	}
 
 	@Transactional
-	public <T extends Model> T save(final @NotNull T entity) {
+	public <T extends Model> T save(@NotNull final T entity) {
 		final T e = saveWithoutTransaction(entity);
 		flush();
 		return e;
 	}
 
 	@Transactional
-	public <T extends Model> T merge(final @NotNull T entity) {
+	public <T extends Model> T merge(@NotNull final T entity) {
 		final T e = mergeWithoutTransaction(entity);
 		flush();
 		return e;
 	}
 
 	@Transactional
-	public <T extends Model> void persist(final @NotNull T entity) {
+	public <T extends Model> void persist(@NotNull final T entity) {
 		persistWithoutTransaction(entity);
 		flush();
 	}
@@ -126,11 +114,11 @@ public class Repository implements Serializable {
 		return entity;
 	}
 
-	public <T extends Model> void persistWithoutTransaction(final @NotNull T entity) {
+	public <T extends Model> void persistWithoutTransaction(@NotNull final T entity) {
 		em.persist(entity);
 	}
 
-	public <T extends Model> void refresh(final @NotNull T entity) {
+	public <T extends Model> void refresh(@NotNull final T entity) {
 		em.refresh(entity);
 	}
 
@@ -150,7 +138,7 @@ public class Repository implements Serializable {
 	}
 	
 	@Transactional
-	public <T extends Model> void remove(final @NotNull Collection<T> entities) {
+	public <T extends Model> void remove(@NotNull final Collection<T> entities) {
 		removeWithoutTransaction(entities);
 		flush();
 	}
@@ -193,17 +181,12 @@ public class Repository implements Serializable {
 	}
 
 	public <T extends Model> Repository from(@NotNull final Class<T> type) {
-		criteriaBuilder = em.getCriteriaBuilder();
-		criteriaQuery = criteriaBuilder.createQuery(type);
+		builder = em.getCriteriaBuilder();
+		criteriaQuery = builder.createQuery(type);
 		from = criteriaQuery.from(type);
 		selection = from;
 		predicates = new ArrayList<javax.persistence.criteria.Predicate>();
-		try {
-			if (withTenant) {
-				predicates.add(tenant.run(criteriaBuilder, from, tenantValue));
-			}
-		} catch (final TenantNotFound e) {
-		}
+		joinner = new Joinner(builder, from);
 		return this;
 	}
 
@@ -244,9 +227,9 @@ public class Repository implements Serializable {
 		final From<?, ?> from = this.from;
 		fetchToJoin(from, fetches);
 		if (distinct) {
-			s = criteriaBuilder.countDistinct(from);
+			s = builder.countDistinct(from);
 		} else {
-			s = criteriaBuilder.count(from);
+			s = builder.count(from);
 		}
 		final TypedQuery<Long> query = query(s, criteriaQuery, predicates);
 		final Long count = (Long) query.getResultList().get(0);
@@ -287,12 +270,12 @@ public class Repository implements Serializable {
 	}
 
 	public Repository or(@NotNull Predicate predicate) {
-		javax.persistence.criteria.Predicate p = criteriaBuilder
+		javax.persistence.criteria.Predicate p = builder
 				.and(this.predicates
 						.toArray(new javax.persistence.criteria.Predicate[this.predicates
 								.size()]));
 		this.predicates = new ArrayList<javax.persistence.criteria.Predicate>();
-		this.predicates.add(criteriaBuilder.or(p, to(predicate)));
+		this.predicates.add(builder.or(p, to(predicate)));
 		return this;
 	}
 
@@ -323,9 +306,9 @@ public class Repository implements Serializable {
 		}
 		final javax.persistence.criteria.Order order;
 		if (ASC.equals(direction)) {
-			order = criteriaBuilder.asc(path);
+			order = builder.asc(path);
 		} else {
-			order = criteriaBuilder.desc(path);
+			order = builder.desc(path);
 		}
 		orders.add(order);
 		return this;
@@ -365,21 +348,13 @@ public class Repository implements Serializable {
 	}
 
 	public <T>Repository select(@NotNull final Attribute<?, ?>... attributes) {
-		if(attributes.length > 0){			
-			final Attribute<?, ?> attribute = attributes[attributes.length - 1];
-			final Class<?> type;
-			if (PluralAttribute.class.isInstance(attribute)) {
-				final PluralAttribute<?, ?, ?> pAttribute = (PluralAttribute<?, ?, ?>) attribute;
-				type = pAttribute.getElementType().getJavaType();
-			} else {
-				final SingularAttribute<?, ?> sAttribute = (SingularAttribute<?, ?>) attribute;
-				type = sAttribute.getJavaType();
-			}		
-			@SuppressWarnings("rawtypes")
-			final Path path = joinner.join(em.getMetamodel(), criteriaBuilder, from, INNER, tenantValue, withTenant, type, attributes);	
-			@SuppressWarnings("unchecked")
-			final Selection<?> selection = path.as(type);
-			this.selection = selection;
+		select(INNER, attributes);
+		return this;
+	}
+
+	public <T>Repository select(final JoinType joinType, @NotNull final Attribute<?, ?>... attributes) {
+		if(attributes.length > 0){
+			this.selection = joinner.select(INNER, attributes);
 		}
 		return this;
 	}
@@ -402,20 +377,9 @@ public class Repository implements Serializable {
 			return FALSE;
 		}
 	}
-
-	public Repository tenant(final Boolean withTenant) {
-		this.withTenant = withTenant;
-		return this;
-	}
 	
 	public Repository hint(final String key, final Object value) {
 		this.hints.put(key, value);
-		return this;
-	}
-
-	public Repository tenantValue(final Object tenantValue) {
-		this.withTenant = TRUE;
-		this.tenantValue = tenantValue;
 		return this;
 	}
 
@@ -496,17 +460,17 @@ public class Repository implements Serializable {
 		for (; i <= j; i++) {
 			final javax.persistence.criteria.Predicate other = to(ps.get(i));
 			final Operator operator = ps.get(i).getOperator();
-			p = operator.build(criteriaBuilder, p, other);
+			p = operator.build(builder, p, other);
 		}
 		concat(p);
 	}
 
 	protected javax.persistence.criteria.Predicate to(@NotNull final Predicate predicate) {
-		return joinner.join(criteriaBuilder, from, predicate, tenantValue, withTenant);
+		return joinner.join(predicate);
 	}
 
 	protected void concat(final javax.persistence.criteria.Predicate... predicates) {
-		final javax.persistence.criteria.Predicate and = criteriaBuilder.and(predicates);
+		final javax.persistence.criteria.Predicate and = builder.and(predicates);
 		this.predicates.add(and);
 	}
 

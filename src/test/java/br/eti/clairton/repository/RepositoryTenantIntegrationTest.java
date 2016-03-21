@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 @RunWith(CdiTestRunner.class)
 public class RepositoryTenantIntegrationTest {
 	private @Inject EntityManager entityManager;
-	private @Inject @Tenant Repository repository;
+	private @Inject @Tenant RepositoryTenant repository;
 	private @Inject Connection connection;
 	private static final String tenantValue = "OutroTesteQueNãoDeveAparecerNaConsulta";
 
@@ -47,14 +47,14 @@ public class RepositoryTenantIntegrationTest {
 
 	@Test
 	public void testWithTenantInFirst() {
-		final List<Recurso> result = repository.tenantValue(tenantValue)
+		final List<Recurso> result = repository.withTenant(tenantValue)
 				.from(Aplicacao.class).list();
 		assertEquals(1, result.size());
 	}
 
 	@Test
 	public void testWithTenantInSecond() {
-		final List<Recurso> result = repository.tenantValue(tenantValue)
+		final List<Recurso> result = repository.withTenant(tenantValue)
 				.from(Recurso.class).list();
 		assertEquals(1, result.size());
 	}
@@ -62,7 +62,7 @@ public class RepositoryTenantIntegrationTest {
 	@Test
 	public void testWithTenantInJoin() {
 		final List<Operacao> result = repository
-				.tenantValue(tenantValue)
+				.withTenant(tenantValue)
 				.from(Operacao.class)
 				.where(0l, GREATER_THAN_OR_EQUAL, Operacao_.recurso,
 						Recurso_.id).list();
@@ -71,7 +71,7 @@ public class RepositoryTenantIntegrationTest {
 
 	@Test
 	public void testWithoutTenant() {
-		final List<Operacao> result = repository.tenantValue(tenantValue)
+		final List<Operacao> result = repository.withTenant(tenantValue)
 				.from(Operacao.class).list();
 		assertEquals(2, result.size());
 	}
