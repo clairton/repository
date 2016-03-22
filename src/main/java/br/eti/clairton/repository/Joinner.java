@@ -36,6 +36,7 @@ public class Joinner {
 	};
 	protected final CriteriaBuilder builder;
 	protected final From<?, ?> from;
+	private final Map<From<?, ?>, Map<Attribute<?, ?> , Join<?, ?>>> index = new HashMap<>();
 	protected From<?, ?> fromLast;
 	
 	public Joinner(CriteriaBuilder builder, From<?, ?> from) {
@@ -117,17 +118,39 @@ public class Joinner {
 			@NotNull final JoinType joinType,
 			@NotNull final Attribute<?, ?> attribute) {
 		final Join<T, Y> join;
-		if (attribute.isCollection()) {
-			final PluralAttribute<?, ?, ?> pluralAttribute = (PluralAttribute<?, ?, ?>) attribute;
-			join = JOINS.get(pluralAttribute.getCollectionType()).join(from, joinType, pluralAttribute);
-		} else {
+		if(isReady(from, attribute)){
 			@SuppressWarnings("unchecked")
-			final SingularAttribute<? super Y, Y> singularAttribute = (SingularAttribute<? super Y, Y>) attribute;
-			@SuppressWarnings("unchecked")
-			final Join<T, Y> j = (Join<T, Y>) from.join(singularAttribute, joinType);
+			final Join<T, Y> j = (Join<T, Y>) searchIndex(from, attribute);
 			join = j;
+		}else {			
+			if (attribute.isCollection()) {
+				final PluralAttribute<?, ?, ?> pluralAttribute = (PluralAttribute<?, ?, ?>) attribute;
+				join = JOINS.get(pluralAttribute.getCollectionType()).join(from, joinType, pluralAttribute);
+			} else {
+				@SuppressWarnings("unchecked")
+				final SingularAttribute<? super Y, Y> singularAttribute = (SingularAttribute<? super Y, Y>) attribute;
+				@SuppressWarnings("unchecked")
+				final Join<T, Y> j = (Join<T, Y>) from.join(singularAttribute, joinType);
+				join = j;
+			}
+			addIndex(from, attribute, join);
 		}
 		return join;
+	}
+
+	protected Boolean isReady(final From<?, ?> origin, final Attribute<?, ?> destiny) {
+		return index.containsKey(origin) && index.get(origin).containsKey(destiny);
+	}
+
+	protected Join<?, ?> searchIndex(final From<?, ?> origin, final Attribute<?, ?> destiny) {
+		return index.get(origin).get(destiny);
+	}
+
+	protected void addIndex(final From<?, ?> origin, final Attribute<?, ?> destiny, final Join<?, ?> value) {
+		if(!index.containsKey(origin)){
+			index.put(origin, new HashMap<Attribute<?, ?>, Join<?, ?>>());
+		}
+		index.get(origin).put(destiny, value);
 	}
 
 	protected <T, Y> Expression<Y> get(@NotNull final From<?, ?> from, @NotNull final Attribute<?, ?> attribute) {
