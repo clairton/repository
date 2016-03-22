@@ -1,5 +1,11 @@
 package br.eti.clairton.repository;
 
+import static br.eti.clairton.repository.Comparators.GREATER_THAN_OR_EQUAL;
+import static br.eti.clairton.repository.Comparators.LESS_THAN_OR_EQUAL;
+import static br.eti.clairton.repository.Comparators.LIKE;
+import static br.eti.clairton.repository.Comparators.NOT_EQUAL;
+import static br.eti.clairton.repository.Operacao_.recurso;
+import static br.eti.clairton.repository.Recurso_.aplicacao;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -272,20 +278,14 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testWhere() {
-		final Predicate filtro = new Predicate("Teste", Operacao_.recurso,
-				Recurso_.aplicacao, Aplicacao_.nome);
-		final Predicate filtro2 = new Predicate(0l,
-				Comparators.GREATER_THAN_OR_EQUAL, Operacao_.id);
-		final Predicate filtro3 = new Predicate(1000000l,
-				Comparators.LESS_THAN_OR_EQUAL, Operacao_.recurso, Recurso_.id);
-		final Predicate filtro4 = new Predicate("e", Comparators.LIKE,
-				Operacao_.recurso, Recurso_.nome);
-		final Predicate filtro5 = new Predicate("OutraOperacao",
-				Comparators.NOT_EQUAL, Operacao_.nome);
-		final List<Predicate> filtros = Arrays.asList(filtro, filtro2, filtro3,
-				filtro4, filtro5);
 		assertEquals(Long.valueOf(1),
-				repository.from(Operacao.class).where(filtros).count());
+				repository.from(Operacao.class)
+							.where("Teste", recurso, aplicacao, Aplicacao_.nome)
+							.and(0l, GREATER_THAN_OR_EQUAL, Operacao_.id)
+							.and(1000000l, LESS_THAN_OR_EQUAL, recurso, Recurso_.id)
+							.and("e", LIKE, recurso, Recurso_.nome)
+							.and("OutraOperacao", NOT_EQUAL, Operacao_.nome)
+							.count());
 	}
 
 	@Test
