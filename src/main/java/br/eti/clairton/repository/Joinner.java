@@ -14,17 +14,20 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.PluralAttribute.CollectionType;
 import javax.persistence.metamodel.SingularAttribute;
-import javax.validation.constraints.NotNull;
 
-
+/**
+ * Joinner by {@link br.eti.clairton.repository.Predicate}.
+ * 
+ * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
+ */
 @Vetoed
 public class Joinner {
-
 	public final static Map<CollectionType, br.eti.clairton.repository.Join> JOINS = new HashMap<CollectionType, br.eti.clairton.repository.Join>() {
 		private static final long serialVersionUID = 1L;
 		{
@@ -34,42 +37,37 @@ public class Joinner {
 			put(CollectionType.MAP, MAP);
 		}
 	};
+
+	protected final Map<From<?, ?>, Map<Attribute<?, ?>, Join<?, ?>>> index = new HashMap<>();
 	protected final CriteriaBuilder builder;
 	protected final From<?, ?> from;
-	private final Map<From<?, ?>, Map<Attribute<?, ?> , Join<?, ?>>> index = new HashMap<>();
 	protected From<?, ?> fromLast;
-	
-	public Joinner(CriteriaBuilder builder, From<?, ?> from) {
+
+	/**
+	 * Constructor default.
+	 * 
+	 * @param builder
+	 *            instance of {@link CriteriaBuilder}
+	 * @param from
+	 *            instance of {@link From}
+	 */
+	public Joinner(final CriteriaBuilder builder, final From<?, ?> from) {
 		super();
 		this.builder = builder;
 		this.from = from;
 	}
 
-	public <Y>Expression<Y> join(final JoinType joinType, final Attribute<?, ?>... attributes) {
-		final Attribute<?, ?> attribute;
-		From<?, ?> from = this.from; 
-		if (attributes.length == 0) {
-			throw new AttributeNotBeEmptyException();
-		} else if (attributes.length == 1) {
-			attribute = attributes[0];
-		} else {
-			Integer i = 1;
-			final Integer j = attributes.length - 1;
-			Attribute<?, ?> a = attributes[0];
-			Join<?, ?> join = join(builder, from, joinType, a);
-			for (; i < j; i++) {
-				a = attributes[i];
-				join = join(builder, join, joinType, a);
-			}
-			attribute = attributes[i];
-			from = join;
-		}
-		final Expression<Y> path = get(from, attribute);
-		return path;
-	}
-
-	public <Y>Selection<Y> select(final JoinType joinType, final Attribute<?, ?>... attributes) {
-		final Expression<Y> path = join(joinType, attributes);		
+	/**
+	 * Select the attribute.
+	 * 
+	 * @param joinType
+	 *            type of Join
+	 * @param attributes
+	 *            atrributes paths
+	 * @return instance of {@link Selection}
+	 */
+	public <Y> Selection<Y> select(final JoinType joinType, final Attribute<?, ?>... attributes) {
+		final Expression<Y> path = join(joinType, attributes);
 		final Attribute<?, ?> attribute = attributes[attributes.length - 1];
 		final Class<?> type;
 		if (PluralAttribute.class.isInstance(attribute)) {
@@ -82,9 +80,17 @@ public class Joinner {
 		@SuppressWarnings("unchecked")
 		final Selection<Y> selection = (Selection<Y>) path.as(type);
 		return selection;
-	}	
-	
-	public javax.persistence.criteria.Predicate join( @NotNull final Predicate predicate) {
+	}
+
+	/**
+	 * Transform {@link br.eti.clairton.repository.Predicate} in
+	 * {@link Predicate}.
+	 * 
+	 * @param predicate
+	 *            instance of {@link br.eti.clairton.repository.Predicate}
+	 * @return instance of {@link Predicate}
+	 */
+	public Predicate join(final br.eti.clairton.repository.Predicate predicate) {
 		final Comparator comparator = predicate.getComparator();
 		final Attribute<?, ?> attribute;
 		final Attribute<?, ?>[] attributes = predicate.getAttributes();
@@ -108,29 +114,25 @@ public class Joinner {
 			fromLast = join;
 		}
 		final Expression<?> path = get(fromLast, attribute);
-		final javax.persistence.criteria.Predicate joinPredicate = comparator.build(builder, path, predicate.getValue());
+		final Predicate joinPredicate = comparator.build(builder, path, predicate.getValue());
 		return joinPredicate;
 	}
-	
-	protected <T, Y> Join<T, Y> join(
-			@NotNull final CriteriaBuilder criteriaBuilder,
-			@NotNull final From<T, Y> from,
-			@NotNull final JoinType joinType,
-			@NotNull final Attribute<?, ?> attribute) {
+
+	public <T, Y> Join<T, Y> join(final CriteriaBuilder builder, final From<T, Y> from, final JoinType joinType, final Attribute<?, ?> attribute) {
 		final Join<T, Y> join;
-		if(isReady(from, attribute)){
+		if (isReady(from, attribute)) {
 			@SuppressWarnings("unchecked")
 			final Join<T, Y> j = (Join<T, Y>) searchIndex(from, attribute);
 			join = j;
-		}else {			
+		} else {
 			if (attribute.isCollection()) {
-				final PluralAttribute<?, ?, ?> pluralAttribute = (PluralAttribute<?, ?, ?>) attribute;
-				join = JOINS.get(pluralAttribute.getCollectionType()).join(from, joinType, pluralAttribute);
+				final PluralAttribute<?, ?, ?> pAttribute = (PluralAttribute<?, ?, ?>) attribute;
+				join = JOINS.get(pAttribute.getCollectionType()).join(from, joinType, pAttribute);
 			} else {
 				@SuppressWarnings("unchecked")
-				final SingularAttribute<? super Y, Y> singularAttribute = (SingularAttribute<? super Y, Y>) attribute;
+				final SingularAttribute<? super Y, Y> sAttribute = (SingularAttribute<? super Y, Y>) attribute;
 				@SuppressWarnings("unchecked")
-				final Join<T, Y> j = (Join<T, Y>) from.join(singularAttribute, joinType);
+				final Join<T, Y> j = (Join<T, Y>) from.join(sAttribute, joinType);
 				join = j;
 			}
 			addIndex(from, attribute, join);
@@ -138,22 +140,45 @@ public class Joinner {
 		return join;
 	}
 
-	protected Boolean isReady(final From<?, ?> origin, final Attribute<?, ?> destiny) {
+	protected <Y> Expression<Y> join(final JoinType joinType, final Attribute<?, ?>... attributes) {
+		final Attribute<?, ?> attribute;
+		From<?, ?> from = this.from;
+		if (attributes.length == 0) {
+			throw new AttributeNotBeEmptyException();
+		} else if (attributes.length == 1) {
+			attribute = attributes[0];
+		} else {
+			Integer i = 1;
+			final Integer j = attributes.length - 1;
+			Attribute<?, ?> a = attributes[0];
+			Join<?, ?> join = join(builder, from, joinType, a);
+			for (; i < j; i++) {
+				a = attributes[i];
+				join = join(builder, join, joinType, a);
+			}
+			attribute = attributes[i];
+			from = join;
+		}
+		final Expression<Y> path = get(from, attribute);
+		return path;
+	}
+
+	public Boolean isReady(final From<?, ?> origin, final Attribute<?, ?> destiny) {
 		return index.containsKey(origin) && index.get(origin).containsKey(destiny);
 	}
 
-	protected Join<?, ?> searchIndex(final From<?, ?> origin, final Attribute<?, ?> destiny) {
+	public Join<?, ?> searchIndex(final From<?, ?> origin, final Attribute<?, ?> destiny) {
 		return index.get(origin).get(destiny);
 	}
 
-	protected void addIndex(final From<?, ?> origin, final Attribute<?, ?> destiny, final Join<?, ?> value) {
-		if(!index.containsKey(origin)){
+	public void addIndex(final From<?, ?> origin, final Attribute<?, ?> destiny, final Join<?, ?> value) {
+		if (!index.containsKey(origin)) {
 			index.put(origin, new HashMap<Attribute<?, ?>, Join<?, ?>>());
 		}
 		index.get(origin).put(destiny, value);
 	}
 
-	protected <T, Y> Expression<Y> get(@NotNull final From<?, ?> from, @NotNull final Attribute<?, ?> attribute) {
+	protected <T, Y> Expression<Y> get(final From<?, ?> from, final Attribute<?, ?> attribute) {
 		final Expression<Y> path;
 		if (attribute.isCollection()) {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
