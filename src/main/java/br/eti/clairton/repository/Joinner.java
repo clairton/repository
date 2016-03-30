@@ -68,17 +68,7 @@ public class Joinner {
 	 */
 	public <Y> Selection<Y> select(final JoinType joinType, final Attribute<?, ?>... attributes) {
 		final Expression<Y> path = join(joinType, attributes);
-		final Attribute<?, ?> attribute = attributes[attributes.length - 1];
-		final Class<?> type;
-		if (PluralAttribute.class.isInstance(attribute)) {
-			final PluralAttribute<?, ?, ?> pAttribute = (PluralAttribute<?, ?, ?>) attribute;
-			type = pAttribute.getElementType().getJavaType();
-		} else {
-			final SingularAttribute<?, ?> sAttribute = (SingularAttribute<?, ?>) attribute;
-			type = sAttribute.getJavaType();
-		}
-		@SuppressWarnings("unchecked")
-		final Selection<Y> selection = (Selection<Y>) path.as(type);
+		final Selection<Y> selection = (Selection<Y>) path;
 		return selection;
 	}
 
