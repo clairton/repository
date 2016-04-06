@@ -62,7 +62,7 @@ public class Repository implements Serializable {
 
 	private EntityManager em;
 
-	protected Root<? extends Model> from;
+	protected Root<?> from;
 	
 	private Selection<?> selection;
 
@@ -90,40 +90,40 @@ public class Repository implements Serializable {
 	}
 
 	@Transactional
-	public <T extends Model> T save(@NotNull final T entity) {
+	public <T> T save(@NotNull final T entity) {
 		final T e = saveWithoutTransaction(entity);
 		flush();
 		return e;
 	}
 
 	@Transactional
-	public <T extends Model> T merge(@NotNull final T entity) {
+	public <T> T merge(@NotNull final T entity) {
 		final T e = mergeWithoutTransaction(entity);
 		flush();
 		return e;
 	}
 
 	@Transactional
-	public <T extends Model> void persist(@NotNull final T entity) {
+	public <T> void persist(@NotNull final T entity) {
 		persistWithoutTransaction(entity);
 		flush();
 	}
 
-	public <T extends Model> T mergeWithoutTransaction(@NotNull T entity) {
+	public <T> T mergeWithoutTransaction(@NotNull T entity) {
 		entity = em.merge(entity);
 		return entity;
 	}
 
-	public <T extends Model> void persistWithoutTransaction(@NotNull final T entity) {
+	public <T> void persistWithoutTransaction(@NotNull final T entity) {
 		em.persist(entity);
 	}
 
-	public <T extends Model> void refresh(@NotNull final T entity) {
+	public <T> void refresh(@NotNull final T entity) {
 		em.refresh(entity);
 	}
 
-	public <T extends Model> T saveWithoutTransaction(@NotNull T entity) {
-		if (!em.contains(entity) && entity.getId() != null) {
+	public <T> T saveWithoutTransaction(@NotNull T entity) {
+		if (!em.contains(entity) && isFilledId(entity)) {
 			entity = mergeWithoutTransaction(entity);
 		} else {
 			persistWithoutTransaction(entity);
@@ -132,29 +132,29 @@ public class Repository implements Serializable {
 	}
 
 	@Transactional
-	public <T extends Model> void remove(@NotNull final T entity) {
+	public <T> void remove(@NotNull final T entity) {
 		removeWithoutTransaction(entity);
 		flush();
 	}
 	
 	@Transactional
-	public <T extends Model> void remove(@NotNull final Collection<T> entities) {
+	public <T> void remove(@NotNull final Collection<T> entities) {
 		removeWithoutTransaction(entities);
 		flush();
 	}
 
-	public <T extends Model> void removeWithoutTransaction(@NotNull Collection<T> entities) {
+	public <T> void removeWithoutTransaction(@NotNull Collection<T> entities) {
 		for (final T entity : entities) {
 			removeWithoutTransaction(entity);
 		}
 	}
 
-	public <T extends Model> void removeWithoutTransaction(@NotNull final T entity) {
+	public <T> void removeWithoutTransaction(@NotNull final T entity) {
 		em.remove(entity);
 	}
 
 	@Transactional
-	public <T extends Model> void remove(@NotNull final Class<T> type, @NotNull Long id) {
+	public <T> void remove(@NotNull final Class<T> type, @NotNull Long id) {
 		final T entity = em.find(type, id);
 		em.remove(entity);
 		flush();
@@ -171,16 +171,14 @@ public class Repository implements Serializable {
 	 * @throws NoResultException
 	 *             caso não seja encontrada a entidade
 	 */
-	public <T extends Model, Y> T byId(@NotNull final Class<T> klass, @NotNull final Y id) throws NoResultException {
+	public <T, Y> T byId(@NotNull final Class<T> klass, @NotNull final Y id) throws NoResultException {
 		from(klass);
-		final EntityType<T> type = em.getMetamodel().entity(klass);
-		final Class<?> idType = type.getIdType().getJavaType();
-		final Attribute<? super T, ?> attribute = type.getId(idType);
+		final Attribute<? super T, ?> attribute= idAttribute(klass);
 		final T result = where(id, attribute).single();
 		return result;
 	}
 
-	public <T extends Model> Repository from(@NotNull final Class<T> type) {
+	public <T> Repository from(@NotNull final Class<T> type) {
 		builder = em.getCriteriaBuilder();
 		criteriaQuery = builder.createQuery(type);
 		from = criteriaQuery.from(type);
@@ -190,7 +188,7 @@ public class Repository implements Serializable {
 		return this;
 	}
 
-	public <T extends Model> Repository distinct(@NotNull final Class<T> type) {
+	public <T> Repository distinct(@NotNull final Class<T> type) {
 		from(type);
 		return distinct();
 	}
@@ -414,7 +412,25 @@ public class Repository implements Serializable {
 	// =======================================================================//
 	// ========================================metodos privados===============//
 	// =======================================================================//
-
+	protected <T>Boolean isFilledId(final T record){
+//		final String field = idName(record.getClass());
+//		return new Mirror().on(record).get().field(field) != null;
+		return true;
+	}
+	
+	protected <X>Attribute<? super X, ?> idAttribute(final Class<X> klazz) {
+		final EntityType<X> type = em.getMetamodel().entity(klazz);
+		final Class<?> idType = type.getIdType().getJavaType();
+		final Attribute<? super X, ?> attribute = type.getId(idType);
+		return attribute;
+	}
+	
+	protected String idName(final Class<?> klazz) {
+		final Attribute<?, ?> id = idAttribute(klazz);
+		final String field = id.getName();
+		return field;
+	}	
+	
 	protected void flush() {
 		logger.info("Executando Flush no Banco de dados");
 		try {
