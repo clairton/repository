@@ -48,6 +48,7 @@ import br.eti.clairton.paginated.collection.PaginatedCollection;
 import br.eti.clairton.paginated.collection.PaginatedList;
 import br.eti.clairton.paginated.collection.PaginatedMetaList;
 import br.eti.clairton.repository.Order.Direction;
+import net.vidageek.mirror.dsl.Mirror;
 
 /**
  * Repository para operações com o banco de dados.
@@ -413,9 +414,7 @@ public class Repository implements Serializable {
 	// ========================================metodos privados===============//
 	// =======================================================================//
 	protected <T>Boolean isFilledId(final T record){
-//		final String field = idName(record.getClass());
-//		return new Mirror().on(record).get().field(field) != null;
-		return true;
+		return idValue(record) != null;
 	}
 	
 	protected <X>Attribute<? super X, ?> idAttribute(final Class<X> klazz) {
@@ -423,6 +422,15 @@ public class Repository implements Serializable {
 		final Class<?> idType = type.getIdType().getJavaType();
 		final Attribute<? super X, ?> attribute = type.getId(idType);
 		return attribute;
+	}
+	
+	protected <T>Object idValue(final T record) {
+		if(Model.class.isInstance(record)){
+			return ((Model) record).getId();
+		} else {			
+			final String field = idName(record.getClass());
+			return new Mirror().on(record).get().field(field);
+		}
 	}
 	
 	protected String idName(final Class<?> klazz) {
