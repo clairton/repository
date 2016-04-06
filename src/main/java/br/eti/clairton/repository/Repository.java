@@ -255,7 +255,7 @@ public class Repository implements Serializable {
 		return list();
 	}
 
-	public <T extends Model> PaginatedCollection<T, Meta> collection(@NotNull @Min(0) final Integer page, @NotNull @Min(0) final Integer perPage) {
+	public <T> PaginatedCollection<T, Meta> collection(@NotNull @Min(0) final Integer page, @NotNull @Min(0) final Integer perPage) {
 		return list(page, perPage);
 	}
 
@@ -388,23 +388,23 @@ public class Repository implements Serializable {
 	}
 
 	@Transactional
-	public <T extends Model> void remove() {
+	public <T> void remove() {
 		removeWithoutTransaction();
 		flush();
 	}
 
-	public <T extends Model> void removeWithoutTransaction() {
+	public <T> void removeWithoutTransaction() {
 		final Collection<T> entities = collection();
 		removeWithoutTransaction(entities);
 	}
 
 	@Transactional
-	public <T extends Model> void save(final @NotNull Collection<T> entities) {
+	public <T> void save(final @NotNull Collection<T> entities) {
 		saveWithoutTransaction(entities);
 		flush();
 	}
 
-	public <T extends Model> void saveWithoutTransaction(final @NotNull Collection<T> entities) {
+	public <T> void saveWithoutTransaction(final @NotNull Collection<T> entities) {
 		for (final T entity : entities) {
 			saveWithoutTransaction(entity);
 		}
