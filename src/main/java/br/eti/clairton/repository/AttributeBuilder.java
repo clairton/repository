@@ -69,7 +69,7 @@ public class AttributeBuilder {
 		return attributes;
 	}
 
-	public <T extends Model> Attribute<?, ?>[] with(@NotNull final Class<T> base, @NotNull @Size(min = 1) final String path) {
+	public <T> Attribute<?, ?>[] with(@NotNull final Class<T> base, @NotNull @Size(min = 1) final String path) {
 		final Metamodel metamodel = entityManager.getMetamodel();
 		final EntityType<?> entityType = metamodel.entity(base);
 		if (path.matches(".*\\].*")) {
