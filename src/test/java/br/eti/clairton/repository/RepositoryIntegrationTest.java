@@ -94,9 +94,9 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testNotExist() {
-		assertFalse(repository.from(Aplicacao.class)
+		assertTrue(repository.from(Aplicacao.class)
 				.where(new Predicate("nomequenãoexiste", Aplicacao_.nome))
-				.exist());
+				.notExist());
 	}
 
 	@Test

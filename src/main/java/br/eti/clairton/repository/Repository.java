@@ -144,7 +144,7 @@ public class Repository implements Serializable {
 		flush();
 	}
 
-	public <T> void removeWithoutTransaction(@NotNull Collection<T> entities) {
+	public <T> void removeWithoutTransaction(@NotNull final Collection<T> entities) {
 		for (final T entity : entities) {
 			removeWithoutTransaction(entity);
 		}
@@ -291,12 +291,12 @@ public class Repository implements Serializable {
 		return and(new Predicate(value, comparator, attributes));
 	}
 
-	public Repository orderBy(final @NotNull Direction direction, final @Size(min = 1) @NotNull Attribute<?, ?>... attributes) {
+	public Repository orderBy(@NotNull final Direction direction, @Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
 		orderBy(direction, Arrays.asList(attributes));
 		return this;
 	}
 
-	public Repository orderBy(final @NotNull Direction direction, final @Size(min = 1) @NotNull List<Attribute<?, ?>> attributes) {
+	public Repository orderBy(@NotNull final Direction direction, @Size(min = 1) @NotNull final List<Attribute<?, ?>> attributes) {
 		Path<?> path = from.get(attributes.get(0).getName());
 		Integer i = 1;
 		final Integer j = attributes.size() - 1;
@@ -313,12 +313,12 @@ public class Repository implements Serializable {
 		return this;
 	}
 
-	public Repository orderBy(final @NotNull Order... orders) {
+	public Repository orderBy(@NotNull final Order... orders) {
 		orderBy(asList(orders));
 		return this;
 	}
 
-	public Repository orderBy(final @NotNull List<Order> orders) {
+	public Repository orderBy(@NotNull final List<Order> orders) {
 		for (final Order order : orders) {
 			orderBy(order.getDirection(), order.getAttributes());
 		}
@@ -377,12 +377,16 @@ public class Repository implements Serializable {
 		}
 	}
 	
+	public Boolean notExist() {
+		return !exist();
+	}
+	
 	public Repository hint(final String key, final Object value) {
 		this.hints.put(key, value);
 		return this;
 	}
 
-	public void change(final @NotNull EntityManager em) {
+	public void change(@NotNull final EntityManager em) {
 		em.getEntityManagerFactory().getProperties().get("name");
 		this.em = em;
 	}
