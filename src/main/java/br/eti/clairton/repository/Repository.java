@@ -137,6 +137,11 @@ public class Repository implements Serializable {
 		removeWithoutTransaction(entity);
 		flush();
 	}
+
+	public <T, Y> void remove(@NotNull final Class<T> klass, @NotNull final Y id) {
+		final T entity = byId(klass, id);
+		remove(entity);
+	}
 	
 	@Transactional
 	public <T> void remove(@NotNull final Collection<T> entities) {
