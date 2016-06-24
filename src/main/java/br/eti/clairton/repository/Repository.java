@@ -10,7 +10,6 @@ import static org.apache.logging.log4j.LogManager.getLogger;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -26,12 +25,12 @@ import javax.persistence.TransactionRequiredException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.FetchParent;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
@@ -297,17 +296,7 @@ public class Repository implements Serializable {
 	}
 
 	public Repository orderBy(@NotNull final Direction direction, @Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
-		orderBy(direction, Arrays.asList(attributes));
-		return this;
-	}
-
-	public Repository orderBy(@NotNull final Direction direction, @Size(min = 1) @NotNull final List<Attribute<?, ?>> attributes) {
-		Path<?> path = from.get(attributes.get(0).getName());
-		Integer i = 1;
-		final Integer j = attributes.size() - 1;
-		for (; i <= j; i++) {
-			path = path.get(attributes.get(i).getName());
-		}
+		final Expression<?> path = joinner.join(INNER, attributes);
 		final javax.persistence.criteria.Order order;
 		if (ASC.equals(direction)) {
 			order = builder.asc(path);
@@ -315,6 +304,11 @@ public class Repository implements Serializable {
 			order = builder.desc(path);
 		}
 		orders.add(order);
+		return this;
+	}
+
+	public Repository orderBy(@NotNull final Direction direction, @Size(min = 1) @NotNull final List<Attribute<?, ?>> attributes) {
+		orderBy(direction, attributes.toArray(new Attribute<?,?>[attributes.size()]));
 		return this;
 	}
 

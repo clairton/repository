@@ -221,6 +221,14 @@ public class RepositoryIntegrationTest {
 	}
 	
 	@Test
+	public void testOrderByCollection() {
+		final List<Operacao> operacoes = repository.from(Recurso.class)
+				.orderBy(Order.Direction.ASC, Recurso_.operacoes, Operacao_.nome)
+				.list();
+		assertEquals(2, operacoes.size());
+	}
+
+	@Test
 	public void testCallListOrderBy() {
 		final List<Operacao> operacoes = repository.from(Operacao.class)
 				.orderBy(Arrays.asList(new Order(Order.Direction.ASC, Operacao_.nome), 
