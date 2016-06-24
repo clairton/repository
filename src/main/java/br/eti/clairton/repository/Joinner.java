@@ -171,8 +171,7 @@ public class Joinner {
 	protected <T, Y> Expression<Y> get(final From<?, ?> from, final Attribute<?, ?> attribute) {
 		final Expression<Y> path;
 		if (attribute.isCollection()) {
-			final Expression<Y> p = from.join(attribute.getName());
-			path = p;
+			path = from.join(attribute.getName());
 		} else {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			final Expression<Y> p = from.get((SingularAttribute) attribute);
