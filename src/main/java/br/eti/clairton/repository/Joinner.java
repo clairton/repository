@@ -171,8 +171,7 @@ public class Joinner {
 	protected <T, Y> Expression<Y> get(final From<?, ?> from, final Attribute<?, ?> attribute) {
 		final Expression<Y> path;
 		if (attribute.isCollection()) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			final Expression<Y> p = (Expression<Y>) from.get((PluralAttribute) attribute);
+			final Expression<Y> p = from.join(attribute.getName());
 			path = p;
 		} else {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
