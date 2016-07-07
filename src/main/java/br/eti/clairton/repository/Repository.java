@@ -412,6 +412,10 @@ public class Repository implements Serializable {
 			saveWithoutTransaction(entity);
 		}
 	}
+	
+	public void close(){
+		this.em.close();
+	}
 
 	// =======================================================================//
 	// ========================================metodos privados===============//
