@@ -287,7 +287,7 @@ public class Repository implements Serializable {
 	}
 
 	public <T> Repository or(@NotNull final T value, @NotNull final Comparator comparator, @Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
-		return and(new Predicate(value, comparator, attributes));
+		return or(new Predicate(value, comparator, attributes));
 	}
 
 
