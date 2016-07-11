@@ -281,6 +281,15 @@ public class Repository implements Serializable {
 		this.predicates.add(builder.or(p, to(predicate)));
 		return this;
 	}
+	
+	public <T> Repository or(@NotNull final T value, @Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
+		return or(value, EQUAL, attributes);
+	}
+
+	public <T> Repository or(@NotNull final T value, @NotNull final Comparator comparator, @Size(min = 1) @NotNull final Attribute<?, ?>... attributes) {
+		return and(new Predicate(value, comparator, attributes));
+	}
+
 
 	public Repository and(final @NotNull Predicate predicate) {
 		concat(to(predicate));
