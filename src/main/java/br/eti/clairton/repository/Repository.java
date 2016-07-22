@@ -426,6 +426,14 @@ public class Repository implements Serializable {
 		this.em.close();
 	}
 
+	public Repository readonly() {
+		hint("org.hibernate.readOnly", "true");
+		hint("org.hibernate.cacheable", "false");
+		hint("eclipselink.read-only", "true");
+		hint("eclipselink.query-results-cache", "true");
+		return this;
+	}
+
 	// =======================================================================//
 	// ========================================metodos privados===============//
 	// =======================================================================//
