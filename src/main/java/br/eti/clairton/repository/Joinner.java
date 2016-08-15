@@ -4,6 +4,7 @@ import static br.eti.clairton.repository.Join.COLLECTION;
 import static br.eti.clairton.repository.Join.LIST;
 import static br.eti.clairton.repository.Join.MAP;
 import static br.eti.clairton.repository.Join.SET;
+import static javax.persistence.criteria.JoinType.INNER;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -106,6 +107,11 @@ public class Joinner {
 		final Expression<?> path = get(fromLast, attribute);
 		final Predicate joinPredicate = comparator.build(builder, path, predicate.getValue());
 		return joinPredicate;
+	}
+	
+	public Join<?, ?> join(final CriteriaBuilder builder, final From<?, ?> from, final Attribute<?, ?> attribute) {
+		final Join<?, ?> join = join(builder, from, INNER, attribute);
+		return join;
 	}
 
 	public <T, Y> Join<T, Y> join(final CriteriaBuilder builder, final From<T, Y> from, final JoinType joinType, final Attribute<?, ?> attribute) {

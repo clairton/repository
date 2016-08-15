@@ -186,11 +186,15 @@ public class Repository implements Serializable {
 	public <T> Repository from(@NotNull final Class<T> type) {
 		builder = em.getCriteriaBuilder();
 		criteriaQuery = builder.createQuery(type);
-		from = criteriaQuery.from(type);
+		from = root(type);
 		selection = from;
 		predicates = new ArrayList<javax.persistence.criteria.Predicate>();
 		joinner = new Joinner(builder, from);
 		return this;
+	}
+
+	public <T> Root<T> root(@NotNull final Class<T> type) {
+		return criteriaQuery.from(type);
 	}
 
 	public <T> Repository distinct(@NotNull final Class<T> type) {
