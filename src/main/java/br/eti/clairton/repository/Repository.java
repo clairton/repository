@@ -123,7 +123,7 @@ public class Repository implements Serializable {
 	}
 
 	public <T> T saveWithoutTransaction(@NotNull T entity) {
-		if (!em.contains(entity) && isFilledId(entity)) {
+		if (!em.contains(entity) && isManaged(entity)) {
 			entity = mergeWithoutTransaction(entity);
 		} else {
 			persistWithoutTransaction(entity);
@@ -439,8 +439,13 @@ public class Repository implements Serializable {
 	// =======================================================================//
 	// ========================================metodos privados===============//
 	// =======================================================================//
-	protected <T>Boolean isFilledId(final T record){
-		return idValue(record) != null;
+	protected <T>Boolean isManaged(final T record){
+		if(Model.class.isInstance(record)){
+			return ((Model) record).isManaged();
+		} else {			
+			final String field = idName(record.getClass());
+			return new Mirror().on(record).get().field(field) != null;
+		}
 	}
 	
 	protected <X>Attribute<? super X, ?> idAttribute(final Class<X> klazz) {
