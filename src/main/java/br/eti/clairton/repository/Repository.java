@@ -58,8 +58,10 @@ import net.vidageek.mirror.dsl.Mirror;
 public class Repository implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private final Logger logger = getLogger(Repository.class);
+	private static final Logger logger = getLogger(Repository.class);
 
+	private final Map<String, Object> hints = new HashMap<>();
+	
 	private EntityManager em;
 
 	protected Root<?> from;
@@ -67,14 +69,12 @@ public class Repository implements Serializable {
 	private Selection<?> selection;
 
 	private CriteriaQuery<?> criteriaQuery;
+	
+	protected final List<javax.persistence.criteria.Order> orders = new ArrayList<>();
+	
+	protected final List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
 
 	protected CriteriaBuilder builder;
-
-	protected List<javax.persistence.criteria.Predicate> predicates;
-
-	private final List<javax.persistence.criteria.Order> orders = new ArrayList<>();
-	
-	private final Map<String, Object> hints = new HashMap<>();
 
 	protected Joinner joinner;
 
@@ -188,7 +188,6 @@ public class Repository implements Serializable {
 		criteriaQuery = builder.createQuery(type);
 		from = root(type);
 		selection = from;
-		predicates = new ArrayList<javax.persistence.criteria.Predicate>();
 		joinner = new Joinner(builder, from);
 		return this;
 	}
@@ -277,12 +276,10 @@ public class Repository implements Serializable {
 	}
 
 	public Repository or(@NotNull Predicate predicate) {
-		javax.persistence.criteria.Predicate p = builder
-				.and(this.predicates
-						.toArray(new javax.persistence.criteria.Predicate[this.predicates
-								.size()]));
-		this.predicates = new ArrayList<javax.persistence.criteria.Predicate>();
-		this.predicates.add(builder.or(p, to(predicate)));
+		final javax.persistence.criteria.Predicate[] array = new javax.persistence.criteria.Predicate[this.predicates.size()];
+		final javax.persistence.criteria.Predicate p = builder.and(predicates.toArray(array));
+		predicates.clear();
+		predicates.add(builder.or(p, to(predicate)));
 		return this;
 	}
 	
@@ -431,6 +428,7 @@ public class Repository implements Serializable {
 	}
 
 	public Repository readonly() {
+		hints.clear();
 		hint("org.hibernate.readOnly", "true");
 		hint("org.hibernate.cacheable", "false");
 		hint("eclipselink.read-only", "true");
@@ -488,19 +486,17 @@ public class Repository implements Serializable {
 		final Selection<T> s = (Selection<T>) selection;
 		cq.select(s);
 		criteriaQuery.orderBy(orders.toArray(new javax.persistence.criteria.Order[]{}));
-		cq.where(predicates
-				.toArray(new javax.persistence.criteria.Predicate[predicates
-						.size()]));
-		final TypedQuery<T> query = em.createQuery(cq);
-		
+		final javax.persistence.criteria.Predicate[] array = new javax.persistence.criteria.Predicate[predicates.size()];
+		cq.where(predicates.toArray(array));
+		final TypedQuery<T> query = em.createQuery(cq);		
 		for (final Entry<String, Object> entry : hints.entrySet()) {
 			final String key = entry.getKey();
 			final Object value = entry.getValue();
 			query.setHint(key, value);
-		}
-		
+		}		
 		hints.clear();
 		orders.clear();
+		this.predicates.clear();
 		return query;
 	}
 

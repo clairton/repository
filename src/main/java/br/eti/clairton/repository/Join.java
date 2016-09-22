@@ -23,13 +23,12 @@ interface Join extends Serializable {
          * {@inheritDoc}
          */
         @Override
-        public <T, Y> javax.persistence.criteria.Join<T, Y> join(final From<T, Y> from, final JoinType joinType,
-                final PluralAttribute<?, ?, ?> attribute) {
+        public <T, Y> javax.persistence.criteria.Join<T, Y> join(final From<T, Y> from, final JoinType joinType, final PluralAttribute<?, ?, ?> attribute) {
             @SuppressWarnings("unchecked")
             final SetAttribute<? super Y, Y> attributes = ( SetAttribute<? super Y, Y> ) attribute;
             @SuppressWarnings("unchecked")
             final javax.persistence.criteria.Join<T, Y> join = ( javax.persistence.criteria.Join<T, Y> ) from.join(
-                    attributes, joinType);
+attributes, joinType);
             return join;
         }
     };
@@ -41,13 +40,11 @@ interface Join extends Serializable {
          * {@inheritDoc}
          */
         @Override
-        public <T, Y> javax.persistence.criteria.Join<T, Y> join(final From<T, Y> from, final JoinType joinType,
-                final PluralAttribute<?, ?, ?> attribute) {
+        public <T, Y> javax.persistence.criteria.Join<T, Y> join(final From<T, Y> from, final JoinType joinType, final PluralAttribute<?, ?, ?> attribute) {
             @SuppressWarnings("unchecked")
             final ListAttribute<? super Y, Y> attributes = ( ListAttribute<? super Y, Y> ) attribute;
             @SuppressWarnings("unchecked")
-            final javax.persistence.criteria.Join<T, Y> join = ( javax.persistence.criteria.Join<T, Y> ) from.join(
-                    attributes, joinType);
+            final javax.persistence.criteria.Join<T, Y> join = ( javax.persistence.criteria.Join<T, Y> ) from.join(attributes, joinType);
             return join;
         }
     };
@@ -59,13 +56,11 @@ interface Join extends Serializable {
          * {@inheritDoc}
          */
         @Override
-        public <T, Y> javax.persistence.criteria.Join<T, Y> join(final From<T, Y> from, final JoinType joinType,
-                final PluralAttribute<?, ?, ?> attribute) {
+        public <T, Y> javax.persistence.criteria.Join<T, Y> join(final From<T, Y> from, final JoinType joinType, final PluralAttribute<?, ?, ?> attribute) {
             @SuppressWarnings("unchecked")
             final CollectionAttribute<? super Y, Y> attributes = ( CollectionAttribute<? super Y, Y> ) attribute;
             @SuppressWarnings("unchecked")
-            final javax.persistence.criteria.Join<T, Y> join = ( javax.persistence.criteria.Join<T, Y> ) from.join(
-                    attributes, joinType);
+            final javax.persistence.criteria.Join<T, Y> join = ( javax.persistence.criteria.Join<T, Y> ) from.join(attributes, joinType);
             return join;
         }
     };
@@ -77,13 +72,11 @@ interface Join extends Serializable {
          * {@inheritDoc}
          */
         @Override
-        public <T, Y> javax.persistence.criteria.Join<T, Y> join(final From<T, Y> from, final JoinType joinType,
-                final PluralAttribute<?, ?, ?> attribute) {
+        public <T, Y> javax.persistence.criteria.Join<T, Y> join(final From<T, Y> from, final JoinType joinType, final PluralAttribute<?, ?, ?> attribute) {
             @SuppressWarnings("rawtypes")
             final MapAttribute attributes = ( MapAttribute ) attribute;
             @SuppressWarnings("unchecked")
-            final javax.persistence.criteria.Join<T, Y> join = ( javax.persistence.criteria.Join<T, Y> ) from.join(
-                    attributes, joinType);
+            final javax.persistence.criteria.Join<T, Y> join = ( javax.persistence.criteria.Join<T, Y> ) from.join(attributes, joinType);
             return join;
         }
     };
@@ -99,6 +92,5 @@ interface Join extends Serializable {
      *            {@link PluralAttribute}
      * @return {@link Join}
      */
-    <T, Y> javax.persistence.criteria.Join<T, Y> join(From<T, Y> from, JoinType joinType,
-            PluralAttribute<?, ?, ?> attribute);
+    <T, Y> javax.persistence.criteria.Join<T, Y> join(From<T, Y> from, JoinType joinType, PluralAttribute<?, ?, ?> attribute);
 }
