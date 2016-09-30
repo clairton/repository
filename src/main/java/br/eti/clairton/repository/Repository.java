@@ -427,6 +427,14 @@ public class Repository implements Serializable {
 		this.em.close();
 	}
 
+	/**
+	 * Execute {@link EntityManager#clear()}
+	 */
+	public Repository clear() {
+		this.em.clear();
+		return this;
+	}
+
 	public Repository readonly() {
 		hints.clear();
 		hint("org.hibernate.readOnly", "true");
