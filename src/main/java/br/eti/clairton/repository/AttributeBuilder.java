@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.validation.constraints.NotNull;
@@ -71,13 +71,13 @@ public class AttributeBuilder {
 
 	public <T> Attribute<?, ?>[] with(@NotNull final Class<T> base, @NotNull @Size(min = 1) final String path) {
 		final Metamodel metamodel = entityManager.getMetamodel();
-		final EntityType<?> entityType = metamodel.entity(base);
+		final ManagedType<?> managedType = metamodel.managedType(base);
 		if (path.matches(".*\\].*")) {
 			// subtitui para o padrão com pontos se for com chaves
 			return with(base, path.replaceAll("]", "").replaceAll("\\[", "\\."));
 		}
 		final String[] fields = path.split("\\.");
-		final Attribute<?, ?> attribute = entityType.getAttribute(fields[0]);
+		final Attribute<?, ?> attribute = managedType.getAttribute(fields[0]);
 		attributes.add(attribute);
 		if (fields.length > 1) {
 			final Class<T> nextType;
