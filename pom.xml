@@ -6,17 +6,11 @@
 	<version>2.9.8</version>
 	<url>https://github.com/clairton/repository</url>
 	<scm>
-      <connection>scm:git:git@github.com:clairton/repository.git</connection>
-      <url>scm:git:git@github.com:clairton/repository.git</url>
-      <developerConnection>scm:git:git@github.com:clairton/repository.git</developerConnection>
-  </scm>
+		<connection>scm:git:git@github.com:clairton/repository.git</connection>
+		<url>scm:git:git@github.com:clairton/repository.git</url>
+		<developerConnection>scm:git:git@github.com:clairton/repository.git</developerConnection>
+	</scm>
 	<dependencies>
-		<dependency>
-			<groupId>br.eti.clairton</groupId>
-			<artifactId>ds-test</artifactId>
-			<version>0.3.0</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>br.eti.clairton</groupId>
 			<artifactId>identificator</artifactId>
@@ -33,18 +27,6 @@
 			<groupId>br.eti.clairton</groupId>
 			<artifactId>tenant</artifactId>
 			<version>1.1.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>2.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-1.2-api</artifactId>
-			<version>2.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -84,9 +66,27 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>br.eti.clairton</groupId>
+			<artifactId>ds-test</artifactId>
+			<version>0.3.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>2.3.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-1.2-api</artifactId>
+			<version>2.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
