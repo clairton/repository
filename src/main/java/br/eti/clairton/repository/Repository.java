@@ -6,7 +6,6 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static javax.persistence.criteria.JoinType.INNER;
-import static org.apache.logging.log4j.LogManager.getLogger;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -40,8 +40,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.apache.logging.log4j.Logger;
-
 import br.eti.clairton.paginated.collection.Meta;
 import br.eti.clairton.paginated.collection.PaginatedCollection;
 import br.eti.clairton.paginated.collection.PaginatedList;
@@ -58,7 +56,7 @@ import net.vidageek.mirror.dsl.Mirror;
 public class Repository implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger logger = getLogger(Repository.class);
+	private static final Logger logger = Logger.getLogger(Repository.class.getName());
 
 	private final Map<String, Object> hints = new HashMap<>();
 	
@@ -487,7 +485,7 @@ public class Repository implements Serializable {
 		try {
 			em.flush();
 		} catch (final TransactionRequiredException e) {
-			logger.warn("Não há transação em andamento para rodar o EntityManager#flush");
+			logger.warning("Não há transação em andamento para rodar o EntityManager#flush");
 			throw e;
 		}
 	}
