@@ -16,7 +16,7 @@ import br.eti.clairton.identificator.Identificator;
  */
 @Entity
 @Table(name = "operacoes")
-public class Operacao extends br.eti.clairton.repository.Model {
+public class Operacao extends br.eti.clairton.model.Model {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull

@@ -17,7 +17,7 @@ import br.eti.clairton.identificator.Identificator;
 @Entity
 @Table(name = "recursos")
 // TODO recurso aninhados, um recurso pode ter outros recursos dentro dele
-public class Recurso extends br.eti.clairton.repository.Model {
+public class Recurso extends br.eti.clairton.model.Model {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull

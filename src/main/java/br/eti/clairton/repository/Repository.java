@@ -469,12 +469,8 @@ public class Repository implements Serializable {
 	}
 	
 	protected <T>Boolean isManaged(final T record){
-		if(Model.class.isInstance(record)){
-			return ((Model) record).isManaged();
-		} else {			
-			final String field = idName(record.getClass());
-			return new Mirror().on(record).get().field(field) != null;
-		}
+		final String field = idName(record.getClass());
+		return new Mirror().on(record).get().field(field) != null;
 	}
 	
 	protected <X>Attribute<? super X, ?> idAttribute(final Class<X> klazz) {
@@ -485,12 +481,8 @@ public class Repository implements Serializable {
 	}
 	
 	protected <T>Object idValue(final T record) {
-		if(Model.class.isInstance(record)){
-			return ((Model) record).getId();
-		} else {			
-			final String field = idName(record.getClass());
-			return new Mirror().on(record).get().field(field);
-		}
+		final String field = idName(record.getClass());
+		return new Mirror().on(record).get().field(field);
 	}
 	
 	protected String idName(final Class<?> klazz) {

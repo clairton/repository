@@ -103,6 +103,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+<<<<<<< 9159d30589b6932164ab08b32d654d6bcf11ab6e
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.10.19</version>
@@ -124,6 +125,11 @@
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>org.eclipse.persistence.jpa</artifactId>
 			<version>2.5.2</version>
+=======
+			<groupId>br.eti.clairton</groupId>
+			<artifactId>model</artifactId>
+			<version>1.0.0</version>
+>>>>>>> Remove model in compile dependencie
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
