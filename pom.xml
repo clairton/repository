@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.eti.clairton</groupId>
 	<artifactId>repository</artifactId>
-	<version>2.10.0</version>
+	<version>3.0.0</version>
 	<url>https://github.com/clairton/repository</url>
 	<licenses>
 		<license>
@@ -100,6 +100,12 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.9</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>br.eti.clairton</groupId>
+			<artifactId>model</artifactId>
+			<version>1.0.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

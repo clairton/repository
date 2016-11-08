@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import br.eti.clairton.identificator.Identificator;
+import br.eti.clairton.model.Model;
 
 /**
  * Representa uma Aplicação.
