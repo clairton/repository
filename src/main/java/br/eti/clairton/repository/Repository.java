@@ -8,6 +8,7 @@ import static java.util.Arrays.asList;
 import static javax.persistence.criteria.JoinType.INNER;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,7 +46,6 @@ import br.eti.clairton.paginated.collection.PaginatedCollection;
 import br.eti.clairton.paginated.collection.PaginatedList;
 import br.eti.clairton.paginated.collection.PaginatedMetaList;
 import br.eti.clairton.repository.Order.Direction;
-import net.vidageek.mirror.dsl.Mirror;
 
 /**
  * Repository para operações com o banco de dados.
@@ -446,8 +446,7 @@ public class Repository implements Serializable {
 	// ========================================metodos privados===============//
 	// =======================================================================//
 	protected <T>Boolean isManaged(final T record){
-		final String field = idName(record.getClass());
-		return new Mirror().on(record).get().field(field) != null;
+		return idValue(record) != null;
 	}
 	
 	protected <X>Attribute<? super X, ?> idAttribute(final Class<X> klazz) {
@@ -458,8 +457,30 @@ public class Repository implements Serializable {
 	}
 	
 	protected <T>Object idValue(final T record) {
-		final String field = idName(record.getClass());
-		return new Mirror().on(record).get().field(field);
+		final Class<?> type = record.getClass();
+		final String name = idName(type);
+		try{
+			final Field field = getField(type, name);
+			field.setAccessible(TRUE);
+			final Object value = field.get(record);
+			return value;			
+		} catch (final IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	protected Field getField(final Class<?> type, final String name){
+		try{
+			final Field field = type.getDeclaredField(name);
+			field.setAccessible(TRUE);
+			return field;			
+		} catch (final NoSuchFieldException e) {
+			if(type.equals(Object.class)){
+				throw new RuntimeException(e);
+			} else {				
+				return getField(type.getSuperclass(), name);
+			}
+		}
 	}
 	
 	protected String idName(final Class<?> klazz) {

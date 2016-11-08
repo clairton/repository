@@ -20,12 +20,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>br.eti.clairton</groupId>
-			<artifactId>identificator</artifactId>
-			<version>1.1.0</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>br.eti.clairton</groupId>
 			<artifactId>paginated-collection</artifactId>
 			<version>0.1.0</version>
 			<scope>compile</scope>
