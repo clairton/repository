@@ -214,6 +214,8 @@ public class Repository implements Serializable {
 		if (page != 0 && perPage != 0) {
 			query.setMaxResults(perPage);
 			query.setFirstResult((page - 1) * perPage);
+		} else if (perPage != 0) {
+			query.setMaxResults(perPage);
 		}
 		final Long total = count();
 		final Meta meta = new Meta(total, Long.valueOf(page));
