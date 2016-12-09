@@ -21,6 +21,11 @@ public class AttributeBuilder {
 	private final List<Attribute<?, ?>> attributes = new ArrayList<Attribute<?, ?>>();
 
 	private final EntityManager entityManager;
+	
+	@Deprecated
+	public AttributeBuilder() {
+		this((EntityManager) null);
+	}
 
 	public AttributeBuilder(final EntityManager entityManager) {
 		super();
@@ -28,7 +33,7 @@ public class AttributeBuilder {
 	}
 
 	/**
-	 * Construto com parametros.
+	 * Construtor com parametros.
 	 * 
 	 * @param attibute
 	 *            {@link Attribute}
