@@ -207,7 +207,9 @@ public class Repository implements Serializable {
 	}
 
 	public <T> T single() {
-		final TypedQuery<T> query = query(selection, criteriaQuery, predicates);
+		final TypedQuery<T> query = query(selection, criteriaQuery, predicates);		
+		hints.clear();
+		this.predicates.clear();
 		return query.getSingleResult();
 	}
 
@@ -240,7 +242,10 @@ public class Repository implements Serializable {
 			s = builder.count(from);
 		}
 		final TypedQuery<Long> query = query(s, criteriaQuery, predicates);
-		final Long count = (Long) query.getResultList().get(0);
+		final Long count = (Long) query.getResultList().get(0);		
+		hints.clear();
+		orders.clear();
+		this.predicates.clear();
 		return count;
 	}
 
@@ -508,10 +513,8 @@ public class Repository implements Serializable {
 			final String key = entry.getKey();
 			final Object value = entry.getValue();
 			query.setHint(key, value);
-		}		
-		hints.clear();
+		}
 		orders.clear();
-		this.predicates.clear();
 		return query;
 	}
 
