@@ -229,7 +229,7 @@ public class Repository implements Serializable {
 	public Long count() {
 		return count(TRUE);
 	}
-	
+
 	public Long count(final Boolean distinct) {
 		final Selection<Long> s;
 		@SuppressWarnings("unchecked")
@@ -244,7 +244,6 @@ public class Repository implements Serializable {
 		final TypedQuery<Long> query = query(s, criteriaQuery, predicates);
 		final Long count = (Long) query.getResultList().get(0);		
 		hints.clear();
-		orders.clear();
 		this.predicates.clear();
 		return count;
 	}
@@ -275,6 +274,7 @@ public class Repository implements Serializable {
 
 	public <T> List<T> list() {
 		final TypedQuery<T> query = query(selection, criteriaQuery, predicates);
+		this.predicates.clear();
 		return query.getResultList();
 	}
 
