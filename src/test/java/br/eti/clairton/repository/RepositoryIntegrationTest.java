@@ -22,6 +22,8 @@ import javax.naming.InitialContext;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionManager;
+import net.vidageek.mirror.dsl.Mirror;
+import br.eti.clairton.repository.Aplicacao_;
 
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.Before;
@@ -34,9 +36,11 @@ import br.eti.clairton.paginated.collection.PaginatedCollection;
 @RunWith(CdiTestRunner.class)
 public class RepositoryIntegrationTest {
 	private @Inject Repository repository;
+	private @Inject EntityManager manager;
 	private @Inject EntityManager entityManager;
 	private @Inject Cache cache;
 	private @Inject Connection connection;
+	private final Aplicacao aplicacaoo = new Aplicacao("Teste");
 
 	@Before
 	public void init() throws Exception {
@@ -47,8 +51,7 @@ public class RepositoryIntegrationTest {
 		final String sql = "DELETE FROM operacoes;DELETE FROM recursos;DELETE FROM aplicacoes;";
 		connection.createStatement().execute(sql);
 
-		final Aplicacao aplicacao = new Aplicacao("Teste");
-		final Recurso recurso = new Recurso(aplicacao, "Teste");
+		final Recurso recurso = new Recurso(aplicacaoo, "Teste");
 		final Operacao operacao = new Operacao(recurso, "Teste");
 		entityManager.persist(operacao);
 		final Operacao operacao2 = new Operacao(recurso, "OutraOperacao");
@@ -76,6 +79,18 @@ public class RepositoryIntegrationTest {
 	public void testFirst() {
 		final Aplicacao aplicacao = repository.from(Aplicacao.class).first();
 		assertNotNull(aplicacao);
+	}
+	
+	@Test
+	public void testUpdate() {
+		int antes = repository.from(Aplicacao.class).count().intValue();
+		final Aplicacao aplicacao = new Aplicacao("Ainda outro Outro nome");
+		new Mirror().on(aplicacao).set().field("id").withValue(aplicacaoo.getId()); 
+		repository.save(aplicacao);
+		int depois = repository.from(Aplicacao.class).count().intValue();
+		assertEquals(antes, depois);
+		final Aplicacao aplicacaoSaved = manager.find(aplicacao.getClass(), aplicacao.getId());
+		assertEquals(aplicacao.getNome(), aplicacaoSaved.getNome());
 	}
 
 	@Test
