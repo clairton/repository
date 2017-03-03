@@ -40,8 +40,7 @@ public class Resource {
 		return Persistence.createEntityManagerFactory("default");
 	}
 
-	public EntityManager createEntityManager(
-			final @Default EntityManagerFactory emf) {
+	public EntityManager createEntityManager(final @Default EntityManagerFactory emf) {
 		return emf.createEntityManager();
 	}
 
