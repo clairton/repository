@@ -238,6 +238,7 @@ public class Repository implements Serializable {
 		} else {
 			s = builder.count(from);
 		}
+		ordersClear();
 		final TypedQuery<Long> query = query(s, criteriaQuery, predicates);
 		final Long count = (Long) query.getResultList().get(0);		
 		filtersClears();
