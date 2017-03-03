@@ -208,8 +208,7 @@ public class Repository implements Serializable {
 
 	public <T> T single() {
 		final TypedQuery<T> query = query(selection, criteriaQuery, predicates);		
-		hints.clear();
-		this.predicates.clear();
+		this.filtersClears();
 		return query.getSingleResult();
 	}
 
@@ -243,8 +242,7 @@ public class Repository implements Serializable {
 		}
 		final TypedQuery<Long> query = query(s, criteriaQuery, predicates);
 		final Long count = (Long) query.getResultList().get(0);		
-		hints.clear();
-		this.predicates.clear();
+		filtersClears();
 		return count;
 	}
 
@@ -274,7 +272,7 @@ public class Repository implements Serializable {
 
 	public <T> List<T> list() {
 		final TypedQuery<T> query = query(selection, criteriaQuery, predicates);
-		this.predicates.clear();
+		this.filtersClears();
 		return query.getResultList();
 	}
 
@@ -285,7 +283,7 @@ public class Repository implements Serializable {
 	public Repository or(@NotNull Predicate predicate) {
 		final javax.persistence.criteria.Predicate[] array = new javax.persistence.criteria.Predicate[this.predicates.size()];
 		final javax.persistence.criteria.Predicate p = builder.and(predicates.toArray(array));
-		predicates.clear();
+		predicatesClear();
 		predicates.add(builder.or(p, to(predicate)));
 		return this;
 	}
@@ -443,7 +441,6 @@ public class Repository implements Serializable {
 	}
 
 	public Repository readonly() {
-		hints.clear();
 		hint("org.hibernate.readOnly", "true");
 		hint("org.hibernate.cacheable", "false");
 		hint("eclipselink.read-only", "true");
@@ -454,6 +451,24 @@ public class Repository implements Serializable {
 	// =======================================================================//
 	// ========================================metodos privados===============//
 	// =======================================================================//
+	protected void hintsClear(){
+		hints.clear();
+	}
+	
+	protected void ordersClear(){
+		orders.clear();
+	}
+	
+	protected void predicatesClear(){
+		predicates.clear();
+	}
+	
+	protected void filtersClears(){
+		hintsClear();
+		ordersClear();
+		predicatesClear();
+	}
+	
 	protected <T>Boolean isManaged(final T record){
 		if(Model.class.isInstance(record)){
 			return ((Model) record).isManaged();
@@ -514,7 +529,6 @@ public class Repository implements Serializable {
 			final Object value = entry.getValue();
 			query.setHint(key, value);
 		}
-		orders.clear();
 		return query;
 	}
 
