@@ -213,7 +213,7 @@ public class Repository implements Serializable {
 	}
 
 	public <T> PaginatedList<T, Meta> list(@NotNull @Min(0) final Integer page, @NotNull @Min(0) final Integer perPage) {
-		final TypedQuery<T> query = query(from, criteriaQuery, predicates);
+		final TypedQuery<T> query = query(selection, criteriaQuery, predicates);
 		if (page != 0 && perPage != 0) {
 			query.setMaxResults(perPage);
 			query.setFirstResult((page - 1) * perPage);
