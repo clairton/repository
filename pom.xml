@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.eti.clairton</groupId>
 	<artifactId>repository</artifactId>
-	<version>2.9.8</version>
+	<version>3.0.0</version>
 	<url>https://github.com/clairton/repository</url>
 	<licenses>
 		<license>
@@ -97,7 +97,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-<<<<<<< 9159d30589b6932164ab08b32d654d6bcf11ab6e
+			<groupId>br.eti.clairton</groupId>
+			<artifactId>model</artifactId>
+			<version>1.0.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.10.19</version>
@@ -119,6 +124,9 @@
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>org.eclipse.persistence.jpa</artifactId>
 			<version>2.5.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>br.eti.clairton</groupId>
 			<artifactId>model</artifactId>
 			<version>1.0.0</version>
