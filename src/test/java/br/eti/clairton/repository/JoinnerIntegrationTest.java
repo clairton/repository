@@ -53,4 +53,15 @@ public class JoinnerIntegrationTest {
 		joinner.join(Aplicacao_.recursos, Recurso_.operacoes);
 		assertEquals(1, joinner.getIndex().size());
 	}
+	
+	@Test
+	public void testJoinAndSelect() {
+		assertEquals(0, joinner.getIndex().size());
+		joinner.join(Aplicacao_.recursos);
+		assertEquals(0, joinner.getIndex().size());
+		joinner.join(Aplicacao_.recursos, Recurso_.operacoes);
+		assertEquals(1, joinner.getIndex().size());
+		joinner.select(Aplicacao_.recursos, Recurso_.operacoes);
+		assertEquals(1, joinner.getIndex().size());
+	}
 }

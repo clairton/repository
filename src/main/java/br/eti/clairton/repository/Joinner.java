@@ -71,6 +71,16 @@ public class Joinner {
 		final Expression<Y> path = join(joinType, attributes);
 		return path;
 	}
+	/**
+	 * Select the attribute.
+	 * 
+	 * @param attributes
+	 *            atrributes paths
+	 * @return instance of {@link Selection}
+	 */
+	public <Y> Expression<Y> select(final Attribute<?, ?>... attributes) {
+		return join(INNER, attributes);
+	}
 
 	/**
 	 * Transform {@link br.eti.clairton.repository.Predicate} in
