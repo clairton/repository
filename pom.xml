@@ -20,6 +20,18 @@
 	<dependencies>
 		<dependency>
 			<groupId>br.eti.clairton</groupId>
+			<artifactId>ds-test</artifactId>
+			<version>0.4.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>br.eti.clairton</groupId>
+			<artifactId>identificator</artifactId>
+			<version>1.1.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>br.eti.clairton</groupId>
 			<artifactId>paginated-collection</artifactId>
 			<version>0.1.0</version>
 			<scope>compile</scope>
@@ -67,12 +79,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>br.eti.clairton</groupId>
-			<artifactId>ds-test</artifactId>
-			<version>0.3.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>2.3.2</version>
@@ -94,12 +100,6 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.9</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>br.eti.clairton</groupId>
-			<artifactId>model</artifactId>
-			<version>1.0.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

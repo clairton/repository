@@ -1,5 +1,6 @@
 package br.eti.clairton.repository;
 
+import static br.eti.clairton.repository.Comparators.GREATER_THAN;
 import static br.eti.clairton.repository.Comparators.GREATER_THAN_OR_EQUAL;
 import static br.eti.clairton.repository.Comparators.LESS_THAN_OR_EQUAL;
 import static br.eti.clairton.repository.Comparators.LIKE;
@@ -225,6 +226,18 @@ public class RepositoryIntegrationTest {
 		final List<Aplicacao> aplicacoes = repository.from(Aplicacao.class)
 				.list();
 		assertEquals(1, aplicacoes.size());
+	}
+
+	@Test
+	public void testSelect() {
+		final List<Recurso> recursos = repository
+									.from(Aplicacao.class)
+									.where(1, GREATER_THAN, Aplicacao_.recursos, Recurso_.id)
+									.and(1, GREATER_THAN, Aplicacao_.id)
+									.select(Aplicacao_.recursos)
+									.list();
+		assertEquals(1, recursos.size());
+		assertNotNull(recursos.iterator().next().getNome());
 	}
 	
 	@Test

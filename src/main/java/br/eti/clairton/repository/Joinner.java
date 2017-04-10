@@ -67,10 +67,19 @@ public class Joinner {
 	 *            atrributes paths
 	 * @return instance of {@link Selection}
 	 */
-	public <Y> Selection<Y> select(final JoinType joinType, final Attribute<?, ?>... attributes) {
+	public <Y> Expression<Y> select(final JoinType joinType, final Attribute<?, ?>... attributes) {
 		final Expression<Y> path = join(joinType, attributes);
-		final Selection<Y> selection = (Selection<Y>) path;
-		return selection;
+		return path;
+	}
+	/**
+	 * Select the attribute.
+	 * 
+	 * @param attributes
+	 *            atrributes paths
+	 * @return instance of {@link Selection}
+	 */
+	public <Y> Expression<Y> select(final Attribute<?, ?>... attributes) {
+		return join(INNER, attributes);
 	}
 
 	/**
@@ -83,38 +92,42 @@ public class Joinner {
 	 */
 	public Predicate join(final br.eti.clairton.repository.Predicate predicate) {
 		final Comparator comparator = predicate.getComparator();
-		final Attribute<?, ?> attribute;
 		final Attribute<?, ?>[] attributes = predicate.getAttributes();
 		final JoinType joinType = predicate.getJoinType();
+		return join(joinType, comparator, predicate.getValue(), attributes);
+	}
+	
+	public Predicate join(final JoinType joinType, final Comparator comparator, final Object value, final Attribute<?, ?>... attributes) {
+		final Attribute<?, ?> attribute;
 		fromLast = this.from;
 		if (attributes.length == 0) {
 			final String message = "Must be have a attribute in predicate";
 			throw new IllegalStateException(message);
-		} else if (predicate.getAttributes().length == 1) {
+		} else if (attributes.length == 1) {
 			attribute = attributes[0];
 		} else {
 			Integer i = 1;
 			final Integer j = attributes.length - 1;
 			Attribute<?, ?> a = attributes[0];
-			Join<?, ?> join = join(builder, fromLast, joinType, a);
+			Join<?, ?> join = join(fromLast, joinType, a);
 			for (; i < j; i++) {
 				a = attributes[i];
-				join = join(builder, join, joinType, a);
+				join = join(join, joinType, a);
 			}
 			attribute = attributes[i];
 			fromLast = join;
 		}
 		final Expression<?> path = get(fromLast, attribute);
-		final Predicate joinPredicate = comparator.build(builder, path, predicate.getValue());
+		final Predicate joinPredicate = comparator.build(builder, path, value);
 		return joinPredicate;
 	}
 	
-	public Join<?, ?> join(final CriteriaBuilder builder, final From<?, ?> from, final Attribute<?, ?> attribute) {
-		final Join<?, ?> join = join(builder, from, INNER, attribute);
+	public Join<?, ?> join(final From<?, ?> from, final Attribute<?, ?> attribute) {
+		final Join<?, ?> join = join(from, INNER, attribute);
 		return join;
 	}
 
-	public <T, Y> Join<T, Y> join(final CriteriaBuilder builder, final From<T, Y> from, final JoinType joinType, final Attribute<?, ?> attribute) {
+	public <T, Y> Join<T, Y> join(final From<T, Y> from, final JoinType joinType, final Attribute<?, ?> attribute) {
 		final Join<T, Y> join;
 		if (isReady(from, attribute)) {
 			@SuppressWarnings("unchecked")
@@ -136,6 +149,10 @@ public class Joinner {
 		return join;
 	}
 
+	protected <Y> Expression<Y> join(final Attribute<?, ?>... attributes) {
+		return join(INNER, attributes);
+	}
+
 	protected <Y> Expression<Y> join(final JoinType joinType, final Attribute<?, ?>... attributes) {
 		final Attribute<?, ?> attribute;
 		From<?, ?> from = this.from;
@@ -143,14 +160,17 @@ public class Joinner {
 			throw new AttributeNotBeEmptyException();
 		} else if (attributes.length == 1) {
 			attribute = attributes[0];
+			if(attribute.isAssociation() && !isReady(from, attribute)){
+				addIndex(from, attribute, join(from, joinType, attribute));
+			}
 		} else {
 			Integer i = 1;
 			final Integer j = attributes.length - 1;
 			Attribute<?, ?> a = attributes[0];
-			Join<?, ?> join = join(builder, from, joinType, a);
+			Join<?, ?> join = join(from, joinType, a);
 			for (; i < j; i++) {
 				a = attributes[i];
-				join = join(builder, join, joinType, a);
+				join = join(join, joinType, a);
 			}
 			attribute = attributes[i];
 			from = join;
@@ -184,5 +204,9 @@ public class Joinner {
 			path = p;
 		}
 		return path;
+	}
+	
+	protected Map<From<?, ?>, Map<Attribute<?, ?>, Join<?, ?>>> getIndex() {
+		return index;
 	}
 }

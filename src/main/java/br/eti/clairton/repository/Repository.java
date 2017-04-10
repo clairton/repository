@@ -64,7 +64,7 @@ public class Repository implements Serializable {
 
 	protected Root<?> from;
 	
-	private Selection<?> selection;
+	private Expression<?> selection;
 
 	private CriteriaQuery<?> criteriaQuery;
 	
@@ -231,8 +231,8 @@ public class Repository implements Serializable {
 		final Selection<Long> s;
 		@SuppressWarnings("unchecked")
 		final Set<Fetch<?, ?>> fetches = (Set<Fetch<?, ?>>)((Set<?>) from.getFetches()); 
-		final From<?, ?> from = this.from;
-		fetchToJoin(from, fetches);
+		final Expression<?> from = this.selection;
+		fetchToJoin(this.from, fetches);
 		if (distinct) {
 			s = builder.countDistinct(from);
 		} else {
@@ -567,21 +567,22 @@ public class Repository implements Serializable {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void fetchToJoin(final From<?, ?> from, Set<Fetch<?, ?>> fetches) {
+	protected void fetchToJoin(final From<?, ?> from, final Set<Fetch<?, ?>> fetches) {
 		if (fetches != null && !fetches.isEmpty()) {
 			for (final Fetch<?, ?> fetch : fetches) {
 				@SuppressWarnings("rawtypes")
-				Join join = (Join) fetch;
-				final Set<Fetch<?, ?>> fs = (Set<Fetch<?, ?>>)((Set<?>) fetch.getFetches()); 
-				if(fs.isEmpty()){
-					try{
+				final Join join = (Join) fetch;
+				final Set<Fetch<?, ?>> fs = (Set<Fetch<?, ?>>) ((Set<?>) fetch.getFetches());
+				if (fs.isEmpty()) {
+					try {
 						from.getJoins().add(join);
-					}catch(UnsupportedOperationException e){}
-				}else{
-					fetchToJoin(join, fs);					
-				}				
+					} catch (UnsupportedOperationException e) {
+					}
+				} else {
+					fetchToJoin(join, fs);
+				}
 			}
-			from.getFetches().clear();	
+			from.getFetches().clear();
 		}
 	}
 }
