@@ -47,11 +47,18 @@ public class JoinnerIntegrationTest {
 	public void testJoinWithTwo() {
 		assertEquals(0, joinner.getIndex().size());
 		joinner.join(Aplicacao_.recursos);
+		assertEquals(1, joinner.getIndex().size());
+		joinner.join(Aplicacao_.recursos, Recurso_.operacoes);
+		assertEquals(1, joinner.getIndex().size());
+		joinner.join(Aplicacao_.recursos, Recurso_.operacoes);
+		assertEquals(1, joinner.getIndex().size());
+	}
+	
+	@Test
+	public void testJoinInTheFirst() {
 		assertEquals(0, joinner.getIndex().size());
-		joinner.join(Aplicacao_.recursos, Recurso_.operacoes);
-		assertEquals(1, joinner.getIndex().size());
-		joinner.join(Aplicacao_.recursos, Recurso_.operacoes);
-		assertEquals(1, joinner.getIndex().size());
+		joinner.join(Aplicacao_.recursos);
+		assertEquals(1, joinner.getIndex().size());	
 	}
 	
 	@Test
@@ -65,8 +72,9 @@ public class JoinnerIntegrationTest {
 	
 	@Test
 	public void testJoinAndSelectOneMore() {
-		joinner.join(Aplicacao_.recursos);
 		assertEquals(0, joinner.getIndex().size());
+		joinner.join(Aplicacao_.recursos);
+		assertEquals(1, joinner.getIndex().size());
 		joinner.select(Aplicacao_.recursos, Recurso_.operacoes);
 		assertEquals(1, joinner.getIndex().size());
 	}

@@ -160,6 +160,9 @@ public class Joinner {
 			throw new AttributeNotBeEmptyException();
 		} else if (attributes.length == 1) {
 			attribute = attributes[0];
+			if(attribute.isAssociation() && !isReady(from, attribute)){
+				addIndex(from, attribute, join(from, joinType, attribute));
+			}
 		} else {
 			Integer i = 1;
 			final Integer j = attributes.length - 1;
