@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 /**
  * Predicado para consulta.
  * 
- * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
+ * @author Clairton Rodrigo Heinzen clairton.rodrigo@gmail.com
  */
 public class Predicate implements Serializable {
 	private static final long serialVersionUID = 1L;

@@ -7,7 +7,7 @@ import javax.persistence.criteria.Predicate;
 /**
  * Cria o {@link Predicate} não nulo.
  *
- * @author Clairton Rodrigo Heinzen<clairton.gmail@gmail.com>
+ * @author Clairton Rodrigo Heinzen clairton.rodrigo@gmail.com
  */
 public class NotNull implements Comparator {
 	private static final long serialVersionUID = 1L;

@@ -13,7 +13,7 @@ import javax.persistence.metamodel.SetAttribute;
 /**
  * Trata um relacionamento no Plural.
  * 
- * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
+ * @author Clairton Rodrigo Heinzen clairton.rodrigo@gmail.com
  */
 interface Join extends Serializable {
     public static final Join SET = new Join() {

@@ -25,7 +25,7 @@ import javax.persistence.metamodel.SingularAttribute;
 /**
  * Joinner by {@link br.eti.clairton.repository.Predicate}.
  * 
- * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
+ * @author Clairton Rodrigo Heinzen clairton.rodrigo@gmail.com
  */
 @Vetoed
 public class Joinner {
@@ -65,6 +65,9 @@ public class Joinner {
 	 *            type of Join
 	 * @param attributes
 	 *            atrributes paths
+	 * @param <Y> 
+	 * 			  type of expression           
+	 * 
 	 * @return instance of {@link Selection}
 	 */
 	public <Y> Expression<Y> select(final JoinType joinType, final Attribute<?, ?>... attributes) {
@@ -76,6 +79,9 @@ public class Joinner {
 	 * 
 	 * @param attributes
 	 *            atrributes paths
+	 * @param <Y> 
+	 * 			  type of expression 
+	 * 
 	 * @return instance of {@link Selection}
 	 */
 	public <Y> Expression<Y> select(final Attribute<?, ?>... attributes) {

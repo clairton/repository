@@ -50,7 +50,7 @@ import br.eti.clairton.repository.Order.Direction;
 /**
  * Repository para operações com o banco de dados.
  * 
- * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
+ * @author Clairton Rodrigo Heinzen clairton.rodrigo@gmail.com
  */
 @Dependent
 public class Repository implements Serializable {
@@ -170,6 +170,8 @@ public class Repository implements Serializable {
 	 *            tipo
 	 * @param id
 	 *            valor
+	 * @param <T> type of entity  
+	 * @param <Y> type of id  
 	 * @return entidade
 	 * @throws NoResultException
 	 *             caso não seja encontrada a entidade
@@ -433,6 +435,8 @@ public class Repository implements Serializable {
 
 	/**
 	 * Execute {@link EntityManager#clear()}
+	 * 
+	 * @return this
 	 */
 	public Repository clear() {
 		this.em.clear();

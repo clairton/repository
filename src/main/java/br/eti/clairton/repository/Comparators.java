@@ -10,7 +10,7 @@ import javax.persistence.criteria.Predicate;
 /**
  * Enum of {@link Comparator}.
  *
- * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
+ * @author Clairton Rodrigo Heinzen clairton.rodrigo@gmail.com
  */
 public enum Comparators implements Comparator {
     GREATER_THAN_OR_EQUAL(new GreaterThanOrEqual()),

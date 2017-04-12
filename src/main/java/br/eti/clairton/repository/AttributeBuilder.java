@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 /**
  * Builder para facilidar o agrupamento de {@link Attribute}.
  * 
- * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
+ * @author Clairton Rodrigo Heinzen clairton.rodrigo@gmail.com
  */
 public class AttributeBuilder {
 	private final List<Attribute<?, ?>> attributes = new ArrayList<Attribute<?, ?>>();

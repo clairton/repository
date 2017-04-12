@@ -2,6 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.eti.clairton</groupId>
+	<name>Repository</name>
+	<description>Easiest solution to save and query JPA entities</description>
 	<artifactId>repository</artifactId>
 	<version>3.0.0</version>
 	<url>https://github.com/clairton/repository</url>
@@ -17,6 +19,14 @@
 		<url>scm:git:git@github.com:clairton/repository.git</url>
 		<developerConnection>scm:git:git@github.com:clairton/repository.git</developerConnection>
 	</scm>
+	<developers>
+		<developer>
+			<name>Clairton Rodrigo Heinzen</name>
+			<email>clairton.rodrigo@gmail.com</email>
+			<organization>Clairton</organization>
+			<organizationUrl>http://clairton.eti.br/</organizationUrl>
+		</developer>
+	</developers>
 	<dependencies>
 		<dependency>
 			<groupId>br.eti.clairton</groupId>
@@ -27,7 +37,7 @@
 		<dependency>
 			<groupId>br.eti.clairton</groupId>
 			<artifactId>identificator</artifactId>
-			<version>1.1.0</version>
+			<version>1.2.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -35,12 +45,6 @@
 			<artifactId>paginated-collection</artifactId>
 			<version>0.1.0</version>
 			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>br.eti.clairton</groupId>
-			<artifactId>tenant</artifactId>
-			<version>1.1.0</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
@@ -155,87 +159,94 @@
 					</systemProperties>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.4</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<!-- explicitly define maven-deploy-plugin after other to force exec order -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>2.8.2</version>
-				<executions>
-					<execution>
-						<id>deploy</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>deploy</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
-		<extensions>
-			<extension>
-				<groupId>ar.com.synergian</groupId>
-				<artifactId>wagon-git</artifactId>
-				<version>0.2.5</version>
-			</extension>
-		</extensions>
 	</build>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>synergian-repo</id>
-			<url>https://raw.github.com/synergian/wagon-git/releases</url>
-		</pluginRepository>
-	</pluginRepositories>
-	<distributionManagement>
-		<repository>
-			<id>mvn-repo-releases</id>
-			<name>Release Repo</name>
-			<url>git:releases://git@github.com:clairton/mvn-repo.git</url>
-		</repository>
-		<snapshotRepository>
-			<id>mvn-repo-snapshots</id>
-			<name>Snapshot Repo</name>
-			<url>git:snapshots://git@github.com:clairton/mvn-repo.git</url>
-		</snapshotRepository>
-	</distributionManagement>
-	<repositories>
-		<repository>
-			<id>mvn-repo-releases</id>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<url>https://raw.github.com/clairton/mvn-repo/releases</url>
-		</repository>
-		<repository>
-			<id>mvn-repo-snapshots</id>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<url>https://raw.github.com/clairton/mvn-repo/snapshots</url>
-		</repository>
-	</repositories>
+	<profiles>
+		<profile>
+			<id>deploy</id>
+			<properties>
+				<gpg.executable>gpg</gpg.executable>
+		        <gpg.keyname>clairton.rodrigo@gmail.com</gpg.keyname>
+		        <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>2.4</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<additionalparam>-Xdoclint:none</additionalparam>
+						</configuration>
+					</plugin>
+				    <plugin>
+				      <groupId>org.apache.maven.plugins</groupId>
+				      <artifactId>maven-javadoc-plugin</artifactId>
+				      <version>2.10.4</version>
+				      <executions>
+				        <execution>
+				          <id>attach-javadocs</id>
+				          <goals>
+				            <goal>jar</goal>
+				          </goals>
+				        </execution>
+				      </executions>
+				    </plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.7</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>ossrh</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+					<plugin>
+						<!-- explicitly define maven-deploy-plugin after other to force exec order -->
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<version>2.8.2</version>
+						<executions>
+							<execution>
+								<id>deploy</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>deploy</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

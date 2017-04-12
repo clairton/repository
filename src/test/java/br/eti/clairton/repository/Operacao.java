@@ -12,7 +12,7 @@ import br.eti.clairton.identificator.Identificator;
 /**
  * Representa uma ação.
  * 
- * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
+ * @author Clairton Rodrigo Heinzen clairton.rodrigo@gmail.com
  */
 @Entity
 @Table(name = "operacoes")

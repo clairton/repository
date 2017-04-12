@@ -9,7 +9,7 @@ import javax.persistence.criteria.Predicate;
 /**
  * Cria o {@link CriteriaBuilder#notLike}.
  *
- * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
+ * @author Clairton Rodrigo Heinzen clairton.rodrigo@gmail.com
  */
 public class NotLike implements Comparator {
 	private static final long serialVersionUID = 1L;
