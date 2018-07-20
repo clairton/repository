@@ -439,6 +439,7 @@ public class Repository implements Serializable {
 	 * @return this
 	 */
 	public Repository clear() {
+		this.flush();
 		this.em.clear();
 		return this;
 	}
