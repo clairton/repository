@@ -447,6 +447,20 @@ public class Repository implements Serializable {
 		hint("eclipselink.read-only", "true");
 		hint("eclipselink.query-results-cache", "true");
 		return this;
+	}	
+	
+	public void flush() {
+		logger.info("Executando Flush no Banco de dados");
+		try {
+			em.joinTransaction();
+		} catch (final TransactionRequiredException e) {
+		}
+		try {
+			em.flush();
+		} catch (final TransactionRequiredException e) {
+			logger.warn("Não há transação em andamento para rodar o EntityManager#flush");
+			throw e;
+		}
 	}
 
 	// =======================================================================//
@@ -499,20 +513,6 @@ public class Repository implements Serializable {
 		final Attribute<?, ?> id = idAttribute(klazz);
 		final String field = id.getName();
 		return field;
-	}	
-	
-	protected void flush() {
-		logger.info("Executando Flush no Banco de dados");
-		try {
-			em.joinTransaction();
-		} catch (final TransactionRequiredException e) {
-		}
-		try {
-			em.flush();
-		} catch (final TransactionRequiredException e) {
-			logger.warn("Não há transação em andamento para rodar o EntityManager#flush");
-			throw e;
-		}
 	}
 
 	protected <T> TypedQuery<T> query(final Selection<?> selection, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
