@@ -11,5 +11,6 @@ public abstract class Aplicacao_ extends Model_ {
 
 	public static volatile CollectionAttribute<Aplicacao, Recurso> recursos;
 	public static volatile SingularAttribute<Aplicacao, String> nome;
+	public static volatile SingularAttribute<Aplicacao, String> descricao;
 
 }
