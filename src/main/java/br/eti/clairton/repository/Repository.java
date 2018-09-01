@@ -383,6 +383,19 @@ public class Repository implements Serializable {
 		}
 		return this;
 	}
+	
+  	public <T>Repository multiselect(@NotNull final Attribute<?, ?>... attributes) {
+  		return select(attributes);
+  	}
+  
+  	public <T>Repository multiselect(final JoinType joinType, @NotNull final Attribute<?, ?>... attributes) {
+  		return select(joinType, attributes);
+  	}
+  
+  	public <T> Repository as(@NotNull final Class<T> type) {
+  		criteriaQuery = builder.createQuery(type);
+  		return this;
+  	}
 
 	public <T> Repository where(@NotNull final Comparator comparator, @NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
 		return where(asList(new Predicate(comparator, attributes)));
@@ -542,7 +555,13 @@ public class Repository implements Serializable {
 			@SuppressWarnings("unchecked")
 			final Selection<T> s = (Selection<T>) selections.get(0);
 			cq.select(s);
-		}
+		} else {
+  			final List<Selection<?>> list = new ArrayList<>();
+  			for (final Selection<?> selection : selections) {
+				list.add(selection);
+			}
+			cq.multiselect(list);
+  		}
 		criteriaQuery.orderBy(orders.toArray(new javax.persistence.criteria.Order[]{}));
 		final javax.persistence.criteria.Predicate[] array = new javax.persistence.criteria.Predicate[predicates.size()];
 		cq.where(predicates.toArray(array));
@@ -560,7 +579,7 @@ public class Repository implements Serializable {
 		int j = predicates.size() - 1;
 		final List<Predicate> ps = new ArrayList<Predicate>(predicates);
 		javax.persistence.criteria.Predicate p = to(ps.get(0));
-		for (; i <= j; i++) {
+		for (; i <= j; i++  ) {
 			final javax.persistence.criteria.Predicate other = to(ps.get(i));
 			final Operator operator = ps.get(i).getOperator();
 			p = operator.build(builder, p, other);
