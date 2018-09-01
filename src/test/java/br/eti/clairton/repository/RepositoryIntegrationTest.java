@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 
 import br.eti.clairton.paginated.collection.Meta;
 import br.eti.clairton.paginated.collection.PaginatedCollection;
+import net.vidageek.mirror.dsl.Mirror;
 
 @RunWith(CdiTestRunner.class)
 public class RepositoryIntegrationTest {
@@ -208,8 +209,7 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testList() {
-		final List<Aplicacao> aplicacoes = repository.from(Aplicacao.class)
-				.list();
+		final List<Aplicacao> aplicacoes = repository.from(Aplicacao.class).list();
 		assertEquals(1, aplicacoes.size());
 	}
 
@@ -276,20 +276,18 @@ public class RepositoryIntegrationTest {
 
 	@Test
 	public void testPaginatedCollection() {
-		final PaginatedCollection<Operacao, Meta> operacoes = repository.from(
-				Operacao.class).collection(1, 1);
+		final PaginatedCollection<Operacao, Meta> operacoes = repository.from(Operacao.class).collection(1, 1);
 		assertEquals(1, operacoes.size());
-		assertEquals(new Long(2), operacoes.unwrap(Meta.class).getTotal());
-		assertEquals(new Long(1), operacoes.unwrap(Meta.class).getPage());
+		assertEquals(Long.valueOf(2), operacoes.unwrap(Meta.class).getTotal());
+		assertEquals(Long.valueOf(1), operacoes.unwrap(Meta.class).getPage());
 	}
 
 	@Test
 	public void testPaginatedList() {
-		final PaginatedCollection<Operacao, Meta> operacoes = repository.from(
-				Operacao.class).list(2, 1);
+		final PaginatedCollection<Operacao, Meta> operacoes = repository.from(Operacao.class).list(2, 1);
 		assertEquals(1, operacoes.size());
-		assertEquals(new Long(2), operacoes.unwrap(Meta.class).getTotal());
-		assertEquals(new Long(2), operacoes.unwrap(Meta.class).getPage());
+		assertEquals(Long.valueOf(2), operacoes.unwrap(Meta.class).getTotal());
+		assertEquals(Long.valueOf(2), operacoes.unwrap(Meta.class).getPage());
 	}
 
 	@Test
