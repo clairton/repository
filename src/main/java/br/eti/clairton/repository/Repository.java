@@ -66,7 +66,7 @@ public class Repository implements Serializable {
 
 	protected Root<?> from;
 	
-	private Expression<?> selection;
+	private Selection<?> selection;
 
 	private CriteriaQuery<?> criteriaQuery;
 	
@@ -233,7 +233,7 @@ public class Repository implements Serializable {
 		final Selection<Long> s;
 		@SuppressWarnings("unchecked")
 		final Set<Fetch<?, ?>> fetches = (Set<Fetch<?, ?>>)((Set<?>) from.getFetches()); 
-		final Expression<?> from = this.selection;
+		final Expression<?> from = (Expression<?>) this.selection;
 		fetchToJoin(this.from, fetches);
 		if (distinct) {
 			s = builder.countDistinct(from);
