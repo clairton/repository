@@ -34,8 +34,10 @@ public class Aplicacao extends Model {
 	@Identificator
 	private String nome;
 
+	private String descricao;
+
 	/*
-	 * Atributo que server somente para testar os metodos equals, hashCode e
+	 * Atributo que serve somente para testar os metodos equals, hashCode e
 	 * toString
 	 */
 	private final @Transient Long transientField = new Date().getTime();
@@ -101,6 +103,10 @@ public class Aplicacao extends Model {
 
 	public String getNome() {
 		return nome;
+	}
+	
+	public String getDescricao() {
+		return descricao;
 	}
 
 	public void setNome(String nome) {
