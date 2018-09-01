@@ -364,4 +364,18 @@ public class RepositoryIntegrationTest {
 						.where("OutraOperacao", Comparators.NOT_EQUAL,
 								Operacao_.nome).count());
 	}
+	
+  	@Test
+  	public void testListNomeRecursosENomeAplicacaoAtravesDeAplicacao() {
+  		final List<NomeRecursoENomeAplicacao> objects = repository
+  				.from(Aplicacao.class)
+  				.select(Aplicacao_.descricao)
+  				.select(Aplicacao_.recursos, Recurso_.nome)
+  				.as(NomeRecursoENomeAplicacao.class)
+  				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
+  				.list();
+  		assertEquals(1, objects.size());
+  		assertEquals("Teste", objects.get(0).nome);
+  		assertEquals(null, objects.get(0).descricao);
+  	}	
 }

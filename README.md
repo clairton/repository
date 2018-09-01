@@ -67,8 +67,8 @@ final Predicate p3 = new Predicate("AindaOutraOperacao", Operacao_.nome);
 repository.from(Operacao.class).where(p1).and(p2).or(p3).count();
 ```
 Os atributos são recuperados pelo metamodel do JPA, e devem navegar da
-entidade definida no método from, até o atributo em que se deseja que o 
-filtro seja aplicado. Por exemplo, tendo os modelos Operação -> Recurso -> Aplicação, 
+entidade definida no método from, até o atributo em que se deseja que o
+filtro seja aplicado. Por exemplo, tendo os modelos Operação -> Recurso -> Aplicação,
 e o vamos retorna as aplicações que tem uma operação relacionada com o nome que contém a string "teste", teriamos:
 ```java
 Predicate p = new Predicate("teste", Comparators.LIKE, Aplicacao_.recursos,
@@ -76,6 +76,28 @@ Predicate p = new Predicate("teste", Comparators.LIKE, Aplicacao_.recursos,
 repository.from(Aplicacao.class).where(p).list();
 ```
 O método EntityManager#flush é invocado automaticamente ao executar os métodos remove, save e update.
+
+
+Podem selecionar também dados específicos de modelos diferentes:
+```java
+public class NomeRecursoENomeAplicacao {
+	public String descricao;
+	public String nome;
+
+	public NomeRecursoENomeAplicacao(String descricao, String nome) {
+		this.descricao = descricao;
+		this.nome = nome;
+	}
+}
+
+List<NomeRecursoENomeAplicacao> objects = repository
+		.from(Aplicacao.class)
+		.select(Aplicacao_.descricao)
+		.select(Aplicacao_.recursos, Recurso_.nome)
+		.as(NomeRecursoENomeAplicacao.class)
+		.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
+		.list();
+```
 
 
 Para uso de tenant pode ser integrado ao projeto https://github.com/clairton/repository-tenant e https://github.com/clairton/tenant.
