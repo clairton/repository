@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
 import javax.transaction.TransactionManager;
 
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
@@ -31,7 +32,6 @@ import org.junit.runner.RunWith;
 
 import br.eti.clairton.paginated.collection.Meta;
 import br.eti.clairton.paginated.collection.PaginatedCollection;
-import net.vidageek.mirror.dsl.Mirror;
 
 @RunWith(CdiTestRunner.class)
 public class RepositoryIntegrationTest {
@@ -356,13 +356,27 @@ public class RepositoryIntegrationTest {
   	public void testListNomeRecursosENomeAplicacaoAtravesDeAplicacao() {
   		final List<NomeRecursoENomeAplicacao> objects = repository
   				.from(Aplicacao.class)
+  				.as(NomeRecursoENomeAplicacao.class)
   				.select(Aplicacao_.descricao)
   				.select(Aplicacao_.recursos, Recurso_.nome)
-  				.as(NomeRecursoENomeAplicacao.class)
   				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
   				.list();
   		assertEquals(1, objects.size());
   		assertEquals("Teste", objects.get(0).nome);
   		assertEquals(null, objects.get(0).descricao);
+  	}
+	
+  	@Test
+  	public void testListNomeRecursosENomeAplicacaoAtravesDeAplicacaoComTuple() {
+  		final List<Tuple> objects = repository
+  				.from(Aplicacao.class)
+  				.as(Tuple.class)
+  				.select(Aplicacao_.descricao)
+  				.select(Aplicacao_.recursos, Recurso_.nome)
+  				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
+  				.list();
+  		assertEquals(1, objects.size());
+  		assertEquals("Teste", objects.get(0).get(1));
+  		assertEquals(null, objects.get(0).get(0));
   	}	
 }
