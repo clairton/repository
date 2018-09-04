@@ -378,5 +378,19 @@ public class RepositoryIntegrationTest {
   		assertEquals(1, objects.size());
   		assertEquals("Teste", objects.get(0).get(1));
   		assertEquals(null, objects.get(0).get(0));
+  	}
+	
+  	@Test
+  	public void testListNomeRecursosENomeAplicacaoAtravesDeAplicacaoComoObjeto() {
+  		final List<Object[]> objects = repository
+  				.from(Aplicacao.class)
+  				.as(Object[].class)
+  				.select(Aplicacao_.descricao)
+  				.select(Aplicacao_.recursos, Recurso_.nome)
+  				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
+  				.list();
+  		assertEquals(1, objects.size());
+  		assertEquals("Teste", objects.get(0)[1]);
+  		assertEquals(null, objects.get(0)[0]);
   	}	
 }
