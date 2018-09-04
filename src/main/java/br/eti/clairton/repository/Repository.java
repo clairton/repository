@@ -562,7 +562,7 @@ public class Repository implements Serializable {
 			}
 			cq.multiselect(list);
   		}
-		criteriaQuery.orderBy(orders.toArray(new javax.persistence.criteria.Order[]{}));
+		cq.orderBy(orders.toArray(new javax.persistence.criteria.Order[]{}));
 		final javax.persistence.criteria.Predicate[] array = new javax.persistence.criteria.Predicate[predicates.size()];
 		cq.where(predicates.toArray(array));
 		final TypedQuery<T> query = em.createQuery(cq);		
