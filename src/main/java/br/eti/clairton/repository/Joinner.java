@@ -15,6 +15,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
@@ -67,8 +68,8 @@ public class Joinner {
 	 *            atrributes paths
 	 * @return instance of {@link Selection}
 	 */
-	public <Y> Expression<Y> select(final JoinType joinType, final Attribute<?, ?>... attributes) {
-		final Expression<Y> path = join(joinType, attributes);
+	public <Y> Path<Y> select(final JoinType joinType, final Attribute<?, ?>... attributes) {
+		final Path<Y> path = join(joinType, attributes);
 		return path;
 	}
 	/**
@@ -153,7 +154,7 @@ public class Joinner {
 		return join(INNER, attributes);
 	}
 
-	protected <Y> Expression<Y> join(final JoinType joinType, final Attribute<?, ?>... attributes) {
+	protected <Y> Path<Y> join(final JoinType joinType, final Attribute<?, ?>... attributes) {
 		final Attribute<?, ?> attribute;
 		From<?, ?> from = this.from;
 		if (attributes.length == 0) {
@@ -175,7 +176,7 @@ public class Joinner {
 			attribute = attributes[i];
 			from = join;
 		}
-		final Expression<Y> path = get(from, attribute);
+		final Path<Y> path = get(from, attribute);
 		return path;
 	}
 
@@ -194,13 +195,13 @@ public class Joinner {
 		index.get(origin).put(destiny, value);
 	}
 
-	protected <T, Y> Expression<Y> get(final From<?, ?> from, final Attribute<?, ?> attribute) {
-		final Expression<Y> path;
+	protected <T, Y> Path<Y> get(final From<?, ?> from, final Attribute<?, ?> attribute) {
+		final Path<Y> path;
 		if (attribute.isCollection()) {
 			path = from.join(attribute.getName());
 		} else {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
-			final Expression<Y> p = from.get((SingularAttribute) attribute);
+			final Path<Y> p = from.get((SingularAttribute) attribute);
 			path = p;
 		}
 		return path;
