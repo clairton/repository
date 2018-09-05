@@ -32,6 +32,7 @@ import org.junit.runner.RunWith;
 
 import br.eti.clairton.paginated.collection.Meta;
 import br.eti.clairton.paginated.collection.PaginatedCollection;
+import net.vidageek.mirror.dsl.Mirror;
 
 @RunWith(CdiTestRunner.class)
 public class RepositoryIntegrationTest {
