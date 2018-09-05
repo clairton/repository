@@ -187,9 +187,13 @@ public class Repository implements Serializable {
 	}
 
 	public <T> Repository from(@NotNull final Class<T> type) {
+		return from(type, type);
+	}
+
+	public <T, Y> Repository from(@NotNull final Class<T> modelType, @NotNull final Class<Y> transferObjectType) {
 		builder = em.getCriteriaBuilder();
-		criteriaQuery = builder.createQuery(type);
-		from = root(type);
+		criteriaQuery = builder.createQuery(transferObjectType);
+		from = root(modelType);
 		joinner = new Joinner(builder, from);
 		return this;
 	}
@@ -392,12 +396,6 @@ public class Repository implements Serializable {
   	public <T>Repository multiselect(final JoinType joinType, @NotNull final Attribute<?, ?>... attributes) {
   		return select(joinType, attributes);
   	}
-  
-  	public <T> Repository as(@NotNull final Class<T> type) {
-  		criteriaQuery = builder.createQuery(type);
-  		from = root(from.getJavaType());
-  		return this;
-  	}
 
 	public <T> Repository where(@NotNull final Comparator comparator, @NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
 		return where(asList(new Predicate(comparator, attributes)));
@@ -549,6 +547,7 @@ public class Repository implements Serializable {
 	protected <T> TypedQuery<T> query(@SuppressWarnings("rawtypes") final List<? extends Expression> selections, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
 		@SuppressWarnings("unchecked")
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
+		cq.from(from.getJavaType());
 		if (selections.isEmpty()) {			
 			@SuppressWarnings("unchecked")
 			final Selection<T> s = (Selection<T>) from;

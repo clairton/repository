@@ -91,10 +91,9 @@ public class NomeRecursoENomeAplicacao {
 }
 
 List<NomeRecursoENomeAplicacao> objects = repository
-		.from(Aplicacao.class)
+		.from(Aplicacao.class, NomeRecursoENomeAplicacao.class)
 		.select(Aplicacao_.descricao)
 		.select(Aplicacao_.recursos, Recurso_.nome)
-		.as(NomeRecursoENomeAplicacao.class)
 		.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
 		.list();
 ```
