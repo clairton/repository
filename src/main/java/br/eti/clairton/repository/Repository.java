@@ -33,6 +33,7 @@ import javax.persistence.criteria.FetchParent;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
@@ -66,7 +67,7 @@ public class Repository implements Serializable {
 	protected Root<?> from;
 	
 	@SuppressWarnings("rawtypes")
-	private List<Selection> selections = new ArrayList<>();
+	private List<Path> selections = new ArrayList<>();
 
 	private CriteriaQuery<?> criteriaQuery;
 	
@@ -186,9 +187,13 @@ public class Repository implements Serializable {
 	}
 
 	public <T> Repository from(@NotNull final Class<T> type) {
+		return from(type, type);
+	}
+
+	public <T, Y> Repository from(@NotNull final Class<T> modelType, @NotNull final Class<Y> transferObjectType) {
 		builder = em.getCriteriaBuilder();
-		criteriaQuery = builder.createQuery(type);
-		from = root(type);
+		criteriaQuery = builder.createQuery(transferObjectType);
+		from = root(modelType);
 		joinner = new Joinner(builder, from);
 		return this;
 	}
@@ -243,7 +248,7 @@ public class Repository implements Serializable {
 		final Set<Fetch<?, ?>> fetches = (Set<Fetch<?, ?>>)((Set<?>) this.from.getFetches()); 
 		fetchToJoin(this.from, fetches);
 		@SuppressWarnings("rawtypes")
-		final Selection s;
+		final Expression s;
 		if (distinct) {
 			s = builder.countDistinct(from);
 		} else {
@@ -251,7 +256,7 @@ public class Repository implements Serializable {
 		}
 		ordersClear();
 		@SuppressWarnings("rawtypes")
-		final List<Selection> selections = Arrays.asList(s);
+		final List<Expression> selections = Arrays.asList(s);
 		final TypedQuery<Long> query = query(selections, criteriaQuery, predicates);
 		final Long count = (Long) query.getResultList().get(0);		
 		filtersClears();
@@ -390,11 +395,6 @@ public class Repository implements Serializable {
   
   	public <T>Repository multiselect(final JoinType joinType, @NotNull final Attribute<?, ?>... attributes) {
   		return select(joinType, attributes);
-  	}
-  
-  	public <T> Repository as(@NotNull final Class<T> type) {
-  		criteriaQuery = builder.createQuery(type);
-  		return this;
   	}
 
 	public <T> Repository where(@NotNull final Comparator comparator, @NotNull @Size(min = 1) final Attribute<?, ?>... attributes) {
@@ -560,9 +560,10 @@ public class Repository implements Serializable {
 		return field;
 	}
 
-	protected <T> TypedQuery<T> query(@SuppressWarnings("rawtypes") final List<Selection> selections, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
+	protected <T> TypedQuery<T> query(@SuppressWarnings("rawtypes") final List<? extends Expression> selections, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
 		@SuppressWarnings("unchecked")
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
+		cq.from(from.getJavaType());
 		if (selections.isEmpty()) {			
 			@SuppressWarnings("unchecked")
 			final Selection<T> s = (Selection<T>) from;
@@ -578,7 +579,7 @@ public class Repository implements Serializable {
 			}
 			cq.multiselect(list);
   		}
-		criteriaQuery.orderBy(orders.toArray(new javax.persistence.criteria.Order[]{}));
+		cq.orderBy(orders.toArray(new javax.persistence.criteria.Order[]{}));
 		final javax.persistence.criteria.Predicate[] array = new javax.persistence.criteria.Predicate[predicates.size()];
 		cq.where(predicates.toArray(array));
 		final TypedQuery<T> query = em.createQuery(cq);		

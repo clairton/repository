@@ -5,7 +5,7 @@
 	<name>Repository</name>
 	<description>Easiest solution to save and query JPA entities</description>
 	<artifactId>repository</artifactId>
-	<version>3.2.0</version>
+	<version>3.2.1</version>
 	<url>https://github.com/clairton/repository</url>
 	<licenses>
 		<license>
@@ -48,7 +48,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.0-api</artifactId>
+			<artifactId>hibernate-jpa-2.1-api</artifactId>
 			<version>1.0.0.Final</version>
 			<scope>provided</scope>
 		</dependency>
@@ -119,16 +119,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.persistence</groupId>
-			<artifactId>eclipselink</artifactId>
-			<version>2.5.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.persistence</groupId>
-			<artifactId>org.eclipse.persistence.jpa</artifactId>
-			<version>2.5.2</version>
-			<scope>test</scope>
+		    <groupId>javax.xml.bind</groupId>
+		    <artifactId>jaxb-api</artifactId>
+		    <version>2.3.0</version>
+		    <scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>br.eti.clairton</groupId>
@@ -162,6 +156,37 @@
 		</plugins>
 	</build>
 	<profiles>
+		<profile>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<id>eclipselink</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.eclipse.persistence</groupId>
+					<artifactId>eclipselink</artifactId>
+					<version>2.5.2</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>hibernate</id>
+			<dependencies>
+		 	   <dependency>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate-core</artifactId>
+					<version>5.3.6.Final</version>
+					<scope>test</scope>
+			   </dependency>
+			   <dependency>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate-entitymanager</artifactId>
+					<version>5.3.6.Final</version>
+					<scope>test</scope>
+			   </dependency>
+			</dependencies>
+		</profile>
 		<profile>
 			<id>deploy</id>
 			<properties>

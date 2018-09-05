@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
 import javax.transaction.TransactionManager;
 
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
@@ -31,7 +32,6 @@ import org.junit.runner.RunWith;
 
 import br.eti.clairton.paginated.collection.Meta;
 import br.eti.clairton.paginated.collection.PaginatedCollection;
-import net.vidageek.mirror.dsl.Mirror;
 
 @RunWith(CdiTestRunner.class)
 public class RepositoryIntegrationTest {
@@ -358,24 +358,57 @@ public class RepositoryIntegrationTest {
 				Long.valueOf(1),
 				repository
 						.from(Operacao.class)
-						.where("Teste", Operacao_.recurso, Recurso_.aplicacao,
-								Aplicacao_.nome)
+						.where("Teste", Operacao_.recurso, Recurso_.aplicacao, Aplicacao_.nome)
 						.where(Comparators.NOT_NULL, Operacao_.id)
-						.where("OutraOperacao", Comparators.NOT_EQUAL,
-								Operacao_.nome).count());
+						.where("OutraOperacao", Comparators.NOT_EQUAL, Operacao_.nome).count());
 	}
 	
   	@Test
   	public void testListNomeRecursosENomeAplicacaoAtravesDeAplicacao() {
   		final List<NomeRecursoENomeAplicacao> objects = repository
-  				.from(Aplicacao.class)
+  				.from(Aplicacao.class, NomeRecursoENomeAplicacao.class)
   				.select(Aplicacao_.descricao)
   				.select(Aplicacao_.recursos, Recurso_.nome)
-  				.as(NomeRecursoENomeAplicacao.class)
   				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
   				.list();
   		assertEquals(1, objects.size());
   		assertEquals("Teste", objects.get(0).nome);
   		assertEquals(null, objects.get(0).descricao);
+  	}
+	
+  	@Test
+  	public void testListNomeRecursosENomeAplicacaoAtravesDeAplicacaoComTuple() {
+  		final List<Tuple> objects = repository
+  				.from(Aplicacao.class, Tuple.class)
+  				.select(Aplicacao_.descricao)
+  				.select(Aplicacao_.recursos, Recurso_.nome)
+  				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
+  				.list();
+  		assertEquals(1, objects.size());
+  		assertEquals("Teste", objects.get(0).get(1));
+  		assertEquals(null, objects.get(0).get(0));
+  	}
+	
+  	@Test
+  	public void testListNomeRecursosENomeAplicacaoAtravesDeAplicacaoComoObjeto() {
+  		final List<Object[]> objects = repository
+  				.from(Aplicacao.class, Object[].class)
+  				.select(Aplicacao_.descricao)
+  				.select(Aplicacao_.recursos, Recurso_.nome)
+  				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
+  				.list();
+  		assertEquals(1, objects.size());
+  		assertEquals("Teste", objects.get(0)[1]);
+  		assertEquals(null, objects.get(0)[0]);
   	}	
+	
+  	@Test
+  	public void testComoObjeto() {
+  		final List<?> objects = repository
+  				.from(Aplicacao.class, Object[].class)
+  				.select(Aplicacao_.nome)
+  				.where(1, Comparators.GREATER_THAN_OR_EQUAL, Aplicacao_.id)
+  				.list();
+  		assertEquals(1, objects.size());
+  	}
 }
