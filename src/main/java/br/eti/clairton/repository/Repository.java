@@ -10,9 +10,9 @@ import static org.apache.logging.log4j.LogManager.getLogger;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -67,8 +67,7 @@ public class Repository implements Serializable {
 
 	protected Root<?> from;
 	
-	@SuppressWarnings("rawtypes")
-	private List<Selection> selections = new ArrayList<>();
+	private List<Expression<?>> selections = new LinkedList<>();
 
 	private CriteriaQuery<?> criteriaQuery;
 	
@@ -246,16 +245,15 @@ public class Repository implements Serializable {
 		@SuppressWarnings("unchecked")
 		final Set<Fetch<?, ?>> fetches = (Set<Fetch<?, ?>>)((Set<?>) this.from.getFetches()); 
 		fetchToJoin(this.from, fetches);
-		@SuppressWarnings("rawtypes")
-		final Selection s;
+		final Expression<?> s;
 		if (distinct) {
 			s = builder.countDistinct(from);
 		} else {
 			s = builder.count(from);
 		}
 		ordersClear();
-		@SuppressWarnings("rawtypes")
-		final List<Selection> selections = Arrays.asList(s);
+		final List<Expression<?>> selections = new ArrayList<>(); 
+		selections.add(s);
 		final TypedQuery<Long> query = query(selections, criteriaQuery, predicates);
 		final Long count = (Long) query.getResultList().get(0);		
 		filtersClears();
@@ -543,7 +541,7 @@ public class Repository implements Serializable {
 		return field;
 	}
 
-	protected <T> TypedQuery<T> query(@SuppressWarnings("rawtypes") final List<Selection> selections, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
+	protected <T> TypedQuery<T> query(final List<Expression<?>> selections, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
 		@SuppressWarnings("unchecked")
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
 		cq.from(from.getJavaType());
