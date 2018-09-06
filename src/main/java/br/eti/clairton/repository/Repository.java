@@ -32,7 +32,6 @@ import javax.persistence.criteria.FetchParent;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
@@ -69,7 +68,7 @@ public class Repository implements Serializable {
 	protected Root<?> from;
 	
 	@SuppressWarnings("rawtypes")
-	private List<Path> selections = new ArrayList<>();
+	private List<Selection> selections = new ArrayList<>();
 
 	private CriteriaQuery<?> criteriaQuery;
 	
@@ -248,7 +247,7 @@ public class Repository implements Serializable {
 		final Set<Fetch<?, ?>> fetches = (Set<Fetch<?, ?>>)((Set<?>) this.from.getFetches()); 
 		fetchToJoin(this.from, fetches);
 		@SuppressWarnings("rawtypes")
-		final Expression s;
+		final Selection s;
 		if (distinct) {
 			s = builder.countDistinct(from);
 		} else {
@@ -256,7 +255,7 @@ public class Repository implements Serializable {
 		}
 		ordersClear();
 		@SuppressWarnings("rawtypes")
-		final List<Expression> selections = Arrays.asList(s);
+		final List<Selection> selections = Arrays.asList(s);
 		final TypedQuery<Long> query = query(selections, criteriaQuery, predicates);
 		final Long count = (Long) query.getResultList().get(0);		
 		filtersClears();
@@ -544,7 +543,7 @@ public class Repository implements Serializable {
 		return field;
 	}
 
-	protected <T> TypedQuery<T> query(@SuppressWarnings("rawtypes") final List<? extends Expression> selections, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
+	protected <T> TypedQuery<T> query(@SuppressWarnings("rawtypes") final List<Selection> selections, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
 		@SuppressWarnings("unchecked")
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
 		cq.from(from.getJavaType());
