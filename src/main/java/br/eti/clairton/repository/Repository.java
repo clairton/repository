@@ -544,7 +544,6 @@ public class Repository implements Serializable {
 	protected <T> TypedQuery<T> query(final List<Expression<?>> selections, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
 		@SuppressWarnings("unchecked")
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
-		cq.from(from.getJavaType());
 		if (selections.isEmpty()) {			
 			@SuppressWarnings("unchecked")
 			final Selection<T> s = (Selection<T>) from;
