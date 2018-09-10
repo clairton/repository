@@ -10,9 +10,9 @@ import static javax.persistence.criteria.JoinType.INNER;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,7 +33,6 @@ import javax.persistence.criteria.FetchParent;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
@@ -66,8 +65,7 @@ public class Repository implements Serializable {
 
 	protected Root<?> from;
 	
-	@SuppressWarnings("rawtypes")
-	private List<Path> selections = new ArrayList<>();
+	private List<Expression<?>> selections = new LinkedList<>();
 
 	private CriteriaQuery<?> criteriaQuery;
 	
@@ -213,13 +211,13 @@ public class Repository implements Serializable {
 	}
 
 	public <T> T single() {
-		final TypedQuery<T> query = query(selections, criteriaQuery, predicates);		
+		final TypedQuery<T> query = query(selections, criteriaQuery, predicates, orders);		
 		this.filtersClears();
 		return query.getSingleResult();
 	}
 
 	public <T> PaginatedList<T, Meta> list(@NotNull @Min(0) final Integer page, @NotNull @Min(0) final Integer perPage) {
-		final TypedQuery<T> query = query(selections, criteriaQuery, predicates);
+		final TypedQuery<T> query = query(selections, criteriaQuery, predicates, orders);
 		if (page != 0 && perPage != 0) {
 			query.setMaxResults(perPage);
 			query.setFirstResult((page - 1) * perPage);
@@ -247,17 +245,15 @@ public class Repository implements Serializable {
 		@SuppressWarnings("unchecked")
 		final Set<Fetch<?, ?>> fetches = (Set<Fetch<?, ?>>)((Set<?>) this.from.getFetches()); 
 		fetchToJoin(this.from, fetches);
-		@SuppressWarnings("rawtypes")
-		final Expression s;
+		final Expression<?> s;
 		if (distinct) {
 			s = builder.countDistinct(from);
 		} else {
 			s = builder.count(from);
 		}
-		ordersClear();
-		@SuppressWarnings("rawtypes")
-		final List<Expression> selections = Arrays.asList(s);
-		final TypedQuery<Long> query = query(selections, criteriaQuery, predicates);
+		final List<Expression<?>> selections = new ArrayList<>(); 
+		selections.add(s);
+		final TypedQuery<Long> query = query(selections, criteriaQuery, predicates, new ArrayList<javax.persistence.criteria.Order>());
 		final Long count = (Long) query.getResultList().get(0);		
 		filtersClears();
 		return count;
@@ -288,7 +284,7 @@ public class Repository implements Serializable {
 	}
 
 	public <T> List<T> list() {
-		final TypedQuery<T> query = query(selections, criteriaQuery, predicates);
+		final TypedQuery<T> query = query(selections, criteriaQuery, predicates, orders);
 		this.filtersClears();
 		return query.getResultList();
 	}
@@ -560,10 +556,13 @@ public class Repository implements Serializable {
 		return field;
 	}
 
-	protected <T> TypedQuery<T> query(@SuppressWarnings("rawtypes") final List<? extends Expression> selections, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
+	protected <T> TypedQuery<T> query(
+			final List<Expression<?>> selections, 
+			final CriteriaQuery<?> criteriaQuery, 
+			final List<javax.persistence.criteria.Predicate> predicates,
+			final List<javax.persistence.criteria.Order> orders) {
 		@SuppressWarnings("unchecked")
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
-		cq.from(from.getJavaType());
 		if (selections.isEmpty()) {			
 			@SuppressWarnings("unchecked")
 			final Selection<T> s = (Selection<T>) from;
