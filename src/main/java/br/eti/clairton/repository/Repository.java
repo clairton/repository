@@ -211,13 +211,13 @@ public class Repository implements Serializable {
 	}
 
 	public <T> T single() {
-		final TypedQuery<T> query = query(selections, criteriaQuery, predicates);		
+		final TypedQuery<T> query = query(selections, criteriaQuery, predicates, orders);		
 		this.filtersClears();
 		return query.getSingleResult();
 	}
 
 	public <T> PaginatedList<T, Meta> list(@NotNull @Min(0) final Integer page, @NotNull @Min(0) final Integer perPage) {
-		final TypedQuery<T> query = query(selections, criteriaQuery, predicates);
+		final TypedQuery<T> query = query(selections, criteriaQuery, predicates, orders);
 		if (page != 0 && perPage != 0) {
 			query.setMaxResults(perPage);
 			query.setFirstResult((page - 1) * perPage);
@@ -254,7 +254,7 @@ public class Repository implements Serializable {
 		ordersClear();
 		final List<Expression<?>> selections = new ArrayList<>(); 
 		selections.add(s);
-		final TypedQuery<Long> query = query(selections, criteriaQuery, predicates);
+		final TypedQuery<Long> query = query(selections, criteriaQuery, predicates, new ArrayList<javax.persistence.criteria.Order>());
 		final Long count = (Long) query.getResultList().get(0);		
 		filtersClears();
 		return count;
@@ -285,7 +285,7 @@ public class Repository implements Serializable {
 	}
 
 	public <T> List<T> list() {
-		final TypedQuery<T> query = query(selections, criteriaQuery, predicates);
+		final TypedQuery<T> query = query(selections, criteriaQuery, predicates, orders);
 		this.filtersClears();
 		return query.getResultList();
 	}
@@ -541,7 +541,11 @@ public class Repository implements Serializable {
 		return field;
 	}
 
-	protected <T> TypedQuery<T> query(final List<Expression<?>> selections, final CriteriaQuery<?> criteriaQuery, final List<javax.persistence.criteria.Predicate> predicates) {
+	protected <T> TypedQuery<T> query(
+			final List<Expression<?>> selections, 
+			final CriteriaQuery<?> criteriaQuery, 
+			final List<javax.persistence.criteria.Predicate> predicates,
+			final List<javax.persistence.criteria.Order> orders) {
 		@SuppressWarnings("unchecked")
 		final CriteriaQuery<T> cq = (CriteriaQuery<T>) criteriaQuery;
 		if (selections.isEmpty()) {			
