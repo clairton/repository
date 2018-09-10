@@ -251,7 +251,6 @@ public class Repository implements Serializable {
 		} else {
 			s = builder.count(from);
 		}
-		ordersClear();
 		final List<Expression<?>> selections = new ArrayList<>(); 
 		selections.add(s);
 		final TypedQuery<Long> query = query(selections, criteriaQuery, predicates, new ArrayList<javax.persistence.criteria.Order>());
