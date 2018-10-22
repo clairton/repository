@@ -234,23 +234,11 @@ public class Repository implements Serializable {
 	}
 
 	public Long count(final Boolean distinct) {
-		final Expression<?> from;
-		if (selections.isEmpty()) {			
-			from = this.from;
-		} else if(selections.size() ==  1) {			
-			from = (Expression<?>) selections.get(0);
-		} else {
-			throw new SelectionHasManyButMustOneException();
-		}
+		final Expression<?> from = selections.isEmpty() ? this.from : (Expression<?>) selections.get(0);
 		@SuppressWarnings("unchecked")
 		final Set<Fetch<?, ?>> fetches = (Set<Fetch<?, ?>>)((Set<?>) this.from.getFetches()); 
 		fetchToJoin(this.from, fetches);
-		final Expression<?> s;
-		if (distinct) {
-			s = builder.countDistinct(from);
-		} else {
-			s = builder.count(from);
-		}
+		final Expression<?> s = distinct ? builder.countDistinct(from) : builder.count(from);
 		ordersClear();
 		final List<Expression<?>> selections = new ArrayList<>(); 
 		selections.add(s);
