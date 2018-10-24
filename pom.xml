@@ -5,7 +5,7 @@
 	<name>Repository</name>
 	<description>Easiest solution to save and query JPA entities</description>
 	<artifactId>repository</artifactId>
-	<version>3.2.2</version>
+	<version>3.2.3</version>
 	<url>https://github.com/clairton/repository</url>
 	<licenses>
 		<license>
