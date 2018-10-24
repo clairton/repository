@@ -5,7 +5,7 @@
 	<name>Repository</name>
 	<description>Easiest solution to save and query JPA entities</description>
 	<artifactId>repository</artifactId>
-	<version>3.2.3</version>
+	<version>3.2.4</version>
 	<url>https://github.com/clairton/repository</url>
 	<licenses>
 		<license>
@@ -234,6 +234,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
