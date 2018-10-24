@@ -238,8 +238,12 @@ public class Repository implements Serializable {
 		@SuppressWarnings("unchecked")
 		final Set<Fetch<?, ?>> fetches = (Set<Fetch<?, ?>>)((Set<?>) this.from.getFetches()); 
 		fetchToJoin(this.from, fetches);
-		final Expression<?> s = distinct ? builder.countDistinct(from) : builder.count(from);
-		ordersClear();
+		final Expression<?> s;
+		if (distinct) {
+			s = builder.countDistinct(from);
+		} else {
+			s = builder.count(from);
+		}
 		final List<Expression<?>> selections = new ArrayList<>(); 
 		selections.add(s);
 		final TypedQuery<Long> query = query(selections, criteriaQuery, predicates, new ArrayList<javax.persistence.criteria.Order>());
